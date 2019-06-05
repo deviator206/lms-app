@@ -24,7 +24,7 @@ public class UserDAOImpl implements IUserDAO {
 	}
 
 	@Override
-	public void createUser(UserEntity user) {
+	public void insertUser(UserEntity user) {
 		String sql = "INSERT INTO USERS (USERNAME, ENABLED, PASSWORD, EMAIL) values (?, ?, ?, ?)";
 		jdbcTemplate.update(sql, user.getUserName(), user.isEnabled(), user.getPassword(), user.getEmail());
 	}

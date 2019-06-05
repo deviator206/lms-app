@@ -45,7 +45,7 @@ public class UserServiceImpl implements IUserService {
 		user.setEnabled(true);
 		user.setEmail(userRegistrationDetails.getEmail());
 		user.setPassword(passwordEncoder.encode(userRegistrationDetails.getPassword()));
-		userDAO.createUser(user);
+		userDAO.insertUser(user);
 	}
 
 	@Override

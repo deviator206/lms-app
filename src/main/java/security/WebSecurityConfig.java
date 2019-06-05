@@ -17,12 +17,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(
-        securedEnabled = true,
-        jsr250Enabled = true,
-        prePostEnabled = true
-)
+/*
+ * @EnableWebSecurity
+ * 
+ * @EnableGlobalMethodSecurity( securedEnabled = true, jsr250Enabled = true,
+ * prePostEnabled = true )
+ */
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
@@ -52,32 +52,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new BCryptPasswordEncoder();
 	}
 
+	// Uncomment below code o disable security
 	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		http.cors().and().csrf().disable().exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers("/", "/favicon.ico", "/**/*.png", "/**/*.gif", "/**/*.svg", "/**/*.jpg", "/**/*.html",
-						"/**/*.css", "/**/*.js")
-				.permitAll().antMatchers("/api/auth/**").permitAll()
-				.antMatchers("/greeting").permitAll()
-				.antMatchers("/login").permitAll()
-				.antMatchers(HttpMethod.GET,"/user").hasRole("ADMIN")
-				.antMatchers(HttpMethod.POST,"/user").permitAll()
-				.antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability").permitAll()
-				.antMatchers(HttpMethod.GET, "/api/polls/**", "/api/users/**").permitAll().anyRequest().authenticated();
-
-		// Add our custom JWT security filter
-		http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
+	protected void configure(HttpSecurity httpSecurity) throws Exception {
+		httpSecurity.cors().and().csrf().disable();
+		httpSecurity.authorizeRequests().antMatchers("/").permitAll();
 	}
 
-	// Uncomment below code o disable security
-	/*
-	 * @Bean public BCryptPasswordEncoder encoder(){ return new
-	 * BCryptPasswordEncoder(); }
-	 * 
-	 * @Override protected void configure(HttpSecurity httpSecurity) throws
-	 * Exception { httpSecurity.cors().and().csrf().disable();
-	 * httpSecurity.authorizeRequests().antMatchers("/").permitAll(); }
-	 */
 }
