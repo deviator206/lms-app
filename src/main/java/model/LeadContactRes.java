@@ -17,6 +17,15 @@ public class LeadContactRes {
 	private String phoneNumber;
 	private String state;
 	private String country;
+	private String designation;
+
+	public String getDesignation() {
+		return designation;
+	}
+
+	public void setDesignation(String designation) {
+		this.designation = designation;
+	}
 
 	public String getName() {
 		return name;

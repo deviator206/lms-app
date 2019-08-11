@@ -1,6 +1,7 @@
 package controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,11 @@ public class RefDataController {
 	public IRefDataService refDataService;
 
 	@GetMapping("/refdata")
-	public List<RefDataRes> getUser(@RequestParam String type) {
+	public List<RefDataRes> getUser(@RequestParam(value = "type", required = false) String type) {
 		List<RefDataEntity> refDataEtityLst = null;
-		if (type != null) {
-			refDataEtityLst = refDataService.getRefDataFromType(type);
+		if (type != null && !type.isEmpty()) {
+			List<String> typeList = Arrays.asList(type.split(",")); 
+			refDataEtityLst = refDataService.getRefDataFromType(typeList);
 		} else {
 			refDataEtityLst = refDataService.getAllRefData();
 		}

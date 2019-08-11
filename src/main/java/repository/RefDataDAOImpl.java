@@ -1,10 +1,12 @@
 package repository;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import repository.entity.RefDataEntity;
@@ -38,10 +40,12 @@ public class RefDataDAOImpl implements IRefDataDAO {
 	}
 
 	@Override
-	public List<RefDataEntity> getRefDataFromType(String type) {
-		String sql = "SELECT CODE, NAME, TYPE FROM REF_DATA WHERE TYPE = ?";
+	public List<RefDataEntity> getRefDataFromType(List<String> type) {
 		RowMapper<RefDataEntity> rowMapper = new RefDataRowMapper();
-		return this.jdbcTemplate.query(sql, rowMapper, new Object[] { type });
+		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
+	    String sql = "SELECT CODE, NAME, TYPE FROM REF_DATA WHERE TYPE IN(:params)";
+	    List<RefDataEntity> result = namedParameterJdbcTemplate.query(sql, Collections.singletonMap("params", type), rowMapper);
+	    return result;
 	}
 
 	@Override

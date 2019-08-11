@@ -18,6 +18,7 @@ public class LeadContactRowMapper implements RowMapper<LeadContactEntity> {
 		leadContactEntity.setPhoneNumber(rs.getString("PHONE"));
 		leadContactEntity.setCountry(rs.getString("COUNTRY"));
 		leadContactEntity.setState(rs.getString("STATE"));
+		leadContactEntity.setDesignation(rs.getString("DESIGNATION"));
 		return leadContactEntity;
 	}
 

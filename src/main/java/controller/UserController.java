@@ -26,7 +26,7 @@ public class UserController {
 
 	//@Secured("ADMIN")
 	@PreAuthorize("hasRole('ADMIN')")
-	@GetMapping("/user")
+	@GetMapping("/users")
 	public List<UserRes> getUser() {
 		List<User> users = userService.getUsers();
 		List<UserRes> userResList = new ArrayList<UserRes>();

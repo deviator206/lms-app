@@ -4,20 +4,34 @@ import java.util.List;
 
 public class LeadsSummaryRes {
 	private List<String> businessUnits;
-	private String rootLeadId;
+	private Long rootLeadId;
 	private String salesRep;
 	private String industry;
+	private float budget;
+	private String currency;
 	
+	public float getBudget() {
+		return budget;
+	}
+	public void setBudget(float budget) {
+		this.budget = budget;
+	}
+	public String getCurrency() {
+		return currency;
+	}
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
 	public List<String> getBusinessUnits() {
 		return businessUnits;
 	}
 	public void setBusinessUnits(List<String> businessUnits) {
 		this.businessUnits = businessUnits;
 	}
-	public String getRootLeadId() {
+	public Long getRootLeadId() {
 		return rootLeadId;
 	}
-	public void setRootLeadId(String rootLeadId) {
+	public void setRootLeadId(Long rootLeadId) {
 		this.rootLeadId = rootLeadId;
 	}
 	public String getSalesRep() {

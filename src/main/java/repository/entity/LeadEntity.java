@@ -14,6 +14,34 @@ public class LeadEntity {
 	private Long creatorId;
 	private Date updateDate;
 	private Long updatorId;
+	
+	private float budget;
+	private String currency;
+	
+	private String message;
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
+	public float getBudget() {
+		return budget;
+	}
+	public void setBudget(float budget) {
+		this.budget = budget;
+	}
+	public String getCurrency() {
+		return currency;
+	}
+	public void setCurrency(String currency) {
+		this.currency = currency;
+	}
+	
+	
 	public String getSalesRep() {
 		return salesRep;
 	}
