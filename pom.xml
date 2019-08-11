@@ -4,8 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.springframework</groupId>
-    <artifactId>lms-rest-services</artifactId>
+    <artifactId>lmsApp</artifactId>
     <version>0.1.0</version>
+    <!--<packaging>war</packaging>-->
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -18,6 +19,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <!-- START - for external tomcat -->
+        <!--<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-tomcat</artifactId>
+		    <scope>provided</scope>
+		</dependency> -->
+		<!-- END - for external tomcat --> 
 		<dependency>
 		    <groupId>org.springframework.boot</groupId>
 		    <artifactId>spring-boot-starter-jdbc</artifactId>
@@ -45,7 +53,7 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <scope>test</scope>
-        </dependency>       
+        </dependency>		   
     </dependencies>
 
     <properties>

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,7 +24,7 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public LeadEntity getLead(Long id) {
-		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID FROM LEADS WHERE ID = ?";
+		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE FROM LEADS WHERE ID = ?";
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 		return this.jdbcTemplate.queryForObject(sql, rowMapper, new Object[] { id });
 	}
@@ -31,8 +32,8 @@ public class LeadDAOImpl implements ILeadDAO {
 	@Override
 	public Long insertLead(LeadEntity leadEntity) {
 		Long id = null;
-		String sql = "INSERT INTO LEADS (BU,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,SALES_REP) \r\n"
-				+ "VALUES (?,?,?,?,?,?,?,?,?);";
+		String sql = "INSERT INTO LEADS (BU,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,SALES_REP,BUDGET,CURRENCY,MESSAGE) \r\n"
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?);";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -46,6 +47,9 @@ public class LeadDAOImpl implements ILeadDAO {
 				ps.setDate(7, leadEntity.getUpdateDate());
 				ps.setLong(8, leadEntity.getUpdatorId());
 				ps.setString(9, leadEntity.getSalesRep());
+				ps.setFloat(10, leadEntity.getBudget());
+				ps.setString(11, leadEntity.getCurrency());
+				ps.setString(12, leadEntity.getMessage());
 				return ps;
 			}
 		}, keyHolder);
@@ -62,9 +66,39 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public boolean updateLead(LeadEntity leadEntity) {
-		String sql = "UPDATE LEADS SET STATUS = ? WHERE ID= ?;";
-		int affectedRows = jdbcTemplate.update(sql, leadEntity.getStatus(), leadEntity.getId());
+		String sql = "UPDATE LEADS SET BUDGET, CURRENCY, SALES_REP, STATUS, MESSAGE, UPDATE_DATE,UPDATOR_ID = ? WHERE ID= ?;";
+		int affectedRows = jdbcTemplate.update(sql, leadEntity.getBudget(), leadEntity.getCurrency(),
+				leadEntity.getSalesRep(), leadEntity.getStatus(), leadEntity.getMessage(), leadEntity.getUpdateDate(),
+				leadEntity.getUpdatorId(), leadEntity.getId());
 		return affectedRows == 0 ? false : true;
+	}
+
+	@Override
+	public List<LeadEntity> getLeads() {
+		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE FROM LEADS";
+		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
+		return this.jdbcTemplate.query(sql, rowMapper);
+	}
+
+	@Override
+	public List<LeadEntity> searchLeads(String name, String description) {
+		// String sql = "SELECT ID,
+		// BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE
+		// FROM LEADS WHERE DESCRIPTION LIKE %?%' ?";
+
+		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
+		// return this.jdbcTemplate.query(sql, rowMapper, new Object[] { description });
+
+		String sql = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID AND ROOT_LEAD.DESCRIPTION LIKE ?";
+		//String likePattern = "'%"+ description + "%'";
+		return jdbcTemplate.query(new PreparedStatementCreator() {
+			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+				PreparedStatement ps = connection.prepareStatement(sql);
+				ps.setString(1, "%"+ description + "%");
+				return ps;
+			}
+		}, rowMapper);
+
 	}
 
 }

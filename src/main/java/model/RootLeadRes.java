@@ -9,6 +9,25 @@ public class RootLeadRes {
 	private String description;
 	private LeadContactRes leadContact;
 	private LeadsSummaryRes leadsSummaryRes;
+	private String tenure;
+	
+	public String getTenure() {
+		return tenure;
+	}
+
+	public void setTenure(String tenure) {
+		this.tenure = tenure;
+	}
+
+	private boolean selfApproved;
+
+	public boolean isSelfApproved() {
+		return selfApproved;
+	}
+
+	public void setSelfApproved(boolean selfApproved) {
+		this.selfApproved = selfApproved;
+	}
 
 	public LeadsSummaryRes getLeadsSummaryRes() {
 		return leadsSummaryRes;

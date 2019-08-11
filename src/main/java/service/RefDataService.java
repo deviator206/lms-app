@@ -30,7 +30,7 @@ public class RefDataService implements IRefDataService {
 	}
 
 	@Override
-	public List<RefDataEntity> getRefDataFromType(String type) {
+	public List<RefDataEntity> getRefDataFromType(List<String> type) {
 		return refDataDAO.getRefDataFromType(type);
 	}
 

@@ -32,7 +32,7 @@ public class LeadContactDAOImpl implements ILeadContactDAO {
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
 		Long id = null;
 		try {
-			String sql = "INSERT INTO LEAD_CONTACT (NAME,EMAIL,PHONE,COUNTRY,STATE) VALUES (?,?,?,?,?);";
+			String sql = "INSERT INTO LEAD_CONTACT (NAME,EMAIL,PHONE,COUNTRY,STATE, DESIGNATION) VALUES (?,?,?,?,?,?);";
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			jdbcTemplate.update(new PreparedStatementCreator() {
 				public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -42,6 +42,7 @@ public class LeadContactDAOImpl implements ILeadContactDAO {
 					ps.setString(3, leadContactEntity.getPhoneNumber());
 					ps.setString(4, leadContactEntity.getCountry());
 					ps.setString(5, leadContactEntity.getState());
+					ps.setString(6, leadContactEntity.getDesignation());
 					return ps;
 				}
 			}, keyHolder);
@@ -57,7 +58,7 @@ public class LeadContactDAOImpl implements ILeadContactDAO {
 
 	@Override
 	public LeadContactEntity getLeadContact(Long id) {
-		String sql = "SELECT ID, NAME,EMAIL,PHONE,COUNTRY,STATE FROM LEAD_CONTACT WHERE ID = ?";
+		String sql = "SELECT ID, NAME,EMAIL,PHONE,COUNTRY,STATE,DESIGNATION FROM LEAD_CONTACT WHERE ID = ?";
 		RowMapper<LeadContactEntity> rowMapper = new LeadContactRowMapper();
 		return this.jdbcTemplate.queryForObject(sql, rowMapper, new Object[] { id });
 	}

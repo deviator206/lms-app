@@ -22,6 +22,9 @@ public class LeadRowMapper implements RowMapper<LeadEntity> {
 		leadEntity.setUpdateDate(rs.getDate("UPDATE_DATE"));
 		leadEntity.setCreatorId(rs.getLong("CREATOR_ID"));
 		leadEntity.setUpdatorId(rs.getLong("UPDATOR_ID"));
+		leadEntity.setBudget(rs.getLong("BUDGET"));
+		leadEntity.setCurrency(rs.getString("CURRENCY"));
+		leadEntity.setMessage(rs.getString("MESSAGE"));
 		return leadEntity;
 	}
 

@@ -20,6 +20,10 @@ public class RootLeadRowMapper implements RowMapper<RootLeadEntity> {
 		rootLeadEntity.setDeleted(rs.getBoolean("DELETED"));
 		rootLeadEntity.setCreationDate(rs.getDate("CREATION_DATE"));
 		rootLeadEntity.setCreatorId(rs.getLong("CREATOR_ID"));
+		rootLeadEntity.setBudget(rs.getLong("BUDGET"));
+		rootLeadEntity.setCurrency(rs.getString("CURRENCY"));
+		rootLeadEntity.setSelfApproved(rs.getBoolean("SELF_APPROVED"));
+		rootLeadEntity.setTenure(rs.getString("TENURE"));
 		return rootLeadEntity;
 	}
 

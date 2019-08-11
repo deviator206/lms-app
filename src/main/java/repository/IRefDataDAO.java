@@ -10,7 +10,7 @@ public interface IRefDataDAO {
 	boolean deleteRefDataFromType(String type);
 	boolean deleteRefDataFromCode(String type, String code);
 
-	List<RefDataEntity> getRefDataFromType(String type);
+	List<RefDataEntity> getRefDataFromType(List<String> type);
 
 	List<RefDataEntity> getAllRefData();
 }
