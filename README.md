@@ -110,8 +110,9 @@ Get Users
 http://localhost:8080/users
 
 ------------------------------------------------
+Create User
 
-http://localhost:8080/user
+POST http://localhost:8080/user
 
 {
 "userName" : "abc",
