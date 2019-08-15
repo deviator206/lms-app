@@ -38,54 +38,44 @@ Then debug remote application through eclipse at port 8000
 
 Test at - http://localhost:8080/greeting
 
-For Leads Feature --------
-Create relevant tables
-
-
-CREATE TABLE LEAD_CONTACT (
-ID INT(11) NOT NULL AUTO_INCREMENT,
-NAME VARCHAR(120) NOT NULL,
-EMAIL VARCHAR(60),
-PHONE VARCHAR(60),
-COUNTRY VARCHAR(60),
-STATE VARCHAR(60), 
-PRIMARY KEY (ID));
-
-
-CREATE TABLE ROOT_LEAD (
-ID INT NOT NULL AUTO_INCREMENT,
-SOURCE VARCHAR(60) DEFAULT NULL,
-CUST_NAME VARCHAR(128) DEFAULT NULL,
-DESCRIPTION VARCHAR(512) DEFAULT NULL,
-CONTACT_ID INT,
-DELETED TINYINT(4) NOT NULL DEFAULT 0,
-CREATION_DATE DATE,
-CREATOR_ID INT(11),
-PRIMARY KEY (ID));
-
-CREATE TABLE LEADS (
-ID INT(11) NOT NULL AUTO_INCREMENT,
-BU VARCHAR(45) NOT NULL,
-STATUS VARCHAR(45) NOT NULL,
-ROOT_ID INT(11) NOT NULL,
-DELETED TINYINT(4) NOT NULL DEFAULT 0,
-CREATION_DATE DATE NOT NULL,
-UPDATE_DATE DATE NOT NULL,
-CREATOR_ID INT(11) NOT NULL,
-UPDATOR_ID INT(11) NOT NULL,
-PRIMARY KEY (ID))
-
-To create root lead
-
-POST http://localhost:8080/rootlead
-
-payload -
+------------------------------------------
+Login
+http://localhost:8080/lms-rest-services-0.1.0/login
 
 {
-  "id": 1,
+		"userName" : "shiv.orian@gmail.com",
+		"password" : "password"
+}
+
+
+{
+"accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI4IiwiaWF0IjoxNTY1MzYxNzkxLCJleHAiOjE1NjU5NjY1OTF9.tfFn5ArJvYXpB_DmkhaxVdnkMzQRNXRrLNSZwksLn-PNMRx_1QnKpUuysGgI-MdNLTrfIUfr2brI4NF96Bn2yw",
+"tokenType": "Bearer"
+}
+
+-------------------------------------------
+
+Create ref data
+
+POST http://localhost:8080/refdata
+
+Payload
+
+{
+  "code": "DRAFT",
+  "name": "DRAFT",
+  "type": "LEAD_STATUS"
+}
+-------------------------------------------------
+
+Create Lead
+
+POST http://localhost:8080/rootlead
+{
   "source": "Marketing",
   "custName": "shicv",
   "description": "dingDong",
+  "tenure": "Less than one month",
   "leadContact": {
     "name": "dingdong",
     "email": "a@b.com",
@@ -105,96 +95,28 @@ payload -
   "creatorId": "123",
   "creationDate": "2019-06-04"
 }
+-------------------------------------------
+Get Leads 
 
-To get root lead
-
-GET http://localhost:8080/rootlead/{lead-id}
-
-To update Lead
-
-PUT http://localhost:8080/lead/4
-
-payload
-
-{
-"id": 4,
-"businessUnit": "marketing",
-"status": "DRAFT",
-"rootLeadId": 7,
-"salesRep": "shivanshu",
-"industry": null,
-"deleted": false,
-"creationDate": "2019-06-04",
-"creatorId": 123,
-"updateDate": "2019-06-04",
-"updatorId": 123
-}
-
------------------------------------------------------------------
-
-Reference data Feature
+GET http://localhost:8080/leads
 
 ---------------------------------------------
+Search Ref Data with type
 
-Create tables
+http://localhost:8080/refdata?type=LEAD_STATUS,DEPT
 
-CREATE  TABLE REF_DATA (
-CODE VARCHAR(45) NOT NULL UNIQUE,
-NAME VARCHAR(120),
-TYPE VARCHAR(45),
-PRIMARY KEY (CODE));
+--------------------------------------------------
+Get Users
+http://localhost:8080/users
 
-Create ref data
+------------------------------------------------
+Create User
 
-POST http://localhost:8080/refdata
-
-Payload
+POST http://localhost:8080/user
 
 {
-  "code": "DRAFT",
-  "name": "DRAFT",
-  "type": "LEAD_STATUS"
+"userName" : "abc",
+"password" : "abc",
+"email":"a@b.com"
 }
-
-Get ref data
-
-GET http://localhost:8080/refdata?type=LEAD_STATUS
-
---------------------------------------------------------------
-
----------------------------------------------------------------
-Replace User Roles 
-
-http://localhost:8080/user/roles
-
-{
-  "userId": 7,
-  "roles": ["ADMIN"]
-}
-
------------------------------------------------------------------
-
-http://localhost:8080/login
-{
-  "userName": "shiv.orian@gmail.com",
-  "password": "password"
-}
-
-{
-"accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI4IiwiaWF0IjoxNTY1ODkwOTExLCJleHAiOjE1NjY0OTU3MTF9.b5-Et26z4sRE6VnTCaoTUYidy0CDTjj2N2hSL3suulGAq_153-nOpnSKBRJxI1xwdCPYfpqrY_Mz5P2mLjcS0Q",
-"tokenType": "Bearer",
-"userInfo": {
-"policies": {
-"salesRepList": "DISABLE",
-"userList": "SHOW"
-},
-"userId": 8,
-"userName": "shiv.orian@gmail.com"
-}
-}
-
-----------------------------------------------------------------------
-
-
-
 
