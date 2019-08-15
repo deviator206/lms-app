@@ -16,31 +16,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `departments`
---
-
-DROP TABLE IF EXISTS `departments`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `departments` (
-  `CODE` varchar(45) NOT NULL,
-  `NAME` varchar(120) DEFAULT NULL,
-  PRIMARY KEY (`CODE`),
-  UNIQUE KEY `CODE` (`CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `departments`
---
-
-LOCK TABLES `departments` WRITE;
-/*!40000 ALTER TABLE `departments` DISABLE KEYS */;
-INSERT INTO `departments` VALUES ('MARKETING','MARKETING'),('SALES','SALES');
-/*!40000 ALTER TABLE `departments` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `lead_contact`
 --
 
@@ -56,7 +31,7 @@ CREATE TABLE `lead_contact` (
   `STATE` varchar(60) DEFAULT NULL,
   `DESIGNATION` varchar(60) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -65,33 +40,8 @@ CREATE TABLE `lead_contact` (
 
 LOCK TABLES `lead_contact` WRITE;
 /*!40000 ALTER TABLE `lead_contact` DISABLE KEYS */;
-INSERT INTO `lead_contact` VALUES (1,'dingdong','a@b.com','9764007637','India','MH',NULL),(2,'dingdong','a@b.com','9764007637','India','MH',NULL),(3,'dingdong','a@b.com','9764007637','India','MH',NULL),(4,'dingdong','a@b.com','9764007637','India','MH',NULL),(5,'dingdong','a@b.com','9764007637','India','MH',NULL),(6,'dingdong','a@b.com','9764007637','India','MH',NULL);
+INSERT INTO `lead_contact` VALUES (1,'dingdong','a@b.com','9764007637','India','MH',NULL),(2,'dingdong','a@b.com','9764007637','India','MH',NULL),(3,'dingdong','a@b.com','9764007637','India','MH',NULL),(4,'dingdong','a@b.com','9764007637','India','MH',NULL),(5,'dingdong','a@b.com','9764007637','India','MH',NULL),(6,'dingdong','a@b.com','9764007637','India','MH',NULL),(7,'dingdong','a@b.com','9764007637','India','MH',NULL),(8,'dingdong','a@b.com','9764007637','India','MH',NULL),(9,'dingdong','a@b.com','9764007637','India','MH',NULL),(10,'dingdong','a@b.com','9764007637','India','MH',NULL);
 /*!40000 ALTER TABLE `lead_contact` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `lead_status`
---
-
-DROP TABLE IF EXISTS `lead_status`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
- SET character_set_client = utf8mb4 ;
-CREATE TABLE `lead_status` (
-  `CODE` varchar(45) NOT NULL,
-  `NAME` varchar(120) DEFAULT NULL,
-  PRIMARY KEY (`CODE`),
-  UNIQUE KEY `CODE` (`CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `lead_status`
---
-
-LOCK TABLES `lead_status` WRITE;
-/*!40000 ALTER TABLE `lead_status` DISABLE KEYS */;
-INSERT INTO `lead_status` VALUES ('APPROVED','APPROVED'),('DRAFT','DRAFT'),('REJECTED','REJECTED');
-/*!40000 ALTER TABLE `lead_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -116,7 +66,7 @@ CREATE TABLE `leads` (
   `CURRENCY` varchar(45) DEFAULT NULL,
   `MESSAGE` varchar(2048) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -125,7 +75,7 @@ CREATE TABLE `leads` (
 
 LOCK TABLES `leads` WRITE;
 /*!40000 ALTER TABLE `leads` DISABLE KEYS */;
-INSERT INTO `leads` VALUES (1,'marketing','shivanshu','DRAFT',1,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(2,'sales','shivanshu','DRAFT',1,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(3,'marketing','shivanshu','DRAFT',2,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(4,'sales','shivanshu','DRAFT',2,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(5,'marketing','shivanshu','DRAFT',3,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(6,'sales','shivanshu','DRAFT',3,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(7,'marketing','shivanshu','DRAFT',4,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(8,'sales','shivanshu','DRAFT',4,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(9,'marketing','shivanshu','DRAFT',5,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(10,'sales','shivanshu','DRAFT',5,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(11,'marketing','shivanshu','DRAFT',6,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL),(12,'sales','shivanshu','DRAFT',6,0,'2019-06-04','2019-06-04',123,123,0.0000,NULL,NULL);
+INSERT INTO `leads` VALUES (1,'marketing','shivanshu2','DRAFT',1,0,'2019-06-04','2019-06-04',2,2,0.0000,NULL,NULL),(2,'sales','shivanshu2','DRAFT',1,0,'2019-06-04','2019-06-04',2,2,0.0000,NULL,NULL);
 /*!40000 ALTER TABLE `leads` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -177,7 +127,7 @@ CREATE TABLE `root_lead` (
   `TENURE` varchar(120) DEFAULT NULL,
   `SALES_REP` varchar(120) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -186,8 +136,33 @@ CREATE TABLE `root_lead` (
 
 LOCK TABLES `root_lead` WRITE;
 /*!40000 ALTER TABLE `root_lead` DISABLE KEYS */;
-INSERT INTO `root_lead` VALUES (1,'Marketing','shicv','dingDong',1,0,'2019-06-04',123,0.0000,NULL,0,NULL,NULL),(2,'Marketing','shicv','dingDong',2,0,'2019-06-04',123,0.0000,NULL,0,NULL,NULL),(3,'Marketing','shicv','dingDong',3,0,'2019-06-04',123,0.0000,NULL,0,NULL,NULL),(4,'Marketing','shicv','dingDong',4,0,'2019-06-04',123,0.0000,NULL,0,NULL,NULL),(5,'Marketing','shicv','dingDong',5,0,'2019-06-04',123,0.0000,NULL,0,'Less than one month',NULL),(6,'Marketing','shicv','dingDong',6,0,'2019-06-04',123,0.0000,NULL,0,'Less than one month','shivanshu');
+INSERT INTO `root_lead` VALUES (1,'Marketing2','shicv2','dingDong',10,0,'2019-06-04',2,0.0000,NULL,0,'Less than one month','shivanshu2');
 /*!40000 ALTER TABLE `root_lead` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `user_role`
+--
+
+DROP TABLE IF EXISTS `user_role`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `user_role` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `USER_ID` varchar(60) NOT NULL,
+  `USER_ROLE` varchar(60) NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user_role`
+--
+
+LOCK TABLES `user_role` WRITE;
+/*!40000 ALTER TABLE `user_role` DISABLE KEYS */;
+INSERT INTO `user_role` VALUES (4,'0','ADMIN'),(5,'2','ADMIN'),(6,'7','ADMIN');
+/*!40000 ALTER TABLE `user_role` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -227,4 +202,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-11 19:08:47
+-- Dump completed on 2019-08-15 23:19:43
