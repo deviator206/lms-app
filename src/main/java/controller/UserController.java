@@ -10,13 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import mapper.ModelMappers;
 import model.User;
-import model.UserRegistrationDetails;
 import model.UserRes;
+import model.UserRoles;
 import service.IUserService;
 
 @RestController
@@ -46,9 +45,18 @@ public class UserController {
 		ModelMappers.mapUserToUserRes(user, userRes);
 		return userRes;
 	}
-
-	@PostMapping("/user")
-	public void addUser(@RequestBody UserRegistrationDetails userRegistrationDetails) {
-		userService.addUser(userRegistrationDetails);
+	
+	@GetMapping("/user/{userId}")
+	public UserRes getUserByUserId(@PathVariable("userName") Long userId) {
+		User user = userService.getUserByUserId(userId);
+		UserRes userRes = new UserRes();
+		ModelMappers.mapUserToUserRes(user, userRes);
+		return userRes;
 	}
+
+	@PostMapping("/user/roles")
+	public void addUser(@RequestBody UserRoles userRoles) {
+		userService.replaceRoles(userRoles);
+	}
+	
 }

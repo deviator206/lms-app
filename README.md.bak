@@ -160,41 +160,6 @@ Get ref data
 
 GET http://localhost:8080/refdata?type=LEAD_STATUS
 
---------------------------------------------------------------
-
----------------------------------------------------------------
-Replace User Roles 
-
-http://localhost:8080/user/roles
-
-{
-  "userId": 7,
-  "roles": ["ADMIN"]
-}
-
------------------------------------------------------------------
-
-http://localhost:8080/login
-{
-  "userName": "shiv.orian@gmail.com",
-  "password": "password"
-}
-
-{
-"accessToken": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI4IiwiaWF0IjoxNTY1ODkwOTExLCJleHAiOjE1NjY0OTU3MTF9.b5-Et26z4sRE6VnTCaoTUYidy0CDTjj2N2hSL3suulGAq_153-nOpnSKBRJxI1xwdCPYfpqrY_Mz5P2mLjcS0Q",
-"tokenType": "Bearer",
-"userInfo": {
-"policies": {
-"salesRepList": "DISABLE",
-"userList": "SHOW"
-},
-"userId": 8,
-"userName": "shiv.orian@gmail.com"
-}
-}
-
-----------------------------------------------------------------------
-
 
 
 

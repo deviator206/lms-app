@@ -7,7 +7,7 @@ import repository.entity.RefDataEntity;
 
 public class ModelMappers {
 	public static UserRes mapUserToUserRes(User user, UserRes userRes) {
-		userRes.setId(user.getId());
+		userRes.setUserId(user.getId());
 		userRes.setUserName(user.getUserName());
 		userRes.setEmail(user.getEmail());
 		userRes.setEnabled(user.isEnabled());
