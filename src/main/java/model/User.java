@@ -8,8 +8,17 @@ public class User {
 	private boolean enabled;
 	private String password;
 	private String email;
-	private Long userId;
-	private List<UserRole> roles;
+	private List<String> roles;
+
+	
+
+	public List<String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<String> roles) {
+		this.roles = roles;
+	}
 
 	public Long getId() {
 		return id;
@@ -49,13 +58,5 @@ public class User {
 
 	public void setEmail(String email) {
 		this.email = email;
-	}
-
-	public List<UserRole> getRoles() {
-		return roles;
-	}
-
-	public void setRoles(List<UserRole> roles) {
-		this.roles = roles;
 	}
 }

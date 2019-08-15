@@ -1,12 +1,8 @@
 package repository.entity;
 
-import java.util.List;
-
-import model.UserRole;
-
 public class UserRoleEntity {
 	private Long userId;
-	private List<UserRole> roles;
+	private String role;
 	
 	public Long getUserId() {
 		return userId;
@@ -14,11 +10,11 @@ public class UserRoleEntity {
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
-	public List<UserRole> getRoles() {
-		return roles;
+	public String getRole() {
+		return role;
 	}
-	public void setRoles(List<UserRole> roles) {
-		this.roles = roles;
+	public void setRole(String role) {
+		this.role = role;
 	}
 	
 }

@@ -11,16 +11,19 @@ import org.springframework.stereotype.Service;
 
 import model.User;
 import model.UserRegistrationDetails;
-import model.UserRole;
+import model.UserRoles;
 import repository.IUserDAO;
+import repository.IUserRoleDAO;
 import repository.entity.UserEntity;
 import repository.entity.UserRoleEntity;
-import security.UserPrincipal;
 
 @Service
 public class UserServiceImpl implements IUserService {
 	@Autowired
 	private IUserDAO userDAO;
+
+	@Autowired
+	private IUserRoleDAO userRoleDAO;
 
 	@Resource
 	private PasswordEncoder passwordEncoder;
@@ -31,8 +34,8 @@ public class UserServiceImpl implements IUserService {
 		for (UserEntity userEntity : userEntities) {
 			User user = new User();
 			this.mapUserEntityToUser(userEntity, user);
-			UserRoleEntity userRoleEntity = this.getUserRoleByUserId(userEntity.getId());
-			user.setRoles(userRoleEntity.getRoles());
+			List<String> roles = this.getUserRoleByUserId(userEntity.getId());
+			user.setRoles(roles);
 			users.add(user);
 		}
 		return users;
@@ -47,15 +50,28 @@ public class UserServiceImpl implements IUserService {
 		user.setPassword(passwordEncoder.encode(userRegistrationDetails.getPassword()));
 		userDAO.insertUser(user);
 	}
+	
+	@Override
+	public User getUserByUserId(Long userId) {
+		UserEntity userEntity = userDAO.getUserByUserId(userId);
+		// System.out.println("Password --------------------- >>> "+
+		// userEntity.getPassword());
+		List<String> roles = this.getUserRoleByUserId(userEntity.getId());
+		User user = new User();
+		this.mapUserEntityToUser(userEntity, user);
+		user.setRoles(roles);
+		return user;
+	}
 
 	@Override
 	public User getUserByUserName(String userName) {
 		UserEntity userEntity = userDAO.getUserByUserName(userName);
-		//System.out.println("Password --------------------- >>> "+ userEntity.getPassword());
-		UserRoleEntity userRoleEntity = this.getUserRoleByUserId(userEntity.getId());
+		// System.out.println("Password --------------------- >>> "+
+		// userEntity.getPassword());
+		List<String> roles = this.getUserRoleByUserId(userEntity.getId());
 		User user = new User();
 		this.mapUserEntityToUser(userEntity, user);
-		user.setRoles(userRoleEntity.getRoles());
+		user.setRoles(roles);
 		return user;
 	}
 
@@ -69,23 +85,25 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	// Implement with DAO
-	public UserRoleEntity getUserRoleByUserId(Long userId) {
-		List<UserRole> roles = new ArrayList<UserRole>();
-		roles.add(UserRole.ADMIN);
-		UserRoleEntity userRoleEntity = new UserRoleEntity();
-		userRoleEntity.setUserId(userId);
-		userRoleEntity.setRoles(roles);
-		return userRoleEntity;
+	public List<String> getUserRoleByUserId(Long userId) {
+		List<UserRoleEntity> roleEntities = userRoleDAO.getUserRolesByUserId(userId);
+		List<String> roles = new ArrayList<String>();
+		if (roleEntities != null) {
+			for (UserRoleEntity role : roleEntities) {
+				roles.add(role.getRole());
+			}
+		}
+
+		// TODO : Remove this
+		roles.add("ADMIN");
+
+		return roles;
 	}
 
 	@Override
-	public User getUserByUserId(Long userId) {
-		UserEntity userEntity = userDAO.getUserByUserId(userId);
-		UserRoleEntity userRoleEntity = this.getUserRoleByUserId(userId);
-		User user = new User();
-		this.mapUserEntityToUser(userEntity, user);
-		user.setRoles(userRoleEntity.getRoles());
-		return user;
+	public void replaceRoles(UserRoles userRoles) {
+		userRoleDAO.replaceRoles(userRoles.getUserId(),userRoles.getRoles());
+		
 	}
 
 	/*

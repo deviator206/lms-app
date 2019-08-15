@@ -182,7 +182,9 @@ public class LeadDetailService implements ILeadDetailService {
 		
 		//Set values from root lead
 		leadRes.setTenure(rootLeadEntity.getTenure());
-		leadRes.setDescription(rootLeadEntity.getDescription());
+		leadRes.setDescription(rootLeadEntity.getDescription());		
+		leadRes.setCustName(rootLeadEntity.getCustName());
+		leadRes.setSource(rootLeadEntity.getSource());
 		
 		return leadRes;
 	}

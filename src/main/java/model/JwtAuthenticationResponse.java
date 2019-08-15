@@ -3,9 +3,21 @@ package model;
 public class JwtAuthenticationResponse {
 	private String accessToken;
 	private String tokenType = "Bearer";
+	private UserInfo userInfo;
+	
+	
 
-	public JwtAuthenticationResponse(String accessToken) {
+	public UserInfo getUserInfo() {
+		return userInfo;
+	}
+
+	public void setUserInfo(UserInfo userInfo) {
+		this.userInfo = userInfo;
+	}
+
+	public JwtAuthenticationResponse(String accessToken,UserInfo userInfo) {
 		this.accessToken = accessToken;
+		this.userInfo = userInfo;
 	}
 
 	public String getAccessToken() {

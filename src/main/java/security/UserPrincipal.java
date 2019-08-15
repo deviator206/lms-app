@@ -14,11 +14,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import model.User;
 
 public class UserPrincipal implements UserDetails {
-    private Long id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-    private String name;
+	private Long id;
 
-    private String username;
+    private Long userId;
+
+	private String username;
 
     @JsonIgnore
     private String email;
@@ -28,9 +33,10 @@ public class UserPrincipal implements UserDetails {
 
     private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String name, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public UserPrincipal(Long id, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
-        this.name = name;
+        this.userId = id;
+        this.username = username;
         this.username = username;
         this.email = email;
         this.password = password;
@@ -39,12 +45,11 @@ public class UserPrincipal implements UserDetails {
 
     public static UserPrincipal create(User user) {    	
         List<GrantedAuthority> authorities = user.getRoles().stream().map(role ->
-                new SimpleGrantedAuthority(role.getCode())
+                new SimpleGrantedAuthority(role)
         ).collect(Collectors.toList());
 
         return new UserPrincipal(
                 user.getId(),
-                user.getUserName(),
                 user.getUserName(),
                 user.getEmail(),
                 user.getPassword(),
@@ -54,14 +59,6 @@ public class UserPrincipal implements UserDetails {
 
     public Long getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     @Override
@@ -112,4 +109,12 @@ public class UserPrincipal implements UserDetails {
 
         return Objects.hash(id);
     }
+    
+    public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
 }
