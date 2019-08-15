@@ -7,30 +7,27 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"controller","repository","service","security","config"})
-
-
-public class Application {
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-    
-    
-}
+@ComponentScan(basePackages = { "controller", "repository", "service", "security", "config" })
 
 /*
-public class Application  extends SpringBootServletInitializer {
+ * public class Application {
+ * 
+ * public static void main(String[] args) {
+ * SpringApplication.run(Application.class, args); }
+ * 
+ * 
+ * }
+ */
+
+public class Application extends SpringBootServletInitializer {
 
 	@Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(Application.class);
-    }
- 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(Application.class, args);
-    }
-    
-    
+	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+		return application.sources(Application.class);
+	}
+
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(Application.class, args);
+	}
+
 }
-*/
