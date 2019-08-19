@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import mapper.ModelMappers;
 import model.User;
+import model.UserRegistrationDetails;
 import model.UserRes;
 import model.UserRoles;
 import service.IUserService;
@@ -54,8 +55,13 @@ public class UserController {
 		return userRes;
 	}
 
+	@PostMapping("/user")
+	public void addUser(@RequestBody UserRegistrationDetails userRegistrationDetails) {
+		userService.addUser(userRegistrationDetails);
+	}
+	
 	@PostMapping("/user/roles")
-	public void addUser(@RequestBody UserRoles userRoles) {
+	public void replaceRoles(@RequestBody UserRoles userRoles) {
 		userService.replaceRoles(userRoles);
 	}
 	
