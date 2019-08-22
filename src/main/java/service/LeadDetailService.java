@@ -110,17 +110,18 @@ public class LeadDetailService implements ILeadDetailService {
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
 		try {
 			LeadEntity leadEntity = null;
-			if (leadRes.getLeadsSummaryRes() != null) {
+			if (leadRes.getLeadsSummaryRes() != null && leadRes.getLeadsSummaryRes().getBusinessUnits() != null) {
 				for (String businessUnit : leadRes.getLeadsSummaryRes().getBusinessUnits()) {
 					if (originalBU.equalsIgnoreCase(businessUnit)) {
 						leadEntity = new LeadEntity();
 						leadEntity.setSalesRep(leadRes.getLeadsSummaryRes().getSalesRep());
-						leadEntity.setUpdatorId(leadRes.getCreatorId());
-						leadEntity.setUpdateDate(leadRes.getCreationDate());
+						leadEntity.setUpdatorId(leadRes.getUpdatorId());
+						leadEntity.setUpdateDate(leadRes.getUpdateDate());
 						leadEntity.setStatus(LeadManagementConstants.LEAD_STATUS_DRAFT);
 						leadEntity.setBudget(leadRes.getLeadsSummaryRes().getBudget());
 						leadEntity.setCurrency(leadRes.getLeadsSummaryRes().getCurrency());
 						leadEntity.setMessage(leadRes.getMessage());
+						leadEntity.setId(leadRes.getId());
 						leadDAO.updateLead(leadEntity);
 					} else {
 						leadEntity = new LeadEntity();
@@ -139,6 +140,31 @@ public class LeadDetailService implements ILeadDetailService {
 						leadDAO.insertLead(leadEntity);
 					}
 				}
+			} else {
+				leadEntity = new LeadEntity();
+				leadEntity.setUpdatorId(leadRes.getUpdatorId());
+				Date updateDate = leadRes.getUpdateDate() != null ? leadRes.getUpdateDate()
+						: Calendar.getInstance().getTime();
+				leadEntity.setUpdateDate(new java.sql.Date(updateDate.getTime()));
+				leadEntity.setStatus(LeadManagementConstants.LEAD_STATUS_DRAFT);
+				String message = leadRes.getMessage() != null ? leadRes.getMessage() : originalLeadEntity.getMessage();
+				leadEntity.setMessage(message);
+				if (leadRes.getLeadsSummaryRes() != null) {
+					Float budget = leadRes.getLeadsSummaryRes().getBudget() != null
+							? leadRes.getLeadsSummaryRes().getBudget()
+							: originalLeadEntity.getBudget();
+					leadEntity.setBudget(budget);
+					String currency = leadRes.getLeadsSummaryRes().getCurrency() != null
+							? leadRes.getLeadsSummaryRes().getCurrency()
+							: originalLeadEntity.getCurrency();
+					leadEntity.setCurrency(currency);
+					String salesRep = leadRes.getLeadsSummaryRes().getSalesRep() != null
+							? leadRes.getLeadsSummaryRes().getSalesRep()
+							: originalLeadEntity.getSalesRep();
+					leadEntity.setSalesRep(salesRep);
+					leadEntity.setId(leadRes.getId());
+				}
+				leadDAO.updateLead(leadEntity);
 			}
 			transactionManager.commit(ts);
 		} catch (Exception e) {
@@ -146,6 +172,28 @@ public class LeadDetailService implements ILeadDetailService {
 			throw new RuntimeException(e);
 		}
 		return leadRes.getId();
+	}
+
+	LeadEntity cloneLead(LeadEntity leadEntity) {
+		LeadEntity clonedLeadEntity = new LeadEntity();
+		clonedLeadEntity.setBudget(leadEntity.getBudget());
+		clonedLeadEntity.setCurrency(leadEntity.getCurrency());
+		clonedLeadEntity.setBusinessUnit(leadEntity.getBusinessUnit());
+
+		// clonedLeadEntity.setCreationDate(creationDate);
+		// clonedLeadEntity.setCreatorId(creatorId);
+		// clonedLeadEntity.setUpdateDate(updateDate);
+		// clonedLeadEntity.setUpdatorId(updatorId);
+
+		// clonedLeadEntity.setDeleted(deleted);
+		// clonedLeadEntity.setId(id);
+
+		clonedLeadEntity.setIndustry(leadEntity.getIndustry());
+		clonedLeadEntity.setMessage(leadEntity.getMessage());
+		clonedLeadEntity.setRootLeadId(leadEntity.getRootLeadId());
+		clonedLeadEntity.setSalesRep(leadEntity.getSalesRep());
+		clonedLeadEntity.setStatus(LeadManagementConstants.LEAD_STATUS_DRAFT);
+		return clonedLeadEntity;
 	}
 
 	@Override
@@ -160,7 +208,7 @@ public class LeadDetailService implements ILeadDetailService {
 	}
 
 	private LeadRes prepareLeadRes(LeadEntity leadEntity) {
-		RootLeadEntity  rootLeadEntity = rootLeadDAO.getRootLead(leadEntity.getRootLeadId());
+		RootLeadEntity rootLeadEntity = rootLeadDAO.getRootLead(leadEntity.getRootLeadId());
 
 		LeadContactEntity leadContactEntity = leadContactDAO.getLeadContact(rootLeadEntity.getContactId());
 		LeadContactRes leadContactRes = new LeadContactRes();
@@ -179,13 +227,13 @@ public class LeadDetailService implements ILeadDetailService {
 		Date today = Calendar.getInstance().getTime();
 		long diff = today.getTime() - creationDate.getTime();
 		leadRes.setInactiveDuration(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
-		
-		//Set values from root lead
+
+		// Set values from root lead
 		leadRes.setTenure(rootLeadEntity.getTenure());
-		leadRes.setDescription(rootLeadEntity.getDescription());		
+		leadRes.setDescription(rootLeadEntity.getDescription());
 		leadRes.setCustName(rootLeadEntity.getCustName());
 		leadRes.setSource(rootLeadEntity.getSource());
-		
+
 		return leadRes;
 	}
 
