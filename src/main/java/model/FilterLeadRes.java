@@ -2,8 +2,7 @@ package model;
 
 import java.sql.Date;
 
-public class LeadRes {
-	private Long id;
+public class FilterLeadRes {
 	private String source;
 	private String custName;
 	private String description;
@@ -71,13 +70,6 @@ public class LeadRes {
 	// TODO : Check whether name or Id?
 	private Long creatorId;
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	public String getSource() {
 		return source;

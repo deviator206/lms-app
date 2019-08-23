@@ -88,6 +88,7 @@ public class ModelEntityMappers {
 		leadRes.setUpdateDate(leadEntity.getUpdateDate());
 		leadRes.setCreatorId(leadEntity.getCreatorId());
 		leadRes.setUpdatorId(leadEntity.getUpdatorId());
+		leadRes.setStatus(leadEntity.getStatus());
 		return leadRes;
 	}
 

@@ -13,6 +13,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import consts.LeadManagementConstants;
+import model.FilterLeadRes;
 import model.LeadContactRes;
 import model.LeadRes;
 import model.LeadsSummaryRes;
@@ -117,7 +118,9 @@ public class LeadDetailService implements ILeadDetailService {
 						leadEntity.setSalesRep(leadRes.getLeadsSummaryRes().getSalesRep());
 						leadEntity.setUpdatorId(leadRes.getUpdatorId());
 						leadEntity.setUpdateDate(leadRes.getUpdateDate());
-						leadEntity.setStatus(LeadManagementConstants.LEAD_STATUS_DRAFT);
+						String status = leadRes.getStatus() != null ? leadRes.getStatus()
+								: LeadManagementConstants.LEAD_STATUS_DRAFT;
+						leadEntity.setStatus(status);
 						leadEntity.setBudget(leadRes.getLeadsSummaryRes().getBudget());
 						leadEntity.setCurrency(leadRes.getLeadsSummaryRes().getCurrency());
 						leadEntity.setMessage(leadRes.getMessage());
@@ -140,6 +143,11 @@ public class LeadDetailService implements ILeadDetailService {
 						leadDAO.insertLead(leadEntity);
 					}
 				}
+
+				if (!leadRes.getLeadsSummaryRes().getBusinessUnits().contains(originalBU)) {
+					leadDAO.deleteLead(leadRes.getId());
+				}
+
 			} else {
 				leadEntity = new LeadEntity();
 				leadEntity.setUpdatorId(leadRes.getUpdatorId());
@@ -162,6 +170,10 @@ public class LeadDetailService implements ILeadDetailService {
 							? leadRes.getLeadsSummaryRes().getSalesRep()
 							: originalLeadEntity.getSalesRep();
 					leadEntity.setSalesRep(salesRep);
+					leadEntity.setUpdateDate(leadRes.getUpdateDate());
+					String status = leadRes.getStatus() != null ? leadRes.getStatus()
+							: LeadManagementConstants.LEAD_STATUS_DRAFT;
+					leadEntity.setStatus(status);
 					leadEntity.setId(leadRes.getId());
 				}
 				leadDAO.updateLead(leadEntity);
@@ -223,10 +235,12 @@ public class LeadDetailService implements ILeadDetailService {
 		leadRes.setLeadsSummaryRes(ModelEntityMappers.mapLeadEntityToLeadSummary(leadEntity, leadsSummaryRes));
 
 		// set tenure
-		Date creationDate = leadEntity.getUpdateDate();
-		Date today = Calendar.getInstance().getTime();
-		long diff = today.getTime() - creationDate.getTime();
-		leadRes.setInactiveDuration(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+		if (leadEntity.getUpdateDate() != null) {
+			Date creationDate = leadEntity.getUpdateDate();
+			Date today = Calendar.getInstance().getTime();
+			long diff = today.getTime() - creationDate.getTime();
+			leadRes.setInactiveDuration(TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS));
+		}
 
 		// Set values from root lead
 		leadRes.setTenure(rootLeadEntity.getTenure());
@@ -241,6 +255,17 @@ public class LeadDetailService implements ILeadDetailService {
 	public List<LeadRes> searchLeads(String name, String description) {
 		List<LeadRes> leads = new ArrayList<LeadRes>();
 		List<LeadEntity> leadEntityList = leadDAO.searchLeads(name, description);
+		for (LeadEntity leadEntity : leadEntityList) {
+			LeadRes leadRes = prepareLeadRes(leadEntity);
+			leads.add(leadRes);
+		}
+		return leads;
+	}
+
+	@Override
+	public List<LeadRes> filterLeads(FilterLeadRes filterLeadRes) {
+		List<LeadRes> leads = new ArrayList<LeadRes>();
+		List<LeadEntity> leadEntityList = leadDAO.filterLeads(filterLeadRes);
 		for (LeadEntity leadEntity : leadEntityList) {
 			LeadRes leadRes = prepareLeadRes(leadEntity);
 			leads.add(leadRes);

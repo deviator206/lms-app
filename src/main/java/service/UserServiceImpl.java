@@ -8,6 +8,9 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import model.User;
 import model.UserRegistrationDetails;
@@ -28,6 +31,9 @@ public class UserServiceImpl implements IUserService {
 	@Resource
 	private PasswordEncoder passwordEncoder;
 
+	@Autowired
+	private PlatformTransactionManager transactionManager;
+
 	public List<User> getUsers() {
 		List<UserEntity> userEntities = userDAO.getUsers();
 		List<User> users = new ArrayList<User>();
@@ -46,11 +52,29 @@ public class UserServiceImpl implements IUserService {
 		UserEntity user = new UserEntity();
 		user.setUserName(userRegistrationDetails.getUserName());
 		user.setEnabled(true);
+		user.setUserDisplayName(userRegistrationDetails.getUserDisplayName());
+		user.setBusinessUnit(userRegistrationDetails.getBusinessUnit());
 		user.setEmail(userRegistrationDetails.getEmail());
 		user.setPassword(passwordEncoder.encode(userRegistrationDetails.getPassword()));
-		userDAO.insertUser(user);
+
+		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
+		try {
+			Long userId = userDAO.insertUser(user);
+			UserRoles userRoles = new UserRoles();
+			userRoles.setUserId(userId);
+			userRoles.setRoles(userRegistrationDetails.getRoles());
+			if (userRegistrationDetails.getRoles() != null) {
+				for (String role : userRegistrationDetails.getRoles()) {
+					userRoleDAO.insertUserRole(userId, role);
+				}
+			}
+			transactionManager.commit(ts);
+		} catch (Exception e) {
+			transactionManager.rollback(ts);
+			throw new RuntimeException(e);
+		}
 	}
-	
+
 	@Override
 	public User getUserByUserId(Long userId) {
 		UserEntity userEntity = userDAO.getUserByUserId(userId);
@@ -81,6 +105,8 @@ public class UserServiceImpl implements IUserService {
 		user.setEmail(userEntity.getEmail());
 		user.setPassword(userEntity.getPassword());
 		user.setEnabled(userEntity.isEnabled());
+		user.setUserDisplayName(userEntity.getUserDisplayName());
+		user.setBusinessUnit(userEntity.getBusinessUnit());
 		return user;
 	}
 
@@ -93,17 +119,13 @@ public class UserServiceImpl implements IUserService {
 				roles.add(role.getRole());
 			}
 		}
-
-		// TODO : Remove this
-		roles.add("ADMIN");
-
 		return roles;
 	}
 
 	@Override
 	public void replaceRoles(UserRoles userRoles) {
-		userRoleDAO.replaceRoles(userRoles.getUserId(),userRoles.getRoles());
-		
+		userRoleDAO.replaceRoles(userRoles.getUserId(), userRoles.getRoles());
+
 	}
 
 	/*

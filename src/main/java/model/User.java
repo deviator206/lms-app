@@ -8,9 +8,25 @@ public class User {
 	private boolean enabled;
 	private String password;
 	private String email;
+	private String userDisplayName;
+	private String businessUnit;
 	private List<String> roles;
 
-	
+	public String getUserDisplayName() {
+		return userDisplayName;
+	}
+
+	public void setUserDisplayName(String userDisplayName) {
+		this.userDisplayName = userDisplayName;
+	}
+
+	public String getBusinessUnit() {
+		return businessUnit;
+	}
+
+	public void setBusinessUnit(String businessUnit) {
+		this.businessUnit = businessUnit;
+	}
 
 	public List<String> getRoles() {
 		return roles;

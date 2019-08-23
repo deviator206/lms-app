@@ -11,6 +11,9 @@ public class ModelMappers {
 		userRes.setUserName(user.getUserName());
 		userRes.setEmail(user.getEmail());
 		userRes.setEnabled(user.isEnabled());
+		userRes.setBusinessUnit(user.getBusinessUnit());
+		userRes.setUserDisplayName(user.getUserDisplayName());
+		userRes.setRoles(user.getRoles());
 		return userRes;
 	}
 

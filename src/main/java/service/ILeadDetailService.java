@@ -2,6 +2,7 @@ package service;
 
 import java.util.List;
 
+import model.FilterLeadRes;
 import model.LeadRes;
 import model.RootLeadRes;
 
@@ -17,5 +18,7 @@ public interface ILeadDetailService {
 	List<LeadRes> searchLeads(String name, String description);
 
 	Long updateLead(LeadRes leadRes);
+	
+	List<LeadRes> filterLeads(FilterLeadRes filterLeadRes);
 
 }

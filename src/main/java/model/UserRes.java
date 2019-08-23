@@ -1,10 +1,40 @@
 package model;
 
+import java.util.List;
+
 public class UserRes {
 	private Long userId;
 	private String userName;
 	private boolean enabled;
 	private String email;
+	private String userDisplayName;
+	private String businessUnit;
+	private List<String> roles;
+
+	public String getUserDisplayName() {
+		return userDisplayName;
+	}
+
+	public void setUserDisplayName(String userDisplayName) {
+		this.userDisplayName = userDisplayName;
+	}
+
+	public String getBusinessUnit() {
+		return businessUnit;
+	}
+
+	public void setBusinessUnit(String businessUnit) {
+		this.businessUnit = businessUnit;
+	}
+
+	public List<String> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(List<String> roles) {
+		this.roles = roles;
+	}
+
 
 	public Long getUserId() {
 		return userId;

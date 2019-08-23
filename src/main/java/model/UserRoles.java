@@ -4,7 +4,7 @@ import java.util.List;
 
 public class UserRoles {
 	private Long userId;
-	List<String> roles;	
+	private List<String> roles;	
 	
 	public Long getUserId() {
 		return userId;

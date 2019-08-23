@@ -8,5 +8,5 @@ public interface IUserDAO {
 	List<UserEntity> getUsers();
 	UserEntity getUserByUserName(String userName);
 	UserEntity getUserByUserId(Long userId);
-	void insertUser(UserEntity user);
+	Long insertUser(UserEntity user);
 }
