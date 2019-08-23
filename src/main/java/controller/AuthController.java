@@ -50,13 +50,20 @@ public class AuthController {
 				new UsernamePasswordAuthenticationToken(loginRequest.getUserName(), loginRequest.getPassword()));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		Map<String, String> policies = policyProviderService.getPolicies(authentication.getAuthorities().stream()
-				.map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.toList()));
+		List<String> roles = authentication.getAuthorities().stream()
+				.map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.toList());
+		Map<String, String> policies = policyProviderService.getPolicies(roles);
 
+		
 		UserInfo userInfo = new UserInfo();
 		userInfo.setPolicies(policies);
 		userInfo.setUserId(((UserPrincipal) authentication.getPrincipal()).getUserId());
 		userInfo.setUserName(((UserPrincipal) authentication.getPrincipal()).getUsername());
+		userInfo.setBusinessUnit(((UserPrincipal) authentication.getPrincipal()).getBusinessUnit());
+		userInfo.setUserDisplayName(((UserPrincipal) authentication.getPrincipal()).getUserDisplayName());
+		userInfo.setRoles(roles);
+		
+		
 		String jwt = tokenProvider.generateToken(authentication);
 		return new JwtAuthenticationResponse(jwt, userInfo);
 	}

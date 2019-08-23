@@ -1,11 +1,27 @@
 package repository.entity;
 
+import java.util.List;
+
 public class UserEntity {
 	private Long id;
 	private String userName;
 	private boolean enabled;
 	private String password;
 	private String email;
+	private String userDisplayName;
+	private String businessUnit;
+	public String getUserDisplayName() {
+		return userDisplayName;
+	}
+	public void setUserDisplayName(String userDisplayName) {
+		this.userDisplayName = userDisplayName;
+	}
+	public String getBusinessUnit() {
+		return businessUnit;
+	}
+	public void setBusinessUnit(String businessUnit) {
+		this.businessUnit = businessUnit;
+	}
 	
 	public String getEmail() {
 		return email;

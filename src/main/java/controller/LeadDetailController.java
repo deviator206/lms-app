@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import model.FilterLeadRes;
 import model.LeadRes;
 import model.RootLeadRes;
 import service.ILeadDetailService;
@@ -36,9 +37,10 @@ public class LeadDetailController {
 	}
 
 	@GetMapping("/leads")
-	public List<LeadRes> getLeads(@RequestParam(value = "name", required=false) String name, @RequestParam(value = "desc", required=false) String description) {
+	public List<LeadRes> getLeads(@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "desc", required = false) String description) {
 		if ((name != null) && (!name.isEmpty()) || (description != null) && (!description.isEmpty())) {
-			return leadDetailService.searchLeads(name,description);
+			return leadDetailService.searchLeads(name, description);
 		} else {
 			return leadDetailService.getLeads();
 		}
@@ -50,5 +52,10 @@ public class LeadDetailController {
 			throw new RuntimeException("Bad Request. Ids in path and Resourse are not matching");
 		}
 		return leadDetailService.updateLead(leadRes);
+	}
+
+	@PostMapping("/leads")
+	public List<LeadRes> filterLeads(@RequestBody FilterLeadRes filterLeadRes) {
+		return leadDetailService.filterLeads(filterLeadRes);
 	}
 }

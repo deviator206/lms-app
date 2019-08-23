@@ -2,6 +2,7 @@ package repository;
 
 import java.util.List;
 
+import model.FilterLeadRes;
 import repository.entity.LeadEntity;
 
 public interface ILeadDAO {
@@ -16,4 +17,6 @@ public interface ILeadDAO {
 	boolean deleteLead(Long id);
 
 	boolean updateLead(LeadEntity leadEntity);
+	
+	List<LeadEntity> filterLeads(FilterLeadRes filterLeadRes);
 }

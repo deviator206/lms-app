@@ -14,103 +14,120 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import model.User;
 
 public class UserPrincipal implements UserDetails {
-    /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
 	private Long id;
 
-    private Long userId;
+	private Long userId;
+
+	private String userDisplayName;
+
+	private String businessUnit;
+
+	public String getUserDisplayName() {
+		return userDisplayName;
+	}
+
+	public void setUserDisplayName(String userDisplayName) {
+		this.userDisplayName = userDisplayName;
+	}
+
+	public String getBusinessUnit() {
+		return businessUnit;
+	}
+
+	public void setBusinessUnit(String businessUnit) {
+		this.businessUnit = businessUnit;
+	}
 
 	private String username;
 
-    @JsonIgnore
-    private String email;
+	@JsonIgnore
+	private String email;
 
-    @JsonIgnore
-    private String password;
+	@JsonIgnore
+	private String password;
 
-    private Collection<? extends GrantedAuthority> authorities;
+	private Collection<? extends GrantedAuthority> authorities;
 
-    public UserPrincipal(Long id, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+	public UserPrincipal(Long id, String username, String email, String password,String userDisplayName,String businessUnit,  Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.userId = id;
         this.username = username;
-        this.username = username;
         this.email = email;
         this.password = password;
+        this.userDisplayName = userDisplayName;
+        this.businessUnit = businessUnit;
         this.authorities = authorities;
     }
 
-    public static UserPrincipal create(User user) {    	
-        List<GrantedAuthority> authorities = user.getRoles().stream().map(role ->
-                new SimpleGrantedAuthority(role)
-        ).collect(Collectors.toList());
+	public static UserPrincipal create(User user) {
+		List<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role))
+				.collect(Collectors.toList());
 
-        return new UserPrincipal(
-                user.getId(),
-                user.getUserName(),
-                user.getEmail(),
-                user.getPassword(),
-                authorities
-        );
-    }
+		return new UserPrincipal(user.getId(), user.getUserName(), user.getEmail(), user.getPassword(),
+				user.getUserDisplayName(), user.getBusinessUnit(), authorities);
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    @Override
-    public String getUsername() {
-        return username;
-    }
+	@Override
+	public String getUsername() {
+		return username;
+	}
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+	@Override
+	public String getPassword() {
+		return password;
+	}
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return authorities;
+	}
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
 
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        UserPrincipal that = (UserPrincipal) o;
-        return Objects.equals(id, that.id);
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		UserPrincipal that = (UserPrincipal) o;
+		return Objects.equals(id, that.id);
+	}
 
-    @Override
-    public int hashCode() {
+	@Override
+	public int hashCode() {
 
-        return Objects.hash(id);
-    }
-    
-    public Long getUserId() {
+		return Objects.hash(id);
+	}
+
+	public Long getUserId() {
 		return userId;
 	}
 

@@ -13,7 +13,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
+import model.FilterLeadRes;
 import repository.entity.LeadEntity;
 import repository.mapper.LeadRowMapper;
 
@@ -90,15 +92,35 @@ public class LeadDAOImpl implements ILeadDAO {
 		// return this.jdbcTemplate.query(sql, rowMapper, new Object[] { description });
 
 		String sql = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID AND ROOT_LEAD.DESCRIPTION LIKE ?";
-		//String likePattern = "'%"+ description + "%'";
+		// String likePattern = "'%"+ description + "%'";
 		return jdbcTemplate.query(new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(sql);
-				ps.setString(1, "%"+ description + "%");
+				ps.setString(1, "%" + description + "%");
 				return ps;
 			}
 		}, rowMapper);
 
+	}
+
+	@Override
+	public List<LeadEntity> filterLeads(FilterLeadRes filterLeadRes) {
+		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
+
+		String query = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID ";
+		
+
+		if (filterLeadRes.getCustName() != null && !filterLeadRes.getCustName().isEmpty()) {
+			query = query + " AND ROOT_LEAD.CUST_NAME = '" + filterLeadRes.getCustName() +"'";
+		}
+		
+		if (filterLeadRes.getStatus() != null && !filterLeadRes.getStatus().isEmpty()) {
+			query = query + " AND LEADS.STATUS = '" + filterLeadRes.getStatus() +"'";
+		}
+
+		System.out.println(query);
+
+		return this.jdbcTemplate.query(query, rowMapper);
 	}
 
 }
