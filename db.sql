@@ -61,6 +61,41 @@ CREATE TABLE `leads` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `mi`
+--
+
+DROP TABLE IF EXISTS `mi`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `mi` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `TYPE` varchar(120) DEFAULT NULL,
+  `STATUS` varchar(120) DEFAULT NULL,
+  `NAME` varchar(1024) DEFAULT NULL,
+  `DESCRIPTION` text,
+  `LEAD_ID` int(11) DEFAULT NULL,
+  `INVESTMENT` decimal(12,4) DEFAULT NULL,
+  `CREATION_DATE` date DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `mi_info`
+--
+
+DROP TABLE IF EXISTS `mi_info`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+ SET character_set_client = utf8mb4 ;
+CREATE TABLE `mi_info` (
+  `ID` int(11) NOT NULL AUTO_INCREMENT,
+  `MI_ID` int(11) DEFAULT NULL,
+  `INFO` text,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `ref_data`
 --
 
@@ -98,7 +133,7 @@ CREATE TABLE `root_lead` (
   `TENURE` varchar(120) DEFAULT NULL,
   `SALES_REP` varchar(120) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -145,4 +180,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-08-23 21:22:50
+-- Dump completed on 2019-08-24 22:28:16

@@ -46,12 +46,17 @@ public class LeadDetailService implements ILeadDetailService {
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
 		try {
 			LeadContactEntity leadContactEntity = new LeadContactEntity();
-			ModelEntityMappers.mapLeadContactResToLeadContactEntity(rootLeadRes.getLeadContact(), leadContactEntity);
-			Long leadContactId = leadContactDAO.insertLeadContact(leadContactEntity);
 			RootLeadEntity rootLeadEntity = new RootLeadEntity();
+			
+			if (rootLeadRes.getLeadContact() != null) {
+				ModelEntityMappers.mapLeadContactResToLeadContactEntity(rootLeadRes.getLeadContact(),
+						leadContactEntity);
+				Long leadContactId = leadContactDAO.insertLeadContact(leadContactEntity);
+				rootLeadEntity.setContactId(leadContactId);
+			}			
 
 			ModelEntityMappers.mapRootLeadResToRootLeadEntity(rootLeadRes, rootLeadEntity);
-			rootLeadEntity.setContactId(leadContactId);
+			
 			rootLeadId = rootLeadDAO.insertRootLead(rootLeadEntity);
 			if (rootLeadRes.getLeadsSummaryRes() != null) {
 				for (String businessUnit : rootLeadRes.getLeadsSummaryRes().getBusinessUnits()) {
