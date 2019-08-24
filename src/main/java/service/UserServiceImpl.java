@@ -12,6 +12,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import model.ForgotPasswordResponse;
 import model.User;
 import model.UserRegistrationDetails;
 import model.UserRoles;
@@ -126,6 +127,16 @@ public class UserServiceImpl implements IUserService {
 	public void replaceRoles(UserRoles userRoles) {
 		userRoleDAO.replaceRoles(userRoles.getUserId(), userRoles.getRoles());
 
+	}
+
+	@Override
+	public ForgotPasswordResponse forgotPassword(UserRegistrationDetails userRegistrationDetails) {
+		ForgotPasswordResponse forgotPasswordResponse = new ForgotPasswordResponse();
+		forgotPasswordResponse.setEmail(userRegistrationDetails.getEmail());
+		forgotPasswordResponse.setUserName(userRegistrationDetails.getUserName());
+		forgotPasswordResponse.setUserDisplayName(userRegistrationDetails.getUserDisplayName());
+		forgotPasswordResponse.setForgotPasswordUri("https://testuri");
+		return forgotPasswordResponse;
 	}
 
 	/*

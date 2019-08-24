@@ -14,8 +14,18 @@ public class LeadEntity {
 	private Long creatorId;
 	private Date updateDate;
 	private Long updatorId;
+
+	private String originatingBusinessUnit;
 	
-	private float budget;
+	public String getOriginatingBusinessUnit() {
+		return originatingBusinessUnit;
+	}
+
+	public void setOriginatingBusinessUnit(String originatingBusinessUnit) {
+		this.originatingBusinessUnit = originatingBusinessUnit;
+	}
+
+	private Double budget;
 	private String currency;
 	
 	private String message;
@@ -28,10 +38,10 @@ public class LeadEntity {
 		this.message = message;
 	}
 	
-	public float getBudget() {
+	public Double getBudget() {
 		return budget;
 	}
-	public void setBudget(float budget) {
+	public void setBudget(Double budget) {
 		this.budget = budget;
 	}
 	public String getCurrency() {

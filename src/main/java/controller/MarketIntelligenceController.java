@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import model.FilterMarketIntelligenceRes;
 import model.MarketIntelligenceRes;
 import service.IMarketIntelligenceService;
 
@@ -39,4 +40,9 @@ public class MarketIntelligenceController {
 		return marketIntelligenceService.addMarketIntelligence(marketIntelligenceRes);
 	}
 
+	@PostMapping("/search/marketIntelligence")
+	public List<MarketIntelligenceRes> filterMarketIntelligence(@RequestBody FilterMarketIntelligenceRes filterMarketIntelligence) {
+		return marketIntelligenceService.filterMarketIntelligence(filterMarketIntelligence);
+	}
+	
 }

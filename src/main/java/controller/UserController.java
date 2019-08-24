@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import mapper.ModelMappers;
+import model.ForgotPasswordResponse;
 import model.User;
 import model.UserRegistrationDetails;
 import model.UserRes;
@@ -24,7 +25,7 @@ public class UserController {
 	@Autowired
 	public IUserService userService;
 
-	//@Secured("ADMIN")
+	// @Secured("ADMIN")
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/users")
 	public List<UserRes> getUser() {
@@ -46,7 +47,7 @@ public class UserController {
 		ModelMappers.mapUserToUserRes(user, userRes);
 		return userRes;
 	}
-	
+
 	@GetMapping("/user/{userId}")
 	public UserRes getUserByUserId(@PathVariable("userName") Long userId) {
 		User user = userService.getUserByUserId(userId);
@@ -59,10 +60,15 @@ public class UserController {
 	public void addUser(@RequestBody UserRegistrationDetails userRegistrationDetails) {
 		userService.addUser(userRegistrationDetails);
 	}
-	
+
 	@PostMapping("/user/roles")
 	public void replaceRoles(@RequestBody UserRoles userRoles) {
 		userService.replaceRoles(userRoles);
 	}
-	
+
+	@PostMapping("/forgotpassword")
+	public ForgotPasswordResponse forgotPassword(@RequestBody UserRegistrationDetails userRegistrationDetails) {
+		return userService.forgotPassword(userRegistrationDetails);
+	}
+
 }

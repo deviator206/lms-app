@@ -9,6 +9,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import model.FilterMarketIntelligenceRes;
 import model.MarketIntelligenceInfoRes;
 import model.MarketIntelligenceRes;
 import repository.IMarketIntelligenceDAO;
@@ -93,5 +94,18 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	@Override
 	public void addMarketIntelligenceInfo(Long miId, String info) {
 		mrketIntelligenceDAO.addMarketIntelligenceInfo(miId, info);
+	}
+
+	@Override
+	public List<MarketIntelligenceRes> filterMarketIntelligence(FilterMarketIntelligenceRes filterMarketIntelligence) {
+		List<MarketIntelligenceEntity> miList = mrketIntelligenceDAO.filterMarketIntelligence(filterMarketIntelligence);
+		List<MarketIntelligenceRes> miResList = new ArrayList<MarketIntelligenceRes>();
+		MarketIntelligenceRes miRes;
+		for (MarketIntelligenceEntity miEntity : miList) {
+			miRes = new MarketIntelligenceRes();
+			ModelEntityMappers.mapMiEntityToMiRes(miEntity, miRes);
+			miResList.add(miRes);
+		}
+		return miResList;
 	}
 }

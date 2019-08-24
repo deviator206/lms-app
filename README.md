@@ -257,3 +257,43 @@ GET http://localhost:8080/marketIntelligence/{id}
 ],
 }
 ---------------------------------------------------------------------------------------
+---------------------------------------------------------------------
+Filter Market Intelligence
+POST http://localhost:8080/search/marketIntelligence
+Payload -
+
+{
+"name" : "new"
+}
+--------------------------------------------------------------------
+Forgot Password (Dummy Response)
+POST http://localhost:8080/forgotpassword
+
+Payload -
+
+{
+  "email": "shiv"
+}
+
+Response -
+
+{
+"email": "shiv",
+"userName": null,
+"userDisplayName": null,
+"forgotPasswordUri": "https://testuri"
+}
+
+-------------------------------------------------------------------
+
+Filter Leads 
+
+POST http://localhost:8080/leads
+
+Payload -
+
+{
+  "fromBu" : "marketing1"
+}
+
+--------------------------------------------------------------------

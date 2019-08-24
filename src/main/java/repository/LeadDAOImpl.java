@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,8 @@ public class LeadDAOImpl implements ILeadDAO {
 	@Override
 	public Long insertLead(LeadEntity leadEntity) {
 		Long id = null;
-		String sql = "INSERT INTO LEADS (BU,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,SALES_REP,BUDGET,CURRENCY,MESSAGE) \r\n"
-				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?);";
+		String sql = "INSERT INTO LEADS (BU,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,SALES_REP,BUDGET,CURRENCY,MESSAGE,ORIGINATING_BU) \r\n"
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -49,9 +50,18 @@ public class LeadDAOImpl implements ILeadDAO {
 				ps.setDate(7, leadEntity.getUpdateDate());
 				ps.setLong(8, leadEntity.getUpdatorId());
 				ps.setString(9, leadEntity.getSalesRep());
-				ps.setFloat(10, leadEntity.getBudget());
+
+				if (leadEntity.getBudget() != null) {
+					ps.setDouble(10, leadEntity.getBudget());
+				} else {
+					ps.setNull(10, Types.DOUBLE);
+				}
+
 				ps.setString(11, leadEntity.getCurrency());
 				ps.setString(12, leadEntity.getMessage());
+
+				ps.setString(13, leadEntity.getOriginatingBusinessUnit());
+
 				return ps;
 			}
 		}, keyHolder);
@@ -108,14 +118,34 @@ public class LeadDAOImpl implements ILeadDAO {
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 
 		String query = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID ";
-		
 
 		if (filterLeadRes.getCustName() != null && !filterLeadRes.getCustName().isEmpty()) {
-			query = query + " AND ROOT_LEAD.CUST_NAME = '" + filterLeadRes.getCustName() +"'";
+			query = query + " AND ROOT_LEAD.CUST_NAME LIKE '%" + filterLeadRes.getCustName() + "%'";
 		}
-		
+
 		if (filterLeadRes.getStatus() != null && !filterLeadRes.getStatus().isEmpty()) {
-			query = query + " AND LEADS.STATUS = '" + filterLeadRes.getStatus() +"'";
+			query = query + " AND LEADS.STATUS = '" + filterLeadRes.getStatus() + "'";
+		}
+
+		if (filterLeadRes.getSalesRep() != null && !filterLeadRes.getSalesRep().isEmpty()) {
+			query = query + " AND LEADS.SALES_REP LIKE '%" + filterLeadRes.getSalesRep() + "%'";
+		}
+
+		if (filterLeadRes.getStartDate() != null && filterLeadRes.getEndDate() != null) {
+			query = query + " AND LEADS.CREATION_DATE BETWEEN '" + filterLeadRes.getStartDate() + "' AND '"
+					+ filterLeadRes.getEndDate() + "'";
+		} else if (filterLeadRes.getStartDate() != null) {
+			query = query + " AND LEADS.CREATION_DATE >= '" + filterLeadRes.getStartDate() + "'";
+		} else if (filterLeadRes.getEndDate() != null) {
+			query = query + " AND LEADS.CREATION_DATE <= '" + filterLeadRes.getEndDate() + "'";
+		}
+
+		if (filterLeadRes.getFromBu() != null && !filterLeadRes.getFromBu().isEmpty()) {
+			query = query + " AND LEADS.ORIGINATING_BU = '" + filterLeadRes.getFromBu() + "'";
+		}
+
+		if (filterLeadRes.getToBu() != null && !filterLeadRes.getToBu().isEmpty()) {
+			query = query + " AND LEADS.BU = '" + filterLeadRes.getToBu() + "'";
 		}
 
 		System.out.println(query);

@@ -21,9 +21,11 @@ import model.RootLeadRes;
 import repository.ILeadContactDAO;
 import repository.ILeadDAO;
 import repository.IRootLeadDAO;
+import repository.IUserDAO;
 import repository.entity.LeadContactEntity;
 import repository.entity.LeadEntity;
 import repository.entity.RootLeadEntity;
+import repository.entity.UserEntity;
 import repository.mapper.ModelEntityMappers;
 
 @Service
@@ -36,6 +38,9 @@ public class LeadDetailService implements ILeadDetailService {
 
 	@Autowired
 	private ILeadDAO leadDAO;
+	
+	@Autowired
+	private IUserDAO userDAO;
 
 	@Autowired
 	private PlatformTransactionManager transactionManager;
@@ -76,7 +81,10 @@ public class LeadDetailService implements ILeadDetailService {
 					}
 					leadEntity.setBudget(rootLeadRes.getLeadsSummaryRes().getBudget());
 					leadEntity.setCurrency(rootLeadRes.getLeadsSummaryRes().getCurrency());
-
+					
+					UserEntity user = userDAO.getUserByUserId(rootLeadRes.getCreatorId());
+					leadEntity.setOriginatingBusinessUnit(user.getBusinessUnit());
+					
 					leadDAO.insertLead(leadEntity);
 				}
 			}
@@ -145,6 +153,10 @@ public class LeadDetailService implements ILeadDetailService {
 						leadEntity.setBudget(leadRes.getLeadsSummaryRes().getBudget());
 						leadEntity.setCurrency(leadRes.getLeadsSummaryRes().getCurrency());
 						leadEntity.setMessage(leadRes.getMessage());
+						
+						UserEntity user = userDAO.getUserByUserId(leadRes.getCreatorId());
+						leadEntity.setOriginatingBusinessUnit(user.getBusinessUnit());
+						
 						leadDAO.insertLead(leadEntity);
 					}
 				}
@@ -163,7 +175,7 @@ public class LeadDetailService implements ILeadDetailService {
 				String message = leadRes.getMessage() != null ? leadRes.getMessage() : originalLeadEntity.getMessage();
 				leadEntity.setMessage(message);
 				if (leadRes.getLeadsSummaryRes() != null) {
-					Float budget = leadRes.getLeadsSummaryRes().getBudget() != null
+					Double budget = leadRes.getLeadsSummaryRes().getBudget() != null
 							? leadRes.getLeadsSummaryRes().getBudget()
 							: originalLeadEntity.getBudget();
 					leadEntity.setBudget(budget);
