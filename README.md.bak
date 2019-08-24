@@ -160,3 +160,108 @@ http://localhost:8080/login
 
 ----------------------------------------------------------------------
 
+------------------------------------------------------------------------------
+POST http://localhost:8080/leads
+
+{
+  "status": "DRAFT",
+  "custName" : "shicv2"
+}
+
+Currenty only customer name and status is supported.
+
+-----------------------------------------------------------------------------
+------------------------------------------------------------------------------
+Get Market Intelligence
+GET http://localhost:8080/marketIntelligence
+
+[
+  {
+    "id": 1,
+    "type": "project",
+    "name": "new project",
+    "description": null,
+    "status": null,
+    "investment": null,
+    "rootLeadId": null,
+    "rootLead": null,
+    "creationDate": null,
+    "miInfoList": null
+  },
+  {
+    "id": 4,
+    "type": "project6",
+    "name": "new projec6t",
+    "description": "cccc6",
+    "status": null,
+    "investment": 6,
+    "rootLeadId": 4,
+    "rootLead": null,
+    "creationDate": "2019-08-24",
+    "miInfoList": null
+  }
+]
+
+-----------------------------------------------------------------------------
+
+Create  Market Intelligence
+POST http://localhost:8080/marketIntelligence
+
+{
+"type" : "project6",
+ "name": "new projec6t",
+  "investment" : 6,
+  "description" : "cccc6"
+}
+
+-----------------------------------------------------------------------------
+Update Market Intelligence
+POST http://localhost:8080/marketIntelligence/{id}
+
+{
+"id" : 4,
+  "miInfoList" : [{
+    "info" : "info4"
+  }],
+  "rootLead" : {
+    "custName" : "shivashu4"
+  }
+}
+
+----------------------------------------------------------------------------------
+Create  Market Intelligence by id with info List
+
+GET http://localhost:8080/marketIntelligence/{id}
+
+{
+"id": 1,
+"type": "project",
+"name": "new project",
+"description": null,
+"status": null,
+"investment": null,
+"rootLeadId": null,
+"rootLead": null,
+"creationDate": null,
+"miInfoList": [
+  {
+"id": 1,
+"miId": 1,
+"info": "info1"
+},
+  {
+"id": 5,
+"miId": 1,
+"info": "info2"
+}
+],
+}
+---------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
