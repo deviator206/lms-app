@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -47,9 +48,21 @@ public class RootLeadDAOImpl implements IRootLeadDAO {
 					ps.setString(1, rootLeadEntity.getSource());
 					ps.setString(2, rootLeadEntity.getCustName());
 					ps.setString(3, rootLeadEntity.getDescription());
-					ps.setLong(4, rootLeadEntity.getContactId());
+					
+					if (rootLeadEntity.getContactId() != null) {
+						ps.setLong(4, rootLeadEntity.getContactId());
+					} else {
+						ps.setNull(4, Types.FLOAT);
+					}
+					
 					ps.setDate(5, rootLeadEntity.getCreationDate());
-					ps.setLong(6, rootLeadEntity.getCreatorId());
+					
+					if (rootLeadEntity.getCreatorId() != null) {
+						ps.setLong(6, rootLeadEntity.getCreatorId());
+					} else {
+						ps.setNull(6, Types.FLOAT);
+					}					
+					
 					ps.setBoolean(7, rootLeadEntity.isSelfApproved());
 					ps.setFloat(8, rootLeadEntity.getBudget());
 					ps.setString(9, rootLeadEntity.getCurrency());

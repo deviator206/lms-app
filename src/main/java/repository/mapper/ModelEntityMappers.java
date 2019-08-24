@@ -6,9 +6,13 @@ import java.util.List;
 import model.LeadContactRes;
 import model.LeadRes;
 import model.LeadsSummaryRes;
+import model.MarketIntelligenceInfoRes;
+import model.MarketIntelligenceRes;
 import model.RootLeadRes;
 import repository.entity.LeadContactEntity;
 import repository.entity.LeadEntity;
+import repository.entity.MarketIntelligenceEntity;
+import repository.entity.MarketIntelligenceInfoEntity;
 import repository.entity.RootLeadEntity;
 
 public class ModelEntityMappers {
@@ -31,15 +35,19 @@ public class ModelEntityMappers {
 		rootLeadEntity.setSource(rootLeadRes.getSource());
 		rootLeadEntity.setCustName(rootLeadRes.getCustName());
 		rootLeadEntity.setDescription(rootLeadRes.getDescription());
-		rootLeadEntity.setContactId(rootLeadRes.getLeadContact().getId());
+
+		if (rootLeadRes.getLeadContact() != null) {
+			rootLeadEntity.setContactId(rootLeadRes.getLeadContact().getId());
+		}
+
 		rootLeadEntity.setDeleted(rootLeadRes.isDeleted());
 		rootLeadEntity.setCreationDate(rootLeadRes.getCreationDate());
 		rootLeadEntity.setCreatorId(rootLeadRes.getCreatorId());
 		rootLeadEntity.setSelfApproved(rootLeadRes.isSelfApproved());
 		rootLeadEntity.setTenure(rootLeadRes.getTenure());
-		if(rootLeadRes.getLeadsSummaryRes() != null) {
+		if (rootLeadRes.getLeadsSummaryRes() != null) {
 			rootLeadEntity.setSalesRep(rootLeadRes.getLeadsSummaryRes().getSalesRep());
-		}		
+		}
 		return rootLeadEntity;
 	}
 
@@ -66,6 +74,47 @@ public class ModelEntityMappers {
 		leadContactRes.setState(leadContactEntity.getState());
 		leadContactRes.setDesignation(leadContactEntity.getDesignation());
 		return leadContactRes;
+	}
+
+	public static MarketIntelligenceRes mapMiEntityToMiRes(MarketIntelligenceEntity miEntity,
+			MarketIntelligenceRes miRes) {
+		miRes.setId(miEntity.getId());
+		miRes.setType(miEntity.getType());
+		miRes.setName(miEntity.getName());
+		miRes.setStatus(miEntity.getStatus());
+		miRes.setDescription(miEntity.getDescription());
+		miRes.setInvestment(miEntity.getInvestment());
+		miRes.setRootLeadId(miEntity.getLeadId());
+		miRes.setCreationDate(miEntity.getCreationDate());
+		return miRes;
+	}
+
+	public static MarketIntelligenceEntity mapMiResToMiEntity(MarketIntelligenceRes miRes,
+			MarketIntelligenceEntity miEntity) {
+		// miEntity.setId(miRes.getId());
+		miEntity.setType(miRes.getType());
+		miEntity.setName(miRes.getName());
+		miEntity.setStatus(miRes.getStatus());
+		miEntity.setDescription(miRes.getDescription());
+		miEntity.setInvestment(miRes.getInvestment());
+		miEntity.setLeadId(miRes.getRootLeadId());
+		return miEntity;
+	}
+
+	public static MarketIntelligenceInfoEntity mapMiInfoResToMiInfoEntity(MarketIntelligenceInfoRes miRes,
+			MarketIntelligenceInfoEntity miEntity) {
+		// miEntity.setId(miRes.getId());
+		miEntity.setMiId(miRes.getMiId());
+		miEntity.setInfo(miRes.getInfo());
+		return miEntity;
+	}
+
+	public static MarketIntelligenceInfoRes mapMiInfoEntityToMiInfoRes(MarketIntelligenceInfoEntity miEntity,
+			MarketIntelligenceInfoRes miRes) {
+		miRes.setId(miEntity.getId());
+		miRes.setMiId(miEntity.getMiId());
+		miRes.setInfo(miEntity.getInfo());
+		return miRes;
 	}
 
 	/*
@@ -106,8 +155,8 @@ public class ModelEntityMappers {
 
 	public static LeadEntity mapLeadResToLeadEntity(LeadRes leadRes, LeadEntity leadEntity) {
 		leadEntity.setId(leadRes.getId());
-		
-		if(leadRes.getLeadsSummaryRes() != null) {
+
+		if (leadRes.getLeadsSummaryRes() != null) {
 			leadEntity.setRootLeadId(leadRes.getLeadsSummaryRes().getRootLeadId());
 			leadEntity.setBusinessUnit(leadRes.getLeadsSummaryRes().getBusinessUnits().get(0));
 			leadEntity.setIndustry(leadRes.getLeadsSummaryRes().getIndustry());
@@ -115,7 +164,7 @@ public class ModelEntityMappers {
 			leadEntity.setBudget(leadRes.getLeadsSummaryRes().getBudget());
 			leadEntity.setCurrency(leadRes.getLeadsSummaryRes().getCurrency());
 		}
-		
+
 		leadEntity.setDeleted(leadRes.isDeleted());
 		leadEntity.setCreationDate(leadRes.getCreationDate());
 		leadEntity.setUpdateDate(leadRes.getUpdateDate());
