@@ -7,14 +7,14 @@ public class LeadsSummaryRes {
 	private Long rootLeadId;
 	private String salesRep;
 	private String industry;
-	private Float budget;
+	private Double budget;
 	private String currency;
 
-	public Float getBudget() {
+	public Double getBudget() {
 		return budget;
 	}
 
-	public void setBudget(Float budget) {
+	public void setBudget(Double budget) {
 		this.budget = budget;
 	}
 

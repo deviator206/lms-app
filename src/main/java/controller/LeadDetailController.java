@@ -54,7 +54,7 @@ public class LeadDetailController {
 		return leadDetailService.updateLead(leadRes);
 	}
 
-	@PostMapping("/leads")
+	@PostMapping("/search/leads")
 	public List<LeadRes> filterLeads(@RequestBody FilterLeadRes filterLeadRes) {
 		return leadDetailService.filterLeads(filterLeadRes);
 	}
