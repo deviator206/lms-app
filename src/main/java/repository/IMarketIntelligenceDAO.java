@@ -19,7 +19,7 @@ public interface IMarketIntelligenceDAO {
 
 	List<MarketIntelligenceInfoEntity> getMarketIntelligenceInfoList(Long miId);
 
-	void addMarketIntelligenceInfo(Long miId, String info);
+	void addMarketIntelligenceInfo(Long miId, MarketIntelligenceInfoEntity miEntity);
 	
 	List<MarketIntelligenceEntity> filterMarketIntelligence(FilterMarketIntelligenceRes filterMarketIntelligence);
 

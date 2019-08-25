@@ -16,11 +16,22 @@ public class RootLeadRowMapper implements RowMapper<RootLeadEntity> {
 		rootLeadEntity.setSource(rs.getString("SOURCE"));
 		rootLeadEntity.setCustName(rs.getString("CUST_NAME"));
 		rootLeadEntity.setDescription(rs.getString("DESCRIPTION"));
-		rootLeadEntity.setContactId(rs.getLong("CONTACT_ID"));
+		
+		if (rs.getObject("CONTACT_ID") != null) {
+			rootLeadEntity.setContactId(rs.getLong("CONTACT_ID"));
+		}
+		
 		rootLeadEntity.setDeleted(rs.getBoolean("DELETED"));
 		rootLeadEntity.setCreationDate(rs.getDate("CREATION_DATE"));
-		rootLeadEntity.setCreatorId(rs.getLong("CREATOR_ID"));
-		rootLeadEntity.setBudget(rs.getLong("BUDGET"));
+		
+		if (rs.getObject("CREATOR_ID") != null) {
+			rootLeadEntity.setCreatorId(rs.getLong("CREATOR_ID"));
+		}				
+		
+		if (rs.getObject("BUDGET") != null) {
+			rootLeadEntity.setBudget(rs.getLong("BUDGET"));
+		}		
+	
 		rootLeadEntity.setCurrency(rs.getString("CURRENCY"));
 		rootLeadEntity.setSelfApproved(rs.getBoolean("SELF_APPROVED"));
 		rootLeadEntity.setTenure(rs.getString("TENURE"));

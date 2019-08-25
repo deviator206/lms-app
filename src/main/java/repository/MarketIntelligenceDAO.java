@@ -18,10 +18,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import model.FilterMarketIntelligenceRes;
-import repository.entity.LeadEntity;
 import repository.entity.MarketIntelligenceEntity;
 import repository.entity.MarketIntelligenceInfoEntity;
-import repository.mapper.LeadRowMapper;
 import repository.mapper.MarketIntelligenceInfoRowMapper;
 import repository.mapper.MarketIntelligenceRowMapper;
 
@@ -81,16 +79,16 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 
 	@Override
 	public List<MarketIntelligenceInfoEntity> getMarketIntelligenceInfoList(Long miId) {
-		String sql = "SELECT ID, MI_ID, INFO FROM MI_INFO WHERE MI_ID = ?";
+		String sql = "SELECT ID, MI_ID, INFO, CREATION_DATE FROM MI_INFO WHERE MI_ID = ?";
 		RowMapper<MarketIntelligenceInfoEntity> rowMapper = new MarketIntelligenceInfoRowMapper();
 		List<MarketIntelligenceInfoEntity> miEntityLst = jdbcTemplate.query(sql, rowMapper, miId);
 		return miEntityLst;
 	}
 
 	@Override
-	public void addMarketIntelligenceInfo(Long miId, String info) {
-		String sql = "INSERT INTO MI_INFO (MI_ID, INFO) VALUES (?,?)";
-		jdbcTemplate.update(sql, miId, info);
+	public void addMarketIntelligenceInfo(Long miId, MarketIntelligenceInfoEntity miEntity) {
+		String sql = "INSERT INTO MI_INFO (MI_ID, INFO, CREATION_DATE) VALUES (?,?,?)";
+		jdbcTemplate.update(sql, miId, miEntity.getInfo(),miEntity.getCreationDate());
 	}
 
 	@Override

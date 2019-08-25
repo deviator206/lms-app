@@ -38,7 +38,7 @@ public class LeadDetailService implements ILeadDetailService {
 
 	@Autowired
 	private ILeadDAO leadDAO;
-	
+
 	@Autowired
 	private IUserDAO userDAO;
 
@@ -52,16 +52,16 @@ public class LeadDetailService implements ILeadDetailService {
 		try {
 			LeadContactEntity leadContactEntity = new LeadContactEntity();
 			RootLeadEntity rootLeadEntity = new RootLeadEntity();
-			
+
 			if (rootLeadRes.getLeadContact() != null) {
 				ModelEntityMappers.mapLeadContactResToLeadContactEntity(rootLeadRes.getLeadContact(),
 						leadContactEntity);
 				Long leadContactId = leadContactDAO.insertLeadContact(leadContactEntity);
 				rootLeadEntity.setContactId(leadContactId);
-			}			
+			}
 
 			ModelEntityMappers.mapRootLeadResToRootLeadEntity(rootLeadRes, rootLeadEntity);
-			
+
 			rootLeadId = rootLeadDAO.insertRootLead(rootLeadEntity);
 			if (rootLeadRes.getLeadsSummaryRes() != null) {
 				for (String businessUnit : rootLeadRes.getLeadsSummaryRes().getBusinessUnits()) {
@@ -81,10 +81,10 @@ public class LeadDetailService implements ILeadDetailService {
 					}
 					leadEntity.setBudget(rootLeadRes.getLeadsSummaryRes().getBudget());
 					leadEntity.setCurrency(rootLeadRes.getLeadsSummaryRes().getCurrency());
-					
+
 					UserEntity user = userDAO.getUserByUserId(rootLeadRes.getCreatorId());
 					leadEntity.setOriginatingBusinessUnit(user.getBusinessUnit());
-					
+
 					leadDAO.insertLead(leadEntity);
 				}
 			}
@@ -153,10 +153,10 @@ public class LeadDetailService implements ILeadDetailService {
 						leadEntity.setBudget(leadRes.getLeadsSummaryRes().getBudget());
 						leadEntity.setCurrency(leadRes.getLeadsSummaryRes().getCurrency());
 						leadEntity.setMessage(leadRes.getMessage());
-						
+
 						UserEntity user = userDAO.getUserByUserId(leadRes.getCreatorId());
 						leadEntity.setOriginatingBusinessUnit(user.getBusinessUnit());
-						
+
 						leadDAO.insertLead(leadEntity);
 					}
 				}
@@ -238,14 +238,15 @@ public class LeadDetailService implements ILeadDetailService {
 
 	private LeadRes prepareLeadRes(LeadEntity leadEntity) {
 		RootLeadEntity rootLeadEntity = rootLeadDAO.getRootLead(leadEntity.getRootLeadId());
-
-		LeadContactEntity leadContactEntity = leadContactDAO.getLeadContact(rootLeadEntity.getContactId());
-		LeadContactRes leadContactRes = new LeadContactRes();
-		ModelEntityMappers.mapLeadContactEntityToLeadContactRes(leadContactEntity, leadContactRes);
-
 		LeadRes leadRes = new LeadRes();
 		ModelEntityMappers.mapLeadEntityToLeadRes(leadEntity, leadRes);
-		leadRes.setLeadContact(leadContactRes);
+		
+		if (rootLeadEntity.getContactId() != null) {
+			LeadContactEntity leadContactEntity = leadContactDAO.getLeadContact(rootLeadEntity.getContactId());
+			LeadContactRes leadContactRes = new LeadContactRes();
+			ModelEntityMappers.mapLeadContactEntityToLeadContactRes(leadContactEntity, leadContactRes);			
+			leadRes.setLeadContact(leadContactRes);
+		}
 
 		// Map Lead Summary
 		LeadsSummaryRes leadsSummaryRes = new LeadsSummaryRes();

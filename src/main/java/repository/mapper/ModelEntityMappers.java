@@ -106,6 +106,7 @@ public class ModelEntityMappers {
 		// miEntity.setId(miRes.getId());
 		miEntity.setMiId(miRes.getMiId());
 		miEntity.setInfo(miRes.getInfo());
+		miEntity.setCreationDate(miRes.getCreationDate());
 		return miEntity;
 	}
 
@@ -114,6 +115,7 @@ public class ModelEntityMappers {
 		miRes.setId(miEntity.getId());
 		miRes.setMiId(miEntity.getMiId());
 		miRes.setInfo(miEntity.getInfo());
+		miRes.setCreationDate(miEntity.getCreationDate());
 		return miRes;
 	}
 

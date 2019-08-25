@@ -1,10 +1,19 @@
 package model;
 
+import java.util.Date;
+
 public class MarketIntelligenceInfoRes {
 	private Long id;
 	private Long miId;
 	private String info;
+	private Date creationDate;
 	
+	public Date getCreationDate() {
+		return creationDate;
+	}
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
 	public Long getId() {
 		return id;
 	}
