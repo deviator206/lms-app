@@ -1,6 +1,7 @@
 package service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +57,15 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
 		try {
 			if (marketIntelligenceRes.getMiInfoList() != null && !marketIntelligenceRes.getMiInfoList().isEmpty()) {
-				this.addMarketIntelligenceInfo(marketIntelligenceRes.getId(),
-						marketIntelligenceRes.getMiInfoList().get(0).getInfo());
+				MarketIntelligenceInfoEntity miInfoEntity = new MarketIntelligenceInfoEntity();
+				ModelEntityMappers.mapMiInfoResToMiInfoEntity(marketIntelligenceRes.getMiInfoList().get(0),
+						miInfoEntity);
+				
+				//Set Creation Date
+				Date currentDate = new Date();
+				miInfoEntity.setCreationDate(currentDate);
+				
+				this.addMarketIntelligenceInfo(marketIntelligenceRes.getId(), miInfoEntity);
 			}
 			if (marketIntelligenceRes.getRootLead() != null) {
 				Long rootLeadId = leadDetailService.createRootLead(marketIntelligenceRes.getRootLead());
@@ -92,8 +100,8 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	}
 
 	@Override
-	public void addMarketIntelligenceInfo(Long miId, String info) {
-		mrketIntelligenceDAO.addMarketIntelligenceInfo(miId, info);
+	public void addMarketIntelligenceInfo(Long miId, MarketIntelligenceInfoEntity miInfoEntity) {
+		mrketIntelligenceDAO.addMarketIntelligenceInfo(miId, miInfoEntity);
 	}
 
 	@Override

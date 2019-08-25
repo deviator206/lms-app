@@ -1,10 +1,19 @@
 package repository.entity;
 
+import java.util.Date;
+
 public class MarketIntelligenceInfoEntity {
 	private Long id;
 	private Long miId;
 	private String info;
+	private Date creationDate;
 	
+	public Date getCreationDate() {
+		return creationDate;
+	}
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
 	public Long getId() {
 		return id;
 	}
