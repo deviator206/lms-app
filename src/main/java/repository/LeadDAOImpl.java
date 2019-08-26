@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,9 +16,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import model.FilterLeadRes;
+import model.LeadStatistictsRes;
 import repository.entity.LeadEntity;
 import repository.mapper.LeadRowMapper;
 
@@ -35,8 +37,8 @@ public class LeadDAOImpl implements ILeadDAO {
 	@Override
 	public Long insertLead(LeadEntity leadEntity) {
 		Long id = null;
-		String sql = "INSERT INTO LEADS (BU,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,SALES_REP,BUDGET,CURRENCY,MESSAGE,ORIGINATING_BU) \r\n"
-				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);";
+		String sql = "INSERT INTO LEADS (BU,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,SALES_REP,BUDGET,CURRENCY,MESSAGE,ORIGINATING_BU,SALES_REP_ID) \r\n"
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -61,6 +63,12 @@ public class LeadDAOImpl implements ILeadDAO {
 				ps.setString(12, leadEntity.getMessage());
 
 				ps.setString(13, leadEntity.getOriginatingBusinessUnit());
+
+				if (leadEntity.getSalesRepId() != null) {
+					ps.setDouble(14, leadEntity.getSalesRepId());
+				} else {
+					ps.setNull(14, Types.INTEGER);
+				}
 
 				return ps;
 			}
@@ -151,6 +159,21 @@ public class LeadDAOImpl implements ILeadDAO {
 		System.out.println(query);
 
 		return this.jdbcTemplate.query(query, rowMapper);
+	}
+
+	@Override
+	public LeadStatistictsRes getLeadStatistics() {
+		String sql = "SELECT STATUS, COUNT(*) STATUS_COUNT FROM LEADS GROUP BY STATUS;";
+		Map<String, Long> leadStatusCountMap = new HashMap<String, Long>();
+		LeadStatistictsRes leadStatistictsRes = new LeadStatistictsRes();
+		List<Map<String, Object>> statusCountRows = jdbcTemplate.queryForList(sql);
+
+		for (Map statusCountRow : statusCountRows) {
+			leadStatusCountMap.put(((String) statusCountRow.get("STATUS")),
+					((Long) statusCountRow.get("STATUS_COUNT")));
+		}
+		leadStatistictsRes.setLeadStatusCountMap(leadStatusCountMap);
+		return leadStatistictsRes;
 	}
 
 }

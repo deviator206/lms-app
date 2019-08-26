@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import model.FilterLeadRes;
 import model.LeadRes;
+import model.LeadStatistictsRes;
 import model.RootLeadRes;
 import service.ILeadDetailService;
 
@@ -57,5 +58,10 @@ public class LeadDetailController {
 	@PostMapping("/search/leads")
 	public List<LeadRes> filterLeads(@RequestBody FilterLeadRes filterLeadRes) {
 		return leadDetailService.filterLeads(filterLeadRes);
+	}
+
+	@GetMapping("/statistics/lead")
+	public LeadStatistictsRes getLeadStatistics() {
+		return leadDetailService.getLeadStatistics();
 	}
 }

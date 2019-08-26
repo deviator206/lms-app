@@ -16,6 +16,7 @@ import consts.LeadManagementConstants;
 import model.FilterLeadRes;
 import model.LeadContactRes;
 import model.LeadRes;
+import model.LeadStatistictsRes;
 import model.LeadsSummaryRes;
 import model.RootLeadRes;
 import repository.ILeadContactDAO;
@@ -74,7 +75,7 @@ public class LeadDetailService implements ILeadDetailService {
 					leadEntity.setCreationDate(rootLeadRes.getCreationDate());
 					leadEntity.setUpdatorId(rootLeadRes.getCreatorId());
 					leadEntity.setUpdateDate(rootLeadRes.getCreationDate());
-					if (rootLeadEntity.isSelfApproved()) {
+					if (rootLeadRes.isSelfApproved()) {
 						leadEntity.setStatus(LeadManagementConstants.LEAD_STATUS_APPROVED);
 					} else {
 						leadEntity.setStatus(LeadManagementConstants.LEAD_STATUS_DRAFT);
@@ -84,6 +85,10 @@ public class LeadDetailService implements ILeadDetailService {
 
 					UserEntity user = userDAO.getUserByUserId(rootLeadRes.getCreatorId());
 					leadEntity.setOriginatingBusinessUnit(user.getBusinessUnit());
+
+					if (rootLeadRes.getLeadsSummaryRes().getSalesRepId() != null) {
+						leadEntity.setSalesRepId(rootLeadRes.getLeadsSummaryRes().getSalesRepId());
+					}
 
 					leadDAO.insertLead(leadEntity);
 				}
@@ -138,6 +143,9 @@ public class LeadDetailService implements ILeadDetailService {
 						leadEntity.setCurrency(leadRes.getLeadsSummaryRes().getCurrency());
 						leadEntity.setMessage(leadRes.getMessage());
 						leadEntity.setId(leadRes.getId());
+						if(leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
+							leadEntity.setSalesRepId(leadRes.getLeadsSummaryRes().getSalesRepId());
+						}
 						leadDAO.updateLead(leadEntity);
 					} else {
 						leadEntity = new LeadEntity();
@@ -156,6 +164,10 @@ public class LeadDetailService implements ILeadDetailService {
 
 						UserEntity user = userDAO.getUserByUserId(leadRes.getCreatorId());
 						leadEntity.setOriginatingBusinessUnit(user.getBusinessUnit());
+						
+						if(leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
+							leadEntity.setSalesRepId(leadRes.getLeadsSummaryRes().getSalesRepId());
+						}
 
 						leadDAO.insertLead(leadEntity);
 					}
@@ -192,6 +204,9 @@ public class LeadDetailService implements ILeadDetailService {
 							: LeadManagementConstants.LEAD_STATUS_DRAFT;
 					leadEntity.setStatus(status);
 					leadEntity.setId(leadRes.getId());
+					if(leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
+						leadEntity.setSalesRepId(leadRes.getLeadsSummaryRes().getSalesRepId());
+					}
 				}
 				leadDAO.updateLead(leadEntity);
 			}
@@ -240,11 +255,11 @@ public class LeadDetailService implements ILeadDetailService {
 		RootLeadEntity rootLeadEntity = rootLeadDAO.getRootLead(leadEntity.getRootLeadId());
 		LeadRes leadRes = new LeadRes();
 		ModelEntityMappers.mapLeadEntityToLeadRes(leadEntity, leadRes);
-		
+
 		if (rootLeadEntity.getContactId() != null) {
 			LeadContactEntity leadContactEntity = leadContactDAO.getLeadContact(rootLeadEntity.getContactId());
 			LeadContactRes leadContactRes = new LeadContactRes();
-			ModelEntityMappers.mapLeadContactEntityToLeadContactRes(leadContactEntity, leadContactRes);			
+			ModelEntityMappers.mapLeadContactEntityToLeadContactRes(leadContactEntity, leadContactRes);
 			leadRes.setLeadContact(leadContactRes);
 		}
 
@@ -289,6 +304,11 @@ public class LeadDetailService implements ILeadDetailService {
 			leads.add(leadRes);
 		}
 		return leads;
+	}
+
+	@Override
+	public LeadStatistictsRes getLeadStatistics() {
+		return leadDAO.getLeadStatistics();
 	}
 
 }

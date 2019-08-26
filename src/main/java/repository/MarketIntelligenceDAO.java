@@ -17,6 +17,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import consts.LeadManagementConstants;
 import model.FilterMarketIntelligenceRes;
 import repository.entity.MarketIntelligenceEntity;
 import repository.entity.MarketIntelligenceInfoEntity;
@@ -47,9 +48,9 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	}
 
 	@Override
-	public void updateLeadInMarketIntelligence(Long rootLeadId, Long miId) {
-		String sql = "UPDATE MI SET LEAD_ID = ? WHERE ID = ?;";
-		jdbcTemplate.update(sql, rootLeadId, miId);
+	public void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status) {
+		String sql = "UPDATE MI SET LEAD_ID = ?, STATUS = ? WHERE ID = ?;";
+		jdbcTemplate.update(sql, rootLeadId, status, miId);
 	}
 
 	@Override
@@ -60,7 +61,8 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 				PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 				ps.setString(1, miEntity.getType());
-				ps.setString(2, miEntity.getStatus());
+				ps.setString(2,
+						miEntity.getStatus() != null ? miEntity.getStatus() : LeadManagementConstants.MI_STATUS_OPEN);
 				ps.setString(3, miEntity.getName());
 				ps.setString(4, miEntity.getDescription());
 				if (miEntity.getInvestment() != null) {
@@ -88,7 +90,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	@Override
 	public void addMarketIntelligenceInfo(Long miId, MarketIntelligenceInfoEntity miEntity) {
 		String sql = "INSERT INTO MI_INFO (MI_ID, INFO, CREATION_DATE) VALUES (?,?,?)";
-		jdbcTemplate.update(sql, miId, miEntity.getInfo(),miEntity.getCreationDate());
+		jdbcTemplate.update(sql, miId, miEntity.getInfo(), miEntity.getCreationDate());
 	}
 
 	@Override
@@ -103,6 +105,13 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 		RowMapper<MarketIntelligenceEntity> rowMapper = new MarketIntelligenceRowMapper();
 
 		String query = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE FROM MI WHERE 1 = 1";
+
+		if (filterMarketIntelligence.getSearchText() != null && !filterMarketIntelligence.getSearchText().isEmpty()) {
+			// query = query + " AND NAME LIKE '%" + filterMarketIntelligence.getName() +
+			// "%'";
+			query = query + " AND CONCAT(NAME,' ',DESCRIPTION) LIKE '%" + filterMarketIntelligence.getSearchText()
+					+ "%' ";
+		}
 
 		if (filterMarketIntelligence.getName() != null && !filterMarketIntelligence.getName().isEmpty()) {
 			query = query + " AND NAME LIKE '%" + filterMarketIntelligence.getName() + "%'";

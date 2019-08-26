@@ -9,6 +9,14 @@ public class LeadsSummaryRes {
 	private String industry;
 	private Double budget;
 	private String currency;
+	private Long salesRepId;
+	public Long getSalesRepId() {
+		return salesRepId;
+	}
+
+	public void setSalesRepId(Long salesRepId) {
+		this.salesRepId = salesRepId;
+	}
 
 	public Double getBudget() {
 		return budget;

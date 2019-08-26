@@ -3,6 +3,14 @@ package repository.entity;
 import java.sql.Date;
 
 public class LeadEntity {
+	public Long getSalesRepId() {
+		return salesRepId;
+	}
+
+	public void setSalesRepId(Long salesRepId) {
+		this.salesRepId = salesRepId;
+	}
+
 	private Long id;
 	private String businessUnit;
 	private String status;
@@ -14,6 +22,7 @@ public class LeadEntity {
 	private Long creatorId;
 	private Date updateDate;
 	private Long updatorId;
+	private Long salesRepId;
 
 	private String originatingBusinessUnit;
 	

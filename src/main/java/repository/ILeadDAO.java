@@ -3,6 +3,7 @@ package repository;
 import java.util.List;
 
 import model.FilterLeadRes;
+import model.LeadStatistictsRes;
 import repository.entity.LeadEntity;
 
 public interface ILeadDAO {
@@ -19,4 +20,6 @@ public interface ILeadDAO {
 	boolean updateLead(LeadEntity leadEntity);
 	
 	List<LeadEntity> filterLeads(FilterLeadRes filterLeadRes);
+	
+	LeadStatistictsRes getLeadStatistics();
 }
