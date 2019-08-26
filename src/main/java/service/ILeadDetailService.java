@@ -4,6 +4,7 @@ import java.util.List;
 
 import model.FilterLeadRes;
 import model.LeadRes;
+import model.LeadStatistictsRes;
 import model.RootLeadRes;
 
 public interface ILeadDetailService {
@@ -20,5 +21,7 @@ public interface ILeadDetailService {
 	Long updateLead(LeadRes leadRes);
 	
 	List<LeadRes> filterLeads(FilterLeadRes filterLeadRes);
+	
+	LeadStatistictsRes getLeadStatistics();
 
 }

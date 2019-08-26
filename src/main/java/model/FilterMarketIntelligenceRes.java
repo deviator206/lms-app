@@ -8,6 +8,13 @@ public class FilterMarketIntelligenceRes {
 	private Double investment;
 	private Date startDate;
 	private Date endDate;
+	private String searchText;
+	public String getSearchText() {
+		return searchText;
+	}
+	public void setSearchText(String searchText) {
+		this.searchText = searchText;
+	}
 	public String getType() {
 		return type;
 	}

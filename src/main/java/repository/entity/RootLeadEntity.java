@@ -16,6 +16,15 @@ public class RootLeadEntity {
 	private String tenure;
 	
 	private String salesRep;
+	private Long salesRepId;
+	public Long getSalesRepId() {
+		return salesRepId;
+	}
+
+	public void setSalesRepId(Long salesRepId) {
+		this.salesRepId = salesRepId;
+	}
+	
 	public String getSalesRep() {
 		return salesRep;
 	}

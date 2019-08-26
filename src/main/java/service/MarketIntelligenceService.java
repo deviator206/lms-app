@@ -10,6 +10,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import consts.LeadManagementConstants;
 import model.FilterMarketIntelligenceRes;
 import model.MarketIntelligenceInfoRes;
 import model.MarketIntelligenceRes;
@@ -60,17 +61,25 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 				MarketIntelligenceInfoEntity miInfoEntity = new MarketIntelligenceInfoEntity();
 				ModelEntityMappers.mapMiInfoResToMiInfoEntity(marketIntelligenceRes.getMiInfoList().get(0),
 						miInfoEntity);
-				
-				//Set Creation Date
+
+				// Set Creation Date
 				Date currentDate = new Date();
 				miInfoEntity.setCreationDate(currentDate);
-				
+
 				this.addMarketIntelligenceInfo(marketIntelligenceRes.getId(), miInfoEntity);
 			}
-			if (marketIntelligenceRes.getRootLead() != null) {
-				Long rootLeadId = leadDetailService.createRootLead(marketIntelligenceRes.getRootLead());
-				mrketIntelligenceDAO.updateLeadInMarketIntelligence(rootLeadId, marketIntelligenceRes.getId());
+
+			if (marketIntelligenceRes.getRootLeadId() != null) {
+				mrketIntelligenceDAO.updateLeadInMarketIntelligence(marketIntelligenceRes.getId(),
+						marketIntelligenceRes.getRootLeadId(), LeadManagementConstants.MI_STATUS_CLOSED);
 			}
+
+			/*
+			 * if (marketIntelligenceRes.getRootLead() != null) { Long rootLeadId =
+			 * leadDetailService.createRootLead(marketIntelligenceRes.getRootLead());
+			 * mrketIntelligenceDAO.updateLeadInMarketIntelligence(rootLeadId,
+			 * marketIntelligenceRes.getId()); }
+			 */
 			transactionManager.commit(ts);
 		} catch (Exception e) {
 			transactionManager.rollback(ts);

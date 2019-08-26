@@ -13,7 +13,7 @@ public interface IMarketIntelligenceDAO {
 
 	void updateMarketIntelligence(MarketIntelligenceEntity marketingIntelligenceEntity);
 
-	void updateLeadInMarketIntelligence(Long rootLeadId, Long miId);
+	void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status);
 
 	Long addMarketIntelligence(MarketIntelligenceEntity marketingIntelligenceEntity);
 
