@@ -1,5 +1,6 @@
 package repository;
 
+import java.util.Date;
 import java.util.List;
 
 import model.FilterMarketIntelligenceRes;
@@ -13,7 +14,7 @@ public interface IMarketIntelligenceDAO {
 
 	void updateMarketIntelligence(MarketIntelligenceEntity marketingIntelligenceEntity);
 
-	void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status);
+	void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status, Long updatorId,Date updateDate);
 
 	Long addMarketIntelligence(MarketIntelligenceEntity marketingIntelligenceEntity);
 

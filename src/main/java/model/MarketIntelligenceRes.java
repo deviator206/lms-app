@@ -15,7 +15,34 @@ public class MarketIntelligenceRes {
 	private RootLeadRes rootLead;
 	
 	private Date creationDate;
+	private Long creatorId;
+	private Long updatorId;
+	private Date updateDate;
 	
+	public Long getCreatorId() {
+		return creatorId;
+	}
+
+	public void setCreatorId(Long creatorId) {
+		this.creatorId = creatorId;
+	}
+
+	public Long getUpdatorId() {
+		return updatorId;
+	}
+
+	public void setUpdatorId(Long updatorId) {
+		this.updatorId = updatorId;
+	}
+
+	public Date getUpdateDate() {
+		return updateDate;
+	}
+
+	public void setUpdateDate(Date updateDate) {
+		this.updateDate = updateDate;
+	}
+
 	public Date getCreationDate() {
 		return creationDate;
 	}

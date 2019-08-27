@@ -65,13 +65,18 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 				// Set Creation Date
 				Date currentDate = new Date();
 				miInfoEntity.setCreationDate(currentDate);
+				miInfoEntity.setCreatorId(marketIntelligenceRes.getUpdatorId());
 
 				this.addMarketIntelligenceInfo(marketIntelligenceRes.getId(), miInfoEntity);
 			}
 
+			Date updateDate = marketIntelligenceRes.getUpdateDate() != null ? marketIntelligenceRes.getUpdateDate()
+					: new Date();
+
 			if (marketIntelligenceRes.getRootLeadId() != null) {
 				mrketIntelligenceDAO.updateLeadInMarketIntelligence(marketIntelligenceRes.getId(),
-						marketIntelligenceRes.getRootLeadId(), LeadManagementConstants.MI_STATUS_CLOSED);
+						marketIntelligenceRes.getRootLeadId(), LeadManagementConstants.MI_STATUS_CLOSED,
+						marketIntelligenceRes.getUpdatorId(), updateDate);
 			}
 
 			/*

@@ -14,14 +14,14 @@ public interface ILeadDetailService {
 
 	LeadRes getLead(Long id);
 
-	List<LeadRes> getLeads();
+	List<LeadRes> getLeads(String leadtype, Long userId);
 
 	List<LeadRes> searchLeads(String name, String description);
 
 	Long updateLead(LeadRes leadRes);
-	
+
 	List<LeadRes> filterLeads(FilterLeadRes filterLeadRes);
-	
-	LeadStatistictsRes getLeadStatistics();
+
+	LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary,Long userId);
 
 }

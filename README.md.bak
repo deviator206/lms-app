@@ -297,3 +297,46 @@ Payload -
 }
 
 --------------------------------------------------------------------
+--------------------------------------------------------
+Search Market Intelligence from  name and description
+
+POST http://localhost:8080/search/marketIntelligence
+
+Payload -
+
+{
+	"searchText" : ""
+}
+
+-------------------------------------------------------
+
+Update Market Intelligence  with Root Lead Id
+
+POST http://localhost:8080/marketIntelligence/{id}
+
+Payload -
+
+{
+  "id" : 4,
+  "rootLeadId" : "44544"
+}
+
+-----------------------------------------------------
+
+Get Lead Statistics 
+
+GET http://localhost:8080/statistics/lead
+
+Response -
+
+{
+	"leadStatusCountMap": {
+		"CLOSED": 1,
+		"DRAFT": 16,
+		"REJECTED": 2,
+		"OPEN": 1
+	}
+}
+
+-------------------------------------------------------
+

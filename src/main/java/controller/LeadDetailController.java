@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import consts.LeadManagementConstants;
 import model.FilterLeadRes;
 import model.LeadRes;
 import model.LeadStatistictsRes;
@@ -39,11 +40,13 @@ public class LeadDetailController {
 
 	@GetMapping("/leads")
 	public List<LeadRes> getLeads(@RequestParam(value = "name", required = false) String name,
-			@RequestParam(value = "desc", required = false) String description) {
+			@RequestParam(value = "desc", required = false) String description,
+			@RequestParam(value = "leadtype", required = false, defaultValue = LeadManagementConstants.LEAD_TYPE_ALL) String leadType,
+			@RequestParam(value = "userid", required = false) Long userid) {
 		if ((name != null) && (!name.isEmpty()) || (description != null) && (!description.isEmpty())) {
 			return leadDetailService.searchLeads(name, description);
 		} else {
-			return leadDetailService.getLeads();
+			return leadDetailService.getLeads(leadType, userid);
 		}
 	}
 
@@ -60,8 +63,10 @@ public class LeadDetailController {
 		return leadDetailService.filterLeads(filterLeadRes);
 	}
 
-	@GetMapping("/statistics/lead")
-	public LeadStatistictsRes getLeadStatistics() {
-		return leadDetailService.getLeadStatistics();
+	@PostMapping("/statistics/lead")
+	public LeadStatistictsRes getLeadStatistics(
+			@RequestParam(value = "busummary", required = false, defaultValue = "false") Boolean busummary,
+			@RequestParam(value = "userid", required = false) Long userId, @RequestBody FilterLeadRes filterLeadRes) {
+		return leadDetailService.getLeadStatistics(filterLeadRes,busummary, userId);
 	}
 }

@@ -25,6 +25,13 @@ public class MarketIntelligenceRowMapper implements RowMapper<MarketIntelligence
 		}
 		marketingIntelligenceEntity.setDescription(rs.getString("DESCRIPTION"));
 		marketingIntelligenceEntity.setCreationDate(rs.getDate("CREATION_DATE"));
+		if (rs.getObject("CREATOR_ID") != null) {
+			marketingIntelligenceEntity.setCreatorId(rs.getLong("CREATOR_ID"));
+		}
+		marketingIntelligenceEntity.setUpdateDate(rs.getDate("UPDATE_DATE"));
+		if (rs.getObject("UPDATOR_ID") != null) {
+			marketingIntelligenceEntity.setUpdatorId(rs.getLong("UPDATOR_ID"));
+		}
 		return marketingIntelligenceEntity;
 	}
 

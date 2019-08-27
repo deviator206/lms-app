@@ -5,6 +5,16 @@ import java.util.Date;
 public class FilterLeadRes {
 	private String custName;
 	private String salesRep;
+	private Long salesRepId;
+
+	public Long getSalesRepId() {
+		return salesRepId;
+	}
+
+	public void setSalesRepId(Long salesRepId) {
+		this.salesRepId = salesRepId;
+	}
+
 	private Date startDate;
 	private Date endDate;
 	private String fromBu;

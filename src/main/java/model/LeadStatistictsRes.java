@@ -12,4 +12,32 @@ public class LeadStatistictsRes {
 	public void setLeadStatusCountMap(Map<String, Long> leadStatusCountMap) {
 		this.leadStatusCountMap = leadStatusCountMap;
 	}
+	
+	private Long internalBuLeadsCount;
+	private Long externalBuLeadsCount;
+	private Long crossBuLeadsCount;
+
+	public Long getExternalBuLeadsCount() {
+		return externalBuLeadsCount;
+	}
+
+	public void setExternalBuLeadsCount(Long externalBuLeadsCount) {
+		this.externalBuLeadsCount = externalBuLeadsCount;
+	}
+
+	public Long getCrossBuLeadsCount() {
+		return crossBuLeadsCount;
+	}
+
+	public void setCrossBuLeadsCount(Long crossBuLeadsCount) {
+		this.crossBuLeadsCount = crossBuLeadsCount;
+	}
+
+	public Long getInternalBuLeadsCount() {
+		return internalBuLeadsCount;
+	}
+
+	public void setInternalBuLeadsCount(Long internalBuLeadsCount) {
+		this.internalBuLeadsCount = internalBuLeadsCount;
+	}
 }

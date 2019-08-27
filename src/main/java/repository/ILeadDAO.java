@@ -9,7 +9,7 @@ import repository.entity.LeadEntity;
 public interface ILeadDAO {
 	LeadEntity getLead(Long id);
 
-	List<LeadEntity> getLeads();
+	List<LeadEntity> getLeads(String leadtype,Long userId);
 
 	List<LeadEntity> searchLeads(String name, String description);
 
@@ -21,5 +21,5 @@ public interface ILeadDAO {
 	
 	List<LeadEntity> filterLeads(FilterLeadRes filterLeadRes);
 	
-	LeadStatistictsRes getLeadStatistics();
+	LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes,Boolean busummary,Long userId);
 }
