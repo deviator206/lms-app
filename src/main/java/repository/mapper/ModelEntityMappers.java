@@ -86,6 +86,9 @@ public class ModelEntityMappers {
 		miRes.setInvestment(miEntity.getInvestment());
 		miRes.setRootLeadId(miEntity.getLeadId());
 		miRes.setCreationDate(miEntity.getCreationDate());
+		miRes.setCreationDate(miEntity.getCreationDate());
+		miRes.setUpdatorId(miEntity.getUpdatorId());
+		miRes.setUpdateDate(miEntity.getUpdateDate());
 		return miRes;
 	}
 
@@ -98,6 +101,10 @@ public class ModelEntityMappers {
 		miEntity.setDescription(miRes.getDescription());
 		miEntity.setInvestment(miRes.getInvestment());
 		miEntity.setLeadId(miRes.getRootLeadId());
+		miEntity.setCreatorId(miRes.getCreatorId());
+		miEntity.setCreationDate(miRes.getCreationDate());
+		miEntity.setUpdatorId(miRes.getUpdatorId());
+		miEntity.setUpdateDate(miRes.getUpdateDate());
 		return miEntity;
 	}
 
@@ -107,6 +114,7 @@ public class ModelEntityMappers {
 		miEntity.setMiId(miRes.getMiId());
 		miEntity.setInfo(miRes.getInfo());
 		miEntity.setCreationDate(miRes.getCreationDate());
+		miEntity.setCreatorId(miRes.getCreatorId());
 		return miEntity;
 	}
 
@@ -116,6 +124,7 @@ public class ModelEntityMappers {
 		miRes.setMiId(miEntity.getMiId());
 		miRes.setInfo(miEntity.getInfo());
 		miRes.setCreationDate(miEntity.getCreationDate());
+		miRes.setCreatorId(miEntity.getCreatorId());
 		return miRes;
 	}
 

@@ -241,9 +241,9 @@ public class LeadDetailService implements ILeadDetailService {
 	}
 
 	@Override
-	public List<LeadRes> getLeads() {
+	public List<LeadRes> getLeads(String leadType,Long userId) {
 		List<LeadRes> leads = new ArrayList<LeadRes>();
-		List<LeadEntity> leadEntityList = leadDAO.getLeads();
+		List<LeadEntity> leadEntityList = leadDAO.getLeads(leadType,userId);
 		for (LeadEntity leadEntity : leadEntityList) {
 			LeadRes leadRes = prepareLeadRes(leadEntity);
 			leads.add(leadRes);
@@ -307,8 +307,8 @@ public class LeadDetailService implements ILeadDetailService {
 	}
 
 	@Override
-	public LeadStatistictsRes getLeadStatistics() {
-		return leadDAO.getLeadStatistics();
+	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes,Boolean busummary,Long userId) {	
+		return leadDAO.getLeadStatistics(filterLeadRes,busummary,userId);
 	}
 
 }

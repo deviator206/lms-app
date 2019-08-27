@@ -34,28 +34,28 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 
 	@Override
 	public List<MarketIntelligenceEntity> getMarketIntelligence() {
-		String sql = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE FROM MI";
+		String sql = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE,CREATOR_ID, UPDATOR_ID, UPDATE_DATE FROM MI";
 		RowMapper<MarketIntelligenceEntity> rowMapper = new MarketIntelligenceRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper);
 	}
 
 	@Override
 	public MarketIntelligenceEntity getMarkByIdetIntelligenceById(Long id) {
-		String sql = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE FROM MI WHERE ID = ?";
+		String sql = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE, CREATOR_ID, UPDATOR_ID, UPDATE_DATE FROM MI WHERE ID = ?";
 		RowMapper<MarketIntelligenceEntity> rowMapper = new MarketIntelligenceRowMapper();
 		MarketIntelligenceEntity miEntity = jdbcTemplate.queryForObject(sql, rowMapper, id);
 		return miEntity;
 	}
 
 	@Override
-	public void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status) {
-		String sql = "UPDATE MI SET LEAD_ID = ?, STATUS = ? WHERE ID = ?;";
-		jdbcTemplate.update(sql, rootLeadId, status, miId);
+	public void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status, Long updatorId,Date updateDate) {
+		String sql = "UPDATE MI SET LEAD_ID = ?, STATUS = ?  UPDATOR_ID = ?, UPDATE_DATE = ? WHERE ID = ?;";
+		jdbcTemplate.update(sql, rootLeadId, status, updatorId,updateDate);
 	}
 
 	@Override
 	public Long addMarketIntelligence(MarketIntelligenceEntity miEntity) {
-		String sql = "INSERT INTO MI (TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT, CREATION_DATE) VALUES (?,?,?,?,?,?) ";
+		String sql = "INSERT INTO MI (TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT, CREATION_DATE, CREATOR_ID) VALUES (?,?,?,?,?,?) ";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -73,6 +73,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 				ps.setDate(6,
 						miEntity.getCreationDate() != null ? new java.sql.Date(miEntity.getCreationDate().getTime())
 								: new java.sql.Date(new Date().getTime()));
+				ps.setLong(7, miEntity.getCreatorId());
 				return ps;
 			}
 		}, keyHolder);
@@ -81,7 +82,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 
 	@Override
 	public List<MarketIntelligenceInfoEntity> getMarketIntelligenceInfoList(Long miId) {
-		String sql = "SELECT ID, MI_ID, INFO, CREATION_DATE FROM MI_INFO WHERE MI_ID = ?";
+		String sql = "SELECT ID, MI_ID, INFO, CREATION_DATE,CREATOR_ID FROM MI_INFO WHERE MI_ID = ?";
 		RowMapper<MarketIntelligenceInfoEntity> rowMapper = new MarketIntelligenceInfoRowMapper();
 		List<MarketIntelligenceInfoEntity> miEntityLst = jdbcTemplate.query(sql, rowMapper, miId);
 		return miEntityLst;
@@ -89,8 +90,8 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 
 	@Override
 	public void addMarketIntelligenceInfo(Long miId, MarketIntelligenceInfoEntity miEntity) {
-		String sql = "INSERT INTO MI_INFO (MI_ID, INFO, CREATION_DATE) VALUES (?,?,?)";
-		jdbcTemplate.update(sql, miId, miEntity.getInfo(), miEntity.getCreationDate());
+		String sql = "INSERT INTO MI_INFO (MI_ID, INFO, CREATION_DATE,CREATOR_ID) VALUES (?,?,?)";
+		jdbcTemplate.update(sql, miId, miEntity.getInfo(), miEntity.getCreationDate(),miEntity.getCreatorId());
 	}
 
 	@Override
@@ -104,7 +105,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 			FilterMarketIntelligenceRes filterMarketIntelligence) {
 		RowMapper<MarketIntelligenceEntity> rowMapper = new MarketIntelligenceRowMapper();
 
-		String query = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE FROM MI WHERE 1 = 1";
+		String query = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE, CREATOR_ID, UPDATOR_ID, UPDATE_DATE FROM MI WHERE 1 = 1";
 
 		if (filterMarketIntelligence.getSearchText() != null && !filterMarketIntelligence.getSearchText().isEmpty()) {
 			// query = query + " AND NAME LIKE '%" + filterMarketIntelligence.getName() +

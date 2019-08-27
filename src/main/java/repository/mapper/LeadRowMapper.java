@@ -15,7 +15,9 @@ public class LeadRowMapper implements RowMapper<LeadEntity> {
 		leadEntity.setId(rs.getLong("ID"));
 		leadEntity.setBusinessUnit(rs.getString("BU"));
 		leadEntity.setStatus(rs.getString("STATUS"));
-		leadEntity.setSalesRep(rs.getString("SALES_REP"));
+		if (rs.getObject("SALES_REP_ID") != null) {
+			leadEntity.setSalesRep(rs.getString("SALES_REP_ID"));
+		}
 		leadEntity.setRootLeadId(rs.getLong("ROOT_ID"));
 		leadEntity.setDeleted(rs.getBoolean("DELETED"));
 		leadEntity.setCreationDate(rs.getDate("CREATION_DATE"));
