@@ -34,7 +34,7 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public LeadEntity getLead(Long id) {
-		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE FROM LEADS WHERE ID = ?";
+		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE, SALES_REP_ID FROM LEADS WHERE ID = ?";
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 		return this.jdbcTemplate.queryForObject(sql, rowMapper, new Object[] { id });
 	}
