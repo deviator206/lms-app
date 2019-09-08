@@ -7,9 +7,26 @@ public class UserRegistrationDetails {
 	private String userDisplayName;
 	private String businessUnit;
 	private List<String> roles;
+	private Long userId;
+	
+	public Long getUserId() {
+		return userId;
+	}
+
+
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+
+
 	public String getUserDisplayName() {
 		return userDisplayName;
 	}
+	
+	
+	
 	public void setUserDisplayName(String userDisplayName) {
 		this.userDisplayName = userDisplayName;
 	}

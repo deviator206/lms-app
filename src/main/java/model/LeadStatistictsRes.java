@@ -16,6 +16,15 @@ public class LeadStatistictsRes {
 	private Long internalBuLeadsCount;
 	private Long externalBuLeadsCount;
 	private Long crossBuLeadsCount;
+	private Long totalLeadsGeneratedByUser;
+
+	public Long getTotalLeadsGeneratedByUser() {
+		return totalLeadsGeneratedByUser;
+	}
+
+	public void setTotalLeadsGeneratedByUser(Long totalLeadsGeneratedByUser) {
+		this.totalLeadsGeneratedByUser = totalLeadsGeneratedByUser;
+	}
 
 	public Long getExternalBuLeadsCount() {
 		return externalBuLeadsCount;

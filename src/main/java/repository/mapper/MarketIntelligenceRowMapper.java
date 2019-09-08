@@ -32,6 +32,7 @@ public class MarketIntelligenceRowMapper implements RowMapper<MarketIntelligence
 		if (rs.getObject("UPDATOR_ID") != null) {
 			marketingIntelligenceEntity.setUpdatorId(rs.getLong("UPDATOR_ID"));
 		}
+		marketingIntelligenceEntity.setAttachment(rs.getString("ATTACHMENT"));
 		return marketingIntelligenceEntity;
 	}
 

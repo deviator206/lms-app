@@ -14,15 +14,16 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import model.FilterUserRes;
 import repository.entity.UserEntity;
 import repository.mapper.UserRowMapper;
+import repository.mapper.UserSummaryRowMapper;
 
 @Repository
 public class UserDAOImpl implements IUserDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
-	
-	
+
 	@Override
 	public List<UserEntity> getUsers() {
 		String sql = "SELECT ID, USERNAME, PASSWORD, EMAIL, ENABLED, USER_DISPLAY_NAME, BU FROM USERS";
@@ -40,13 +41,13 @@ public class UserDAOImpl implements IUserDAO {
 				ps.setString(1, user.getUserName());
 				ps.setBoolean(2, user.isEnabled());
 				ps.setString(3, user.getPassword());
-				ps.setString(4,user.getEmail());
+				ps.setString(4, user.getEmail());
 				ps.setString(5, user.getUserDisplayName());
 				ps.setString(6, user.getBusinessUnit());
 				return ps;
 			}
 		}, keyHolder);
-		return keyHolder.getKey().longValue();	
+		return keyHolder.getKey().longValue();
 	}
 
 	@Override
@@ -63,6 +64,51 @@ public class UserDAOImpl implements IUserDAO {
 		RowMapper<UserEntity> rowMapper = new UserRowMapper();
 		UserEntity user = jdbcTemplate.queryForObject(sql, rowMapper, userId);
 		return user;
+	}
+
+	@Override
+	public void updateUser(UserEntity user) {
+		String sql = "UPDATE USERS SET USERNAME = ?, ENABLED = ?, PASSWORD = ?, EMAIL = ?, USER_DISPLAY_NAME = ?, BU = ? WHERE ID = ?;";
+		int affectedRows = jdbcTemplate.update(sql, user.getUserName(), user.isEnabled(), user.getPassword(),
+				user.getEmail(), user.getUserDisplayName(), user.getBusinessUnit(), user.getId());
+		// return affectedRows == 0 ? false : true;
+
+	}
+
+	@Override
+	public void disableUser(UserEntity user) {
+		String sql = "UPDATE USERS SET ENABLED = ? WHERE ID = ?;";
+		int affectedRows = jdbcTemplate.update(sql, user.isEnabled(), user.getId());
+		// return affectedRows == 0 ? false : true;
+
+	}
+
+	@Override
+	public List<UserEntity> filterUsers(FilterUserRes filterUserRes) {
+		String query = "SELECT ID, USERNAME, EMAIL, ENABLED, USER_DISPLAY_NAME, BU FROM USERS WHERE 1 = 1";
+		RowMapper<UserEntity> rowMapper = new UserSummaryRowMapper();
+		query = getFilterLeadsQuery(filterUserRes, query);
+		return this.jdbcTemplate.query(query, rowMapper);
+	}
+
+	private String getFilterLeadsQuery(FilterUserRes filterUserRes, String query) {
+		if (filterUserRes.getUserName() != null && !filterUserRes.getUserName().isEmpty()) {
+			query = query + " AND USERNAME = '" + filterUserRes.getUserName() + "'";
+		}
+
+		if (filterUserRes.getUserDisplayName() != null && !filterUserRes.getUserDisplayName().isEmpty()) {
+			query = query + " AND USER_DISPLAY_NAME LIKE '%" + filterUserRes.getUserDisplayName() + "%'";
+		}
+
+		if (filterUserRes.getEmail() != null && !filterUserRes.getEmail().isEmpty()) {
+			query = query + " AND EMAIL = '" + filterUserRes.getEmail() + "'";
+		}
+
+		if (filterUserRes.getBusinessUnit() != null && !filterUserRes.getBusinessUnit().isEmpty()) {
+			query = query + " AND BU = '" + filterUserRes.getBusinessUnit() + "'";
+		}
+
+		return query;
 	}
 
 }

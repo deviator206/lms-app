@@ -8,6 +8,16 @@ public class UserInfo {
 	private Long userId;
 	private String userName;
 
+	private Boolean enabled;
+
+	public Boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
+	}
+
 	private String userDisplayName;
 	private String businessUnit;
 	private List<String> roles;
@@ -35,7 +45,7 @@ public class UserInfo {
 	public void setRoles(List<String> roles) {
 		this.roles = roles;
 	}
-	
+
 	public String getUserName() {
 		return userName;
 	}

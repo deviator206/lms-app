@@ -16,6 +16,15 @@ public class MarketIntelligenceEntity {
 	private Long creatorId;
 	private Long updatorId;
 	private Date updateDate;
+	private String attachment;
+
+	public String getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
+	}
 
 	public Long getCreatorId() {
 		return creatorId;

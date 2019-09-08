@@ -5,11 +5,20 @@ import java.util.List;
 public class LeadsSummaryRes {
 	private List<String> businessUnits;
 	private Long rootLeadId;
-	private String salesRep;
+	private UserRes salesRep;
+	public UserRes getSalesRep() {
+		return salesRep;
+	}
+
+	public void setSalesRep(UserRes salesRep) {
+		this.salesRep = salesRep;
+	}
+
 	private String industry;
 	private Double budget;
 	private String currency;
 	private Long salesRepId;
+
 	public Long getSalesRepId() {
 		return salesRepId;
 	}
@@ -48,14 +57,6 @@ public class LeadsSummaryRes {
 
 	public void setRootLeadId(Long rootLeadId) {
 		this.rootLeadId = rootLeadId;
-	}
-
-	public String getSalesRep() {
-		return salesRep;
-	}
-
-	public void setSalesRep(String salesRep) {
-		this.salesRep = salesRep;
 	}
 
 	public String getIndustry() {

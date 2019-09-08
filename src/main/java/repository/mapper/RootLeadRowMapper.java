@@ -35,6 +35,7 @@ public class RootLeadRowMapper implements RowMapper<RootLeadEntity> {
 		rootLeadEntity.setCurrency(rs.getString("CURRENCY"));
 		rootLeadEntity.setSelfApproved(rs.getBoolean("SELF_APPROVED"));
 		rootLeadEntity.setTenure(rs.getString("TENURE"));
+		rootLeadEntity.setSourceInfo(rs.getString("SOURCE_INFO"));
 		return rootLeadEntity;
 	}
 

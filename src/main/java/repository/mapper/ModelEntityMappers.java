@@ -9,11 +9,13 @@ import model.LeadsSummaryRes;
 import model.MarketIntelligenceInfoRes;
 import model.MarketIntelligenceRes;
 import model.RootLeadRes;
+import model.UserRes;
 import repository.entity.LeadContactEntity;
 import repository.entity.LeadEntity;
 import repository.entity.MarketIntelligenceEntity;
 import repository.entity.MarketIntelligenceInfoEntity;
 import repository.entity.RootLeadEntity;
+import repository.entity.UserEntity;
 
 public class ModelEntityMappers {
 
@@ -46,8 +48,9 @@ public class ModelEntityMappers {
 		rootLeadEntity.setSelfApproved(rootLeadRes.isSelfApproved());
 		rootLeadEntity.setTenure(rootLeadRes.getTenure());
 		if (rootLeadRes.getLeadsSummaryRes() != null) {
-			rootLeadEntity.setSalesRep(rootLeadRes.getLeadsSummaryRes().getSalesRep());
+			rootLeadEntity.setSalesRepId(rootLeadRes.getLeadsSummaryRes().getSalesRepId());
 		}
+		rootLeadEntity.setSourceInfo(rootLeadRes.getSourceInfo());
 		return rootLeadEntity;
 	}
 
@@ -89,6 +92,7 @@ public class ModelEntityMappers {
 		miRes.setCreationDate(miEntity.getCreationDate());
 		miRes.setUpdatorId(miEntity.getUpdatorId());
 		miRes.setUpdateDate(miEntity.getUpdateDate());
+		miRes.setAttachment(miEntity.getAttachment());
 		return miRes;
 	}
 
@@ -149,6 +153,7 @@ public class ModelEntityMappers {
 		leadRes.setCreatorId(leadEntity.getCreatorId());
 		leadRes.setUpdatorId(leadEntity.getUpdatorId());
 		leadRes.setStatus(leadEntity.getStatus());
+		leadRes.setAttachment(leadEntity.getAttachment());
 		return leadRes;
 	}
 
@@ -160,7 +165,7 @@ public class ModelEntityMappers {
 		businessUnits.add(leadEntity.getBusinessUnit());
 		leadsSummaryRes.setBusinessUnits(businessUnits);
 		leadsSummaryRes.setIndustry(leadEntity.getIndustry());
-		leadsSummaryRes.setSalesRep(leadEntity.getSalesRep());
+		leadsSummaryRes.setSalesRepId(leadEntity.getSalesRepId());
 		return leadsSummaryRes;
 	}
 
@@ -171,7 +176,7 @@ public class ModelEntityMappers {
 			leadEntity.setRootLeadId(leadRes.getLeadsSummaryRes().getRootLeadId());
 			leadEntity.setBusinessUnit(leadRes.getLeadsSummaryRes().getBusinessUnits().get(0));
 			leadEntity.setIndustry(leadRes.getLeadsSummaryRes().getIndustry());
-			leadEntity.setSalesRep(leadRes.getLeadsSummaryRes().getSalesRep());
+			leadEntity.setSalesRepId(leadRes.getLeadsSummaryRes().getSalesRepId());
 			leadEntity.setBudget(leadRes.getLeadsSummaryRes().getBudget());
 			leadEntity.setCurrency(leadRes.getLeadsSummaryRes().getCurrency());
 		}
@@ -182,6 +187,16 @@ public class ModelEntityMappers {
 		leadEntity.setCreatorId(leadRes.getCreatorId());
 		leadEntity.setUpdatorId(leadRes.getUpdatorId());
 		return leadEntity;
+	}
+
+	public static UserRes mapUserEntityToUserRes(UserEntity userEntity, UserRes user) {
+		user.setUserId(userEntity.getId());
+		user.setUserName(userEntity.getUserName());
+		user.setEmail(userEntity.getEmail());
+		user.setEnabled(userEntity.isEnabled());
+		user.setUserDisplayName(userEntity.getUserDisplayName());
+		user.setBusinessUnit(userEntity.getBusinessUnit());
+		return user;
 	}
 
 }

@@ -17,6 +17,14 @@ public class RootLeadEntity {
 	
 	private String salesRep;
 	private Long salesRepId;
+	private String sourceInfo;
+	public String getSourceInfo() {
+		return sourceInfo;
+	}
+
+	public void setSourceInfo(String sourceInfo) {
+		this.sourceInfo = sourceInfo;
+	}
 	public Long getSalesRepId() {
 		return salesRepId;
 	}

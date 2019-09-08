@@ -1,24 +1,42 @@
 package controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import consts.LeadManagementConstants;
+import model.CreateRootLeadRes;
+import model.DownloadFileRes;
 import model.FilterLeadRes;
 import model.LeadRes;
 import model.LeadStatistictsRes;
+import model.Pagination;
 import model.RootLeadRes;
+import model.UploadFileRes;
 import service.ILeadDetailService;
 
 @RestController
+@Scope("prototype")
 public class LeadDetailController {
 	@Autowired
 	public ILeadDetailService leadDetailService;
@@ -29,7 +47,7 @@ public class LeadDetailController {
 	}
 
 	@PostMapping("/rootlead")
-	public Long addRootLead(@RequestBody RootLeadRes rootLeadRes) {
+	public CreateRootLeadRes addRootLead(@RequestBody RootLeadRes rootLeadRes) {
 		return leadDetailService.createRootLead(rootLeadRes);
 	}
 
@@ -42,11 +60,16 @@ public class LeadDetailController {
 	public List<LeadRes> getLeads(@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "desc", required = false) String description,
 			@RequestParam(value = "leadtype", required = false, defaultValue = LeadManagementConstants.LEAD_TYPE_ALL) String leadType,
-			@RequestParam(value = "userid", required = false) Long userid) {
+			@RequestParam(value = "userid", required = false) Long userid,
+			@RequestParam(value = "start", required = false) Integer start,
+			@RequestParam(value = "pagesize", required = false) Integer pageSize) {
 		if ((name != null) && (!name.isEmpty()) || (description != null) && (!description.isEmpty())) {
 			return leadDetailService.searchLeads(name, description);
 		} else {
-			return leadDetailService.getLeads(leadType, userid);
+			if (start != null && pageSize != null) {
+				return leadDetailService.getLeads(leadType, userid, new Pagination(start, pageSize));
+			}
+			return leadDetailService.getLeads(leadType, userid, null);
 		}
 	}
 
@@ -59,14 +82,64 @@ public class LeadDetailController {
 	}
 
 	@PostMapping("/search/leads")
-	public List<LeadRes> filterLeads(@RequestBody FilterLeadRes filterLeadRes) {
-		return leadDetailService.filterLeads(filterLeadRes);
+	public List<LeadRes> filterLeads(@RequestParam(value = "start", required = false) Integer start,
+			@RequestParam(value = "pagesize", required = false) Integer pageSize,
+			@RequestBody FilterLeadRes filterLeadRes) {
+
+		if (start != null && pageSize != null) {
+			return leadDetailService.filterLeads(filterLeadRes, new Pagination(start, pageSize));
+		}
+		return leadDetailService.filterLeads(filterLeadRes, null);
 	}
 
 	@PostMapping("/statistics/lead")
 	public LeadStatistictsRes getLeadStatistics(
 			@RequestParam(value = "busummary", required = false, defaultValue = "false") Boolean busummary,
 			@RequestParam(value = "userid", required = false) Long userId, @RequestBody FilterLeadRes filterLeadRes) {
-		return leadDetailService.getLeadStatistics(filterLeadRes,busummary, userId);
+		return leadDetailService.getLeadStatistics(filterLeadRes, busummary, userId);
+	}
+
+	@PostMapping("/report/lead")
+	public ResponseEntity<InputStreamResource> getLeadStatisticsReport(
+			@RequestParam(value = "busummary", required = false, defaultValue = "false") Boolean busummary,
+			@RequestParam(value = "userid", required = false) Long userId, @RequestBody FilterLeadRes filterLeadRes)
+			throws IOException {
+		ByteArrayInputStream in = leadDetailService.getLeadStatisticsReport(filterLeadRes, busummary, userId);
+
+		// return IOUtils.toByteArray(in);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
+
+		return ResponseEntity.ok().headers(headers).contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+				.body(new InputStreamResource(in));
+	}
+
+	@PostMapping("/lead/attachment/upload")
+	public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile uploadfile,
+			@RequestParam(value = "userid", required = true) Long userId,
+			@RequestParam(value = "leadid", required = true) List<Long> leadid) throws IOException {
+		if (uploadfile.isEmpty()) {
+			return new ResponseEntity("You must select a file!", HttpStatus.OK);
+		}
+		UploadFileRes uploadFileRes = leadDetailService.uploadLeadAttachments(leadid, userId,
+				Arrays.asList(uploadfile));
+
+		return new ResponseEntity("Successfully uploaded - " + uploadFileRes.getFileName(), new HttpHeaders(),
+				HttpStatus.OK);
+
+	}
+
+	@RequestMapping(path = "/lead/attachment/download", method = RequestMethod.GET)
+	public ResponseEntity<Resource> download(@RequestParam(value = "name", required = true) String name,
+			@RequestParam(value = "leadid", required = true) Long leadid) throws IOException {
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+		headers.add("Pragma", "no-cache");
+		headers.add("Expires", "0");
+		DownloadFileRes downloadFileRes = leadDetailService.downloadLeadAttachment(leadid, name);
+		return ResponseEntity.ok().headers(headers).contentLength(downloadFileRes.getContentLength())
+				.contentType(MediaType.parseMediaType("application/octet-stream"))
+				.body(downloadFileRes.getFileResource());
 	}
 }

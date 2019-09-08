@@ -1,27 +1,46 @@
 package service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.List;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import model.CreateRootLeadRes;
+import model.DownloadFileRes;
 import model.FilterLeadRes;
 import model.LeadRes;
 import model.LeadStatistictsRes;
+import model.Pagination;
 import model.RootLeadRes;
+import model.UploadFileRes;
 
 public interface ILeadDetailService {
-	Long createRootLead(RootLeadRes rootLeadRes);
+	CreateRootLeadRes createRootLead(RootLeadRes rootLeadRes);
 
 	RootLeadRes getRootLead(Long id);
 
 	LeadRes getLead(Long id);
 
-	List<LeadRes> getLeads(String leadtype, Long userId);
+	List<LeadRes> getLeads(String leadtype, Long userId, Pagination pagination);
 
 	List<LeadRes> searchLeads(String name, String description);
 
 	Long updateLead(LeadRes leadRes);
 
-	List<LeadRes> filterLeads(FilterLeadRes filterLeadRes);
+	Long updateLeadAttachment(Long leadId, String path);
 
-	LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary,Long userId);
+	List<LeadRes> filterLeads(FilterLeadRes filterLeadRes,Pagination pagination);
+
+	LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId);
+
+	ByteArrayInputStream getLeadStatisticsReport(FilterLeadRes filterLeadRes, Boolean busummary, Long userId)
+			throws IOException;
+
+	UploadFileRes uploadLeadAttachment(Long id, Long userId, List<MultipartFile> files) throws IOException;
+
+	UploadFileRes uploadLeadAttachments(List<Long> leadIds, Long userId, List<MultipartFile> files) throws IOException;
+
+	DownloadFileRes downloadLeadAttachment(Long leadId, String name) throws IOException;
 
 }

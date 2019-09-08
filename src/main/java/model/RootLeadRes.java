@@ -5,6 +5,15 @@ import java.sql.Date;
 public class RootLeadRes {
 	private Long id;
 	private String source;
+	private String sourceInfo;
+	public String getSourceInfo() {
+		return sourceInfo;
+	}
+
+	public void setSourceInfo(String sourceInfo) {
+		this.sourceInfo = sourceInfo;
+	}
+
 	private String custName;
 	private String description;
 	private LeadContactRes leadContact;

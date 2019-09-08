@@ -4,11 +4,13 @@ import java.util.Date;
 import java.util.List;
 
 import model.FilterMarketIntelligenceRes;
+import model.Pagination;
+import repository.entity.LeadEntity;
 import repository.entity.MarketIntelligenceEntity;
 import repository.entity.MarketIntelligenceInfoEntity;
 
 public interface IMarketIntelligenceDAO {
-	List<MarketIntelligenceEntity> getMarketIntelligence();
+	List<MarketIntelligenceEntity> getMarketIntelligence(Pagination pagination);
 
 	MarketIntelligenceEntity getMarkByIdetIntelligenceById(Long id);
 
@@ -22,6 +24,8 @@ public interface IMarketIntelligenceDAO {
 
 	void addMarketIntelligenceInfo(Long miId, MarketIntelligenceInfoEntity miEntity);
 	
-	List<MarketIntelligenceEntity> filterMarketIntelligence(FilterMarketIntelligenceRes filterMarketIntelligence);
+	List<MarketIntelligenceEntity> filterMarketIntelligence(FilterMarketIntelligenceRes filterMarketIntelligence,Pagination pagination);
+	
+	void updateMarketIntelligenceAttachment(LeadEntity leadEntity);
 
 }

@@ -23,6 +23,15 @@ public class LeadEntity {
 	private Date updateDate;
 	private Long updatorId;
 	private Long salesRepId;
+	private String attachment;
+
+	public String getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
+	}
 
 	private String originatingBusinessUnit;
 	

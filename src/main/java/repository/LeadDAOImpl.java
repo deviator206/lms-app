@@ -20,6 +20,7 @@ import org.springframework.stereotype.Repository;
 import consts.LeadManagementConstants;
 import model.FilterLeadRes;
 import model.LeadStatistictsRes;
+import model.Pagination;
 import repository.entity.LeadEntity;
 import repository.entity.UserEntity;
 import repository.mapper.LeadRowMapper;
@@ -34,7 +35,7 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public LeadEntity getLead(Long id) {
-		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE FROM LEADS WHERE ID = ?";
+		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE, SALES_REP_ID,ATTACHMENT FROM LEADS WHERE ID = ?";
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 		return this.jdbcTemplate.queryForObject(sql, rowMapper, new Object[] { id });
 	}
@@ -99,8 +100,8 @@ public class LeadDAOImpl implements ILeadDAO {
 	}
 
 	@Override
-	public List<LeadEntity> getLeads(String leadtype, Long userId) {
-		String sql = "SELECT ID, BU,SALES_REP_ID,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE FROM LEADS WHERE 1 = 1";
+	public List<LeadEntity> getLeads(String leadtype, Long userId, Pagination pagination) {
+		String sql = "SELECT ID, BU,SALES_REP_ID,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE,ATTACHMENT FROM LEADS WHERE 1 = 1";
 
 		if (userId != null) {
 			if (LeadManagementConstants.LEAD_TYPE_ASSIGNED.equalsIgnoreCase(leadtype)) {
@@ -111,6 +112,12 @@ public class LeadDAOImpl implements ILeadDAO {
 				sql = sql + " AND CREATOR_ID = " + userId + " AND SALES_REP_ID = " + userId;
 			}
 		}
+		
+		sql = sql + " ORDER BY CREATION_DATE DESC ";
+
+		if ((pagination != null) && pagination.isPaginatedQuery()) {
+			sql = RepositoryHelper.getPaginatedQuery(sql, pagination.getStart(), pagination.getPageSize());
+		}
 
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper);
@@ -118,14 +125,8 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public List<LeadEntity> searchLeads(String name, String description) {
-		// String sql = "SELECT ID,
-		// BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE
-		// FROM LEADS WHERE DESCRIPTION LIKE %?%' ?";
-
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
-		// return this.jdbcTemplate.query(sql, rowMapper, new Object[] { description });
-
-		String sql = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP_ID,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID AND ROOT_LEAD.DESCRIPTION LIKE ?";
+		String sql = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP_ID,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE,LEADS.ATTACHMENT FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID AND ROOT_LEAD.DESCRIPTION LIKE ?";
 		// String likePattern = "'%"+ description + "%'";
 		return jdbcTemplate.query(new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -138,15 +139,20 @@ public class LeadDAOImpl implements ILeadDAO {
 	}
 
 	@Override
-	public List<LeadEntity> filterLeads(FilterLeadRes filterLeadRes) {
+	public List<LeadEntity> filterLeads(FilterLeadRes filterLeadRes, Pagination pagination) {
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 
-		String query = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP_ID,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID ";
+		String query = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP_ID,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE,LEADS.ATTACHMENT FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID ";
 
 		query = getFilterLeadsQuery(filterLeadRes, query);
 
-		System.out.println(query);
+		query = query + " ORDER BY CREATION_DATE DESC ";
+		
+		if ((pagination != null) && pagination.isPaginatedQuery()) {
+			query = RepositoryHelper.getPaginatedQuery(query, pagination.getStart(), pagination.getPageSize());
+		}
 
+		
 		return this.jdbcTemplate.query(query, rowMapper);
 	}
 
@@ -183,6 +189,11 @@ public class LeadDAOImpl implements ILeadDAO {
 		if (filterLeadRes.getToBu() != null && !filterLeadRes.getToBu().isEmpty()) {
 			query = query + " AND LEADS.BU = '" + filterLeadRes.getToBu() + "'";
 		}
+
+		if (filterLeadRes.getCreatorId() != null) {
+			query = query + " AND LEADS.BU = " + filterLeadRes.getCreatorId();
+		}
+
 		return query;
 	}
 
@@ -244,9 +255,27 @@ public class LeadDAOImpl implements ILeadDAO {
 				leadStatistictsRes.setCrossBuLeadsCount((Long) statusCountRow.get("COUNT"));
 			}
 
+			// Leads generated by user
+			tempQuery = mainQuery;
+			tempFilterLeadRes = new FilterLeadRes();
+			tempFilterLeadRes.setCreatorId(userId);
+			tempQuery = getFilterLeadsQuery(tempFilterLeadRes, tempQuery);
+			buLeadsRs = jdbcTemplate.queryForList(tempQuery);
+			for (Map statusCountRow : buLeadsRs) {
+				leadStatistictsRes.setTotalLeadsGeneratedByUser((Long) statusCountRow.get("COUNT"));
+			}
+
 		}
 
 		return leadStatistictsRes;
+	}
+
+	@Override
+	public boolean updateLeadAttachment(LeadEntity leadEntity) {
+		String sql = "UPDATE LEADS SET ATTACHMENT = ?, UPDATE_DATE = ?,UPDATOR_ID = ? WHERE ID = ?;";
+		int affectedRows = jdbcTemplate.update(sql, leadEntity.getAttachment(), leadEntity.getUpdateDate(),
+				leadEntity.getUpdatorId(), leadEntity.getId());
+		return affectedRows == 0 ? false : true;
 	}
 
 }
