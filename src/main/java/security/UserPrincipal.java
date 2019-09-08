@@ -22,6 +22,15 @@ public class UserPrincipal implements UserDetails {
 	private Long id;
 
 	private Long userId;
+	private Boolean enabled;
+
+	public Boolean getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
+	}
 
 	private String userDisplayName;
 
@@ -53,23 +62,25 @@ public class UserPrincipal implements UserDetails {
 
 	private Collection<? extends GrantedAuthority> authorities;
 
-	public UserPrincipal(Long id, String username, String email, String password,String userDisplayName,String businessUnit,  Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
-        this.userId = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.userDisplayName = userDisplayName;
-        this.businessUnit = businessUnit;
-        this.authorities = authorities;
-    }
+	public UserPrincipal(Long id, String username, String email, String password, String userDisplayName,
+			String businessUnit, Collection<? extends GrantedAuthority> authorities, Boolean enabled) {
+		this.id = id;
+		this.userId = id;
+		this.username = username;
+		this.email = email;
+		this.password = password;
+		this.userDisplayName = userDisplayName;
+		this.businessUnit = businessUnit;
+		this.authorities = authorities;
+		this.enabled = enabled;
+	}
 
 	public static UserPrincipal create(User user) {
 		List<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role))
 				.collect(Collectors.toList());
 
 		return new UserPrincipal(user.getId(), user.getUserName(), user.getEmail(), user.getPassword(),
-				user.getUserDisplayName(), user.getBusinessUnit(), authorities);
+				user.getUserDisplayName(), user.getBusinessUnit(), authorities, user.isEnabled());
 	}
 
 	public Long getId() {

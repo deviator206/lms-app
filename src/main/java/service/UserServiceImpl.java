@@ -1,7 +1,9 @@
 package service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.Resource;
@@ -14,22 +16,27 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
+import model.FilterUserRes;
 import model.ForgotPasswordResponse;
 import model.User;
 import model.UserRegistrationDetails;
+import model.UserRes;
 import model.UserRoles;
 import repository.IUserDAO;
 import repository.IUserRoleDAO;
 import repository.entity.UserEntity;
 import repository.entity.UserRoleEntity;
+import repository.mapper.ModelEntityMappers;
 
 @Service
+@Scope("prototype")
 public class UserServiceImpl implements IUserService {
 	@Autowired
 	private IUserDAO userDAO;
@@ -40,15 +47,18 @@ public class UserServiceImpl implements IUserService {
 	@Resource
 	private PasswordEncoder passwordEncoder;
 
+	private Map<Long, UserRes> userIdUserMap;
+
 	@Autowired
 	private PlatformTransactionManager transactionManager;
 
-	public List<User> getUsers() {
+	@Override
+	public List<UserRes> getUsers() {
 		List<UserEntity> userEntities = userDAO.getUsers();
-		List<User> users = new ArrayList<User>();
+		List<UserRes> users = new ArrayList<UserRes>();
 		for (UserEntity userEntity : userEntities) {
-			User user = new User();
-			this.mapUserEntityToUser(userEntity, user);
+			UserRes user = new UserRes();
+			this.mapUserEntityToUserRes(userEntity, user);
 			List<String> roles = this.getUserRoleByUserId(userEntity.getId());
 			user.setRoles(roles);
 			users.add(user);
@@ -57,10 +67,37 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	@Override
+	public Map<Long, UserRes> getCachedUsersSummaryMap() {
+		if (userIdUserMap == null) {
+			userIdUserMap = new HashMap<Long, UserRes>();
+			List<UserEntity> userEntities = userDAO.getUsers();
+			// List<UserRes> users = new ArrayList<UserRes>();
+			for (UserEntity userEntity : userEntities) {
+				UserRes user = new UserRes();
+				this.mapUserEntityToUserResSummary(userEntity, user);
+				userIdUserMap.put(user.getUserId(), user);
+			}
+		}
+		return userIdUserMap;
+	}
+
+	/*
+	 * private List<UserRes> mapUserToUserRes(List<User> users) { List<UserRes>
+	 * userResList = new ArrayList<UserRes>(); for (User user : users) { UserRes
+	 * userRes = new UserRes(); ModelMappers.mapUserToUserRes(user, userRes);
+	 * userResList.add(userRes); }
+	 * 
+	 * return userResList; }
+	 */
+
+	@Override
 	public void addUser(UserRegistrationDetails userRegistrationDetails) {
 		UserEntity user = new UserEntity();
 		user.setUserName(userRegistrationDetails.getUserName());
-		user.setEnabled(true);
+
+		// Enabled false while adding user
+		user.setEnabled(false);
+
 		user.setUserDisplayName(userRegistrationDetails.getUserDisplayName());
 		user.setBusinessUnit(userRegistrationDetails.getBusinessUnit());
 		user.setEmail(userRegistrationDetails.getEmail());
@@ -119,6 +156,25 @@ public class UserServiceImpl implements IUserService {
 		return user;
 	}
 
+	public UserRes mapUserEntityToUserRes(UserEntity userEntity, UserRes user) {
+		user.setUserId(userEntity.getId());
+		user.setUserName(userEntity.getUserName());
+		user.setEmail(userEntity.getEmail());
+		user.setEnabled(userEntity.isEnabled());
+		user.setUserDisplayName(userEntity.getUserDisplayName());
+		user.setBusinessUnit(userEntity.getBusinessUnit());
+		return user;
+	}
+
+	public UserRes mapUserEntityToUserResSummary(UserEntity userEntity, UserRes user) {
+		user.setUserId(userEntity.getId());
+		user.setUserName(userEntity.getUserName());
+		user.setEmail(userEntity.getEmail());
+		user.setUserDisplayName(userEntity.getUserDisplayName());
+		user.setBusinessUnit(userEntity.getBusinessUnit());
+		return user;
+	}
+
 	// Implement with DAO
 	public List<String> getUserRoleByUserId(Long userId) {
 		List<UserRoleEntity> roleEntities = userRoleDAO.getUserRolesByUserId(userId);
@@ -140,11 +196,23 @@ public class UserServiceImpl implements IUserService {
 	@Override
 	public ForgotPasswordResponse forgotPassword(UserRegistrationDetails userRegistrationDetails) {
 		ForgotPasswordResponse forgotPasswordResponse = new ForgotPasswordResponse();
-		forgotPasswordResponse.setEmail(userRegistrationDetails.getEmail());
-		forgotPasswordResponse.setUserName(userRegistrationDetails.getUserName());
-		forgotPasswordResponse.setUserDisplayName(userRegistrationDetails.getUserDisplayName());
-		sendMail();
-		forgotPasswordResponse.setForgotPasswordUri("https://testuri");
+		FilterUserRes filterUserRes = new FilterUserRes();
+		filterUserRes.setEmail(userRegistrationDetails.getEmail());
+		filterUserRes.setUserName(userRegistrationDetails.getUserName());
+		UserRes user = null;
+		List<UserRes> users = this.filterUsers(filterUserRes);
+		if (users != null && !users.isEmpty() && (users.size() == 1) && (users.get(0) != null)) {
+			user = users.get(0);
+			forgotPasswordResponse.setEmail(user.getEmail());
+			forgotPasswordResponse.setUserName(user.getUserName());
+			forgotPasswordResponse.setUserDisplayName(user.getUserDisplayName());
+			forgotPasswordResponse.setForgotPasswordUri("https://testuri");
+			forgotPasswordResponse.setValidUser(true);
+			this.disableUser(users.get(0).getUserId());
+			sendMail();
+		} else {
+			forgotPasswordResponse.setValidUser(false);
+		}
 		return forgotPasswordResponse;
 	}
 
@@ -156,41 +224,85 @@ public class UserServiceImpl implements IUserService {
 
 	private void sendMail() {
 		final String username = "shiv.orian@gmail.com";
-        final String password = "d1ngd0ng";
+		final String password = "d1ngd0ng";
 
-        Properties prop = new Properties();
+		Properties prop = new Properties();
 		prop.put("mail.smtp.host", "smtp.gmail.com");
-        prop.put("mail.smtp.port", "465");
-        prop.put("mail.smtp.auth", "true");
-        prop.put("mail.smtp.socketFactory.port", "465");
-        prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        
-        Session session = Session.getInstance(prop,
-                new javax.mail.Authenticator() {
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(username, password);
-                    }
-                });
+		prop.put("mail.smtp.port", "465");
+		prop.put("mail.smtp.auth", "true");
+		prop.put("mail.smtp.socketFactory.port", "465");
+		prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 
-        try {
+		Session session = Session.getInstance(prop, new javax.mail.Authenticator() {
+			protected PasswordAuthentication getPasswordAuthentication() {
+				return new PasswordAuthentication(username, password);
+			}
+		});
 
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress("shiv.orian@gmail.com"));
-            message.setRecipients(
-                    Message.RecipientType.TO,
-                    InternetAddress.parse("shiv.orian@gmail.com, shivanshu.yadav@amdocs.com, deviator206@gmail.com")
-            );
-            message.setSubject("Testing Gmail SSL from Java");
-            message.setText("Dear Mail Crawler,"
-                    + "\n\n Please do not spam my email!");
+		try {
 
-            Transport.send(message);
+			Message message = new MimeMessage(session);
+			message.setFrom(new InternetAddress("shiv.orian@gmail.com"));
+			message.setRecipients(Message.RecipientType.TO,
+					InternetAddress.parse("shiv.orian@gmail.com, shivanshu.yadav@amdocs.com, deviator206@gmail.com"));
+			message.setSubject("Testing Gmail SSL from Java");
+			message.setText("Dear Mail Crawler," + "\n\n Please do not spam my email!");
 
-            System.out.println("Done");
+			Transport.send(message);
 
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
+			System.out.println("Done");
+
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void updateUserByUserId(UserRegistrationDetails userRegistrationDetails) {
+		UserEntity user = new UserEntity();
+		user.setUserName(userRegistrationDetails.getUserName());
+		user.setId(userRegistrationDetails.getUserId());
+		user.setUserDisplayName(userRegistrationDetails.getUserDisplayName());
+		user.setBusinessUnit(userRegistrationDetails.getBusinessUnit());
+		user.setEmail(userRegistrationDetails.getEmail());
+		userDAO.updateUser(user);
+	}
+
+	@Override
+	public void changePasswordByUserId(UserRegistrationDetails userRegistrationDetails) {
+		UserEntity user = new UserEntity();
+		user.setId(userRegistrationDetails.getUserId());
+		// Enabled false while adding user
+		user.setEnabled(true);
+		user.setPassword(passwordEncoder.encode(userRegistrationDetails.getPassword()));
+		userDAO.updateUser(user);
+	}
+
+	@Override
+	public List<UserRes> filterUsers(FilterUserRes filterUserRes) {
+		List<UserRes> users = new ArrayList<UserRes>();
+		if (filterUserRes.isValidFilter()) {
+			List<UserEntity> userEntities = userDAO.filterUsers(filterUserRes);
+			for (UserEntity userEntity : userEntities) {
+				UserRes user = new UserRes();
+				ModelEntityMappers.mapUserEntityToUserRes(userEntity, user);
+				List<String> roles = this.getUserRoleByUserId(userEntity.getId());
+				user.setRoles(roles);
+				users.add(user);
+			}
+
+			return users;
+		}
+
+		return users;
+	}
+
+	@Override
+	public void disableUser(Long userId) {
+		UserEntity user = new UserEntity();
+		user.setEnabled(false);
+		user.setId(userId);
+		userDAO.disableUser(user);
 	}
 
 }

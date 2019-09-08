@@ -359,3 +359,27 @@ GET http://localhost:8080/leads?leadtype=generated&userid=1111
 Where leadtype=generated || assigned || both || all
 
 ---------------------------------------------------------------
+-----------------------------------------
+Pagination -
+
+http://localhost:8080/search/leads?start=1&pagesize=2
+http://localhost:8080/leads?start=1&pagesize=2
+
+http://localhost:8080/marketIntelligence?start=1&pagesize=3
+http://localhost:8080/search/marketIntelligence?start=1&pagesize=10
+
+Where -
+	start - is start index of row(starting from 1).
+	pagesize - no of rows u want
+	
+-------------------------------------------
+
+Attachment upload/download 
+
+http://localhost:8080/lead/attachment/download?name=1.pptx&leadid=2
+http://localhost:8080/lead/attachment/upload?leadid=1&leadid=3&userid=1111
+
+http://localhost:8080/marketIntelligence/attachment/upload?id=1&userid=1111
+http://localhost:8080/marketIntelligence/attachment/download?name=aa.txt&miid=1
+
+---------------------------------------------------------------------------------

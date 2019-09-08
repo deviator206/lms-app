@@ -1,9 +1,9 @@
 package controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import mapper.ModelMappers;
+import model.FilterUserRes;
 import model.ForgotPasswordResponse;
 import model.User;
 import model.UserRegistrationDetails;
@@ -21,6 +22,7 @@ import model.UserRoles;
 import service.IUserService;
 
 @RestController
+@Scope("prototype")
 public class UserController {
 	@Autowired
 	public IUserService userService;
@@ -29,14 +31,7 @@ public class UserController {
 	@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/users")
 	public List<UserRes> getUser() {
-		List<User> users = userService.getUsers();
-		List<UserRes> userResList = new ArrayList<UserRes>();
-		for (User user : users) {
-			UserRes userRes = new UserRes();
-			ModelMappers.mapUserToUserRes(user, userRes);
-			userResList.add(userRes);
-		}
-		return userResList;
+		return userService.getUsers();
 	}
 
 	@Secured("SALES_REP")
@@ -69,6 +64,16 @@ public class UserController {
 	@PostMapping("/forgotpassword")
 	public ForgotPasswordResponse forgotPassword(@RequestBody UserRegistrationDetails userRegistrationDetails) {
 		return userService.forgotPassword(userRegistrationDetails);
+	}
+
+	@PostMapping("/changepassword")
+	public void changePasswordByUserId(@RequestBody UserRegistrationDetails userRegistrationDetails) {
+		userService.changePasswordByUserId(userRegistrationDetails);
+	}
+
+	@PostMapping("/search/uers")
+	public List<UserRes> filterUsers(@RequestBody FilterUserRes filterUserRes) {
+		return userService.filterUsers(filterUserRes);
 	}
 
 }

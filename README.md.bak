@@ -340,3 +340,22 @@ Response -
 
 -------------------------------------------------------
 
+--------------------------------------------------------
+For Dashboard 
+
+POST http://localhost:8080/statistics/lead?busummary=true&userid=1111
+Payload -
+
+{
+  "salesRepId" : 1111
+}
+
+-------------------------------------------------------
+
+To get Leads
+
+GET http://localhost:8080/leads?leadtype=generated&userid=1111
+
+Where leadtype=generated || assigned || both || all
+
+---------------------------------------------------------------

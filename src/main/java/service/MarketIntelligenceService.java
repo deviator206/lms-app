@@ -1,20 +1,28 @@
 package service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.web.multipart.MultipartFile;
 
 import consts.LeadManagementConstants;
+import model.DownloadFileRes;
 import model.FilterMarketIntelligenceRes;
 import model.MarketIntelligenceInfoRes;
 import model.MarketIntelligenceRes;
+import model.Pagination;
+import model.UploadFileRes;
+import model.UserRes;
 import repository.IMarketIntelligenceDAO;
+import repository.entity.LeadEntity;
 import repository.entity.MarketIntelligenceEntity;
 import repository.entity.MarketIntelligenceInfoEntity;
 import repository.mapper.ModelEntityMappers;
@@ -25,19 +33,26 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	private IMarketIntelligenceDAO mrketIntelligenceDAO;
 
 	@Autowired
-	private ILeadDetailService leadDetailService;
-
-	@Autowired
 	private PlatformTransactionManager transactionManager;
 
+	@Autowired
+	private IUserService userService;
+
+	@Autowired
+	IFileStorageService fileStorageService;
+
 	@Override
-	public List<MarketIntelligenceRes> getMarketIntelligence() {
-		List<MarketIntelligenceEntity> miList = mrketIntelligenceDAO.getMarketIntelligence();
+	public List<MarketIntelligenceRes> getMarketIntelligence(Pagination pagination) {
+		List<MarketIntelligenceEntity> miList = mrketIntelligenceDAO.getMarketIntelligence(pagination);
 		List<MarketIntelligenceRes> miResList = new ArrayList<MarketIntelligenceRes>();
 		MarketIntelligenceRes miRes;
+		Map<Long, UserRes> userIdUserMap = userService.getCachedUsersSummaryMap();
 		for (MarketIntelligenceEntity miEntity : miList) {
 			miRes = new MarketIntelligenceRes();
 			ModelEntityMappers.mapMiEntityToMiRes(miEntity, miRes);
+			if (userIdUserMap != null && userIdUserMap.get(miEntity.getCreatorId()) != null) {
+				miRes.setCreator(userIdUserMap.get(miEntity.getCreatorId()));
+			}
 			miResList.add(miRes);
 		}
 		return miResList;
@@ -45,10 +60,15 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 
 	@Override
 	public MarketIntelligenceRes getMarkByIdetIntelligenceById(Long id) {
+		Map<Long, UserRes> userIdUserMap;
 		MarketIntelligenceEntity miEntity = mrketIntelligenceDAO.getMarkByIdetIntelligenceById(id);
 		MarketIntelligenceRes miRes = new MarketIntelligenceRes();
 		ModelEntityMappers.mapMiEntityToMiRes(miEntity, miRes);
 		List<MarketIntelligenceInfoRes> miInfoResLst = this.getMarketIntelligenceInfo(miRes.getId());
+		userIdUserMap = userService.getCachedUsersSummaryMap();
+		if (userIdUserMap != null && userIdUserMap.get(miEntity.getCreatorId()) != null) {
+			miRes.setCreator(userIdUserMap.get(miEntity.getCreatorId()));
+		}
 		miRes.setMiInfoList(miInfoResLst);
 		return miRes;
 	}
@@ -104,10 +124,17 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	public List<MarketIntelligenceInfoRes> getMarketIntelligenceInfo(Long miId) {
 		List<MarketIntelligenceInfoEntity> miInfoList = mrketIntelligenceDAO.getMarketIntelligenceInfoList(miId);
 		List<MarketIntelligenceInfoRes> miInfoResList = new ArrayList<MarketIntelligenceInfoRes>();
+		Map<Long, UserRes> userIdUserMap;
 		MarketIntelligenceInfoRes miInfoRes;
 		for (MarketIntelligenceInfoEntity miInfoEntity : miInfoList) {
 			miInfoRes = new MarketIntelligenceInfoRes();
 			ModelEntityMappers.mapMiInfoEntityToMiInfoRes(miInfoEntity, miInfoRes);
+
+			userIdUserMap = userService.getCachedUsersSummaryMap();
+			if (userIdUserMap != null && userIdUserMap.get(miInfoEntity.getCreatorId()) != null) {
+				miInfoRes.setCreator(userIdUserMap.get(miInfoEntity.getCreatorId()));
+			}
+
 			miInfoResList.add(miInfoRes);
 		}
 		return miInfoResList;
@@ -119,8 +146,9 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	}
 
 	@Override
-	public List<MarketIntelligenceRes> filterMarketIntelligence(FilterMarketIntelligenceRes filterMarketIntelligence) {
-		List<MarketIntelligenceEntity> miList = mrketIntelligenceDAO.filterMarketIntelligence(filterMarketIntelligence);
+	public List<MarketIntelligenceRes> filterMarketIntelligence(FilterMarketIntelligenceRes filterMarketIntelligence,
+			Pagination pagination) {
+		List<MarketIntelligenceEntity> miList = mrketIntelligenceDAO.filterMarketIntelligence(filterMarketIntelligence,pagination);
 		List<MarketIntelligenceRes> miResList = new ArrayList<MarketIntelligenceRes>();
 		MarketIntelligenceRes miRes;
 		for (MarketIntelligenceEntity miEntity : miList) {
@@ -129,5 +157,22 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 			miResList.add(miRes);
 		}
 		return miResList;
+	}
+
+	@Override
+	public UploadFileRes uploadMiAttachment(Long id, Long userId, List<MultipartFile> files) throws IOException {
+		UploadFileRes uploadFileRes = fileStorageService.uploadMiAttachment(id, files);
+		LeadEntity leadEntity = new LeadEntity();
+		leadEntity.setUpdatorId(userId);
+		leadEntity.setUpdateDate(new java.sql.Date((new Date()).getTime()));
+		leadEntity.setAttachment(uploadFileRes.getFileName());
+		leadEntity.setId(id);
+		mrketIntelligenceDAO.updateMarketIntelligenceAttachment(leadEntity);
+		return uploadFileRes;
+	}
+
+	@Override
+	public DownloadFileRes downloadMiAttachment(Long miId, String name) throws IOException {
+		return fileStorageService.downloadMiAttachment(miId, name);
 	}
 }

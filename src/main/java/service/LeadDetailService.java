@@ -1,24 +1,43 @@
 package service;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.web.multipart.MultipartFile;
 
 import consts.LeadManagementConstants;
+import model.CreateRootLeadRes;
+import model.DownloadFileRes;
 import model.FilterLeadRes;
 import model.LeadContactRes;
 import model.LeadRes;
 import model.LeadStatistictsRes;
 import model.LeadsSummaryRes;
+import model.Pagination;
 import model.RootLeadRes;
+import model.UploadFileRes;
+import model.User;
+import model.UserRes;
 import repository.ILeadContactDAO;
 import repository.ILeadDAO;
 import repository.IRootLeadDAO;
@@ -44,12 +63,21 @@ public class LeadDetailService implements ILeadDetailService {
 	private IUserDAO userDAO;
 
 	@Autowired
+	private IUserService userService;
+
+	@Autowired
 	private PlatformTransactionManager transactionManager;
 
+	@Autowired
+	IFileStorageService fileStorageService;
+
 	@Override
-	public Long createRootLead(RootLeadRes rootLeadRes) {
+	public CreateRootLeadRes createRootLead(RootLeadRes rootLeadRes) {
 		Long rootLeadId;
+		CreateRootLeadRes createRootLeadRes = new CreateRootLeadRes();
+		List<Long> craetedLeadsLst = new ArrayList<Long>();
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
+		UserEntity tempSalesRep = null;
 		try {
 			LeadContactEntity leadContactEntity = new LeadContactEntity();
 			RootLeadEntity rootLeadEntity = new RootLeadEntity();
@@ -70,7 +98,6 @@ public class LeadDetailService implements ILeadDetailService {
 					leadEntity.setRootLeadId(rootLeadId);
 					leadEntity.setBusinessUnit(businessUnit);
 					leadEntity.setIndustry(rootLeadRes.getLeadsSummaryRes().getIndustry());
-					leadEntity.setSalesRep(rootLeadRes.getLeadsSummaryRes().getSalesRep());
 					leadEntity.setCreatorId(rootLeadRes.getCreatorId());
 					leadEntity.setCreationDate(rootLeadRes.getCreationDate());
 					leadEntity.setUpdatorId(rootLeadRes.getCreatorId());
@@ -88,9 +115,13 @@ public class LeadDetailService implements ILeadDetailService {
 
 					if (rootLeadRes.getLeadsSummaryRes().getSalesRepId() != null) {
 						leadEntity.setSalesRepId(rootLeadRes.getLeadsSummaryRes().getSalesRepId());
+						tempSalesRep = userDAO.getUserByUserId(rootLeadRes.getLeadsSummaryRes().getSalesRepId());
+						if (tempSalesRep != null) {
+							leadEntity.setSalesRep(tempSalesRep.getUserName());
+						}
 					}
 
-					leadDAO.insertLead(leadEntity);
+					craetedLeadsLst.add(leadDAO.insertLead(leadEntity));
 				}
 			}
 			transactionManager.commit(ts);
@@ -99,7 +130,10 @@ public class LeadDetailService implements ILeadDetailService {
 			throw new RuntimeException(e);
 		}
 
-		return rootLeadId;
+		createRootLeadRes.setLeads(craetedLeadsLst);
+		createRootLeadRes.setRootLeadId(rootLeadId);
+
+		return createRootLeadRes;
 	}
 
 	@Override
@@ -133,7 +167,6 @@ public class LeadDetailService implements ILeadDetailService {
 				for (String businessUnit : leadRes.getLeadsSummaryRes().getBusinessUnits()) {
 					if (originalBU.equalsIgnoreCase(businessUnit)) {
 						leadEntity = new LeadEntity();
-						leadEntity.setSalesRep(leadRes.getLeadsSummaryRes().getSalesRep());
 						leadEntity.setUpdatorId(leadRes.getUpdatorId());
 						leadEntity.setUpdateDate(leadRes.getUpdateDate());
 						String status = leadRes.getStatus() != null ? leadRes.getStatus()
@@ -143,7 +176,7 @@ public class LeadDetailService implements ILeadDetailService {
 						leadEntity.setCurrency(leadRes.getLeadsSummaryRes().getCurrency());
 						leadEntity.setMessage(leadRes.getMessage());
 						leadEntity.setId(leadRes.getId());
-						if(leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
+						if (leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
 							leadEntity.setSalesRepId(leadRes.getLeadsSummaryRes().getSalesRepId());
 						}
 						leadDAO.updateLead(leadEntity);
@@ -152,7 +185,6 @@ public class LeadDetailService implements ILeadDetailService {
 						leadEntity.setRootLeadId(leadRes.getLeadsSummaryRes().getRootLeadId());
 						leadEntity.setBusinessUnit(businessUnit);
 						leadEntity.setIndustry(leadRes.getLeadsSummaryRes().getIndustry());
-						leadEntity.setSalesRep(leadRes.getLeadsSummaryRes().getSalesRep());
 						leadEntity.setCreatorId(leadRes.getCreatorId());
 						leadEntity.setCreationDate(leadRes.getCreationDate());
 						leadEntity.setUpdatorId(leadRes.getCreatorId());
@@ -164,8 +196,8 @@ public class LeadDetailService implements ILeadDetailService {
 
 						UserEntity user = userDAO.getUserByUserId(leadRes.getCreatorId());
 						leadEntity.setOriginatingBusinessUnit(user.getBusinessUnit());
-						
-						if(leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
+
+						if (leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
 							leadEntity.setSalesRepId(leadRes.getLeadsSummaryRes().getSalesRepId());
 						}
 
@@ -195,16 +227,12 @@ public class LeadDetailService implements ILeadDetailService {
 							? leadRes.getLeadsSummaryRes().getCurrency()
 							: originalLeadEntity.getCurrency();
 					leadEntity.setCurrency(currency);
-					String salesRep = leadRes.getLeadsSummaryRes().getSalesRep() != null
-							? leadRes.getLeadsSummaryRes().getSalesRep()
-							: originalLeadEntity.getSalesRep();
-					leadEntity.setSalesRep(salesRep);
 					leadEntity.setUpdateDate(leadRes.getUpdateDate());
 					String status = leadRes.getStatus() != null ? leadRes.getStatus()
 							: LeadManagementConstants.LEAD_STATUS_DRAFT;
 					leadEntity.setStatus(status);
 					leadEntity.setId(leadRes.getId());
-					if(leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
+					if (leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
 						leadEntity.setSalesRepId(leadRes.getLeadsSummaryRes().getSalesRepId());
 					}
 				}
@@ -241,9 +269,9 @@ public class LeadDetailService implements ILeadDetailService {
 	}
 
 	@Override
-	public List<LeadRes> getLeads(String leadType,Long userId) {
+	public List<LeadRes> getLeads(String leadType, Long userId, Pagination pagination) {
 		List<LeadRes> leads = new ArrayList<LeadRes>();
-		List<LeadEntity> leadEntityList = leadDAO.getLeads(leadType,userId);
+		List<LeadEntity> leadEntityList = leadDAO.getLeads(leadType, userId, pagination);
 		for (LeadEntity leadEntity : leadEntityList) {
 			LeadRes leadRes = prepareLeadRes(leadEntity);
 			leads.add(leadRes);
@@ -255,7 +283,7 @@ public class LeadDetailService implements ILeadDetailService {
 		RootLeadEntity rootLeadEntity = rootLeadDAO.getRootLead(leadEntity.getRootLeadId());
 		LeadRes leadRes = new LeadRes();
 		ModelEntityMappers.mapLeadEntityToLeadRes(leadEntity, leadRes);
-
+		Map<Long, UserRes> userIdUserMap;
 		if (rootLeadEntity.getContactId() != null) {
 			LeadContactEntity leadContactEntity = leadContactDAO.getLeadContact(rootLeadEntity.getContactId());
 			LeadContactRes leadContactRes = new LeadContactRes();
@@ -263,9 +291,27 @@ public class LeadDetailService implements ILeadDetailService {
 			leadRes.setLeadContact(leadContactRes);
 		}
 
+		if (leadEntity.getCreatorId() != null) {
+			userIdUserMap = userService.getCachedUsersSummaryMap();
+			if (userIdUserMap != null && userIdUserMap.get(leadEntity.getCreatorId()) != null) {
+				leadRes.setCreator(userIdUserMap.get(leadEntity.getCreatorId()));
+			}
+		}
+
 		// Map Lead Summary
 		LeadsSummaryRes leadsSummaryRes = new LeadsSummaryRes();
-		leadRes.setLeadsSummaryRes(ModelEntityMappers.mapLeadEntityToLeadSummary(leadEntity, leadsSummaryRes));
+		ModelEntityMappers.mapLeadEntityToLeadSummary(leadEntity, leadsSummaryRes);
+		if (leadEntity.getSalesRepId() != null) {
+			// if (userService.getCachedUsersSummaryMap() != null
+			// && userService.getCachedUsersSummaryMap().get(leadEntity.getSalesRepId()) !=
+			// null) {
+			userIdUserMap = userService.getCachedUsersSummaryMap();
+			if (userIdUserMap != null && userIdUserMap.get(leadEntity.getSalesRepId()) != null) {
+				leadsSummaryRes.setSalesRep(userIdUserMap.get(leadEntity.getSalesRepId()));
+			}
+			// }
+		}
+		leadRes.setLeadsSummaryRes(leadsSummaryRes);
 
 		// set tenure
 		if (leadEntity.getUpdateDate() != null) {
@@ -280,7 +326,7 @@ public class LeadDetailService implements ILeadDetailService {
 		leadRes.setDescription(rootLeadEntity.getDescription());
 		leadRes.setCustName(rootLeadEntity.getCustName());
 		leadRes.setSource(rootLeadEntity.getSource());
-
+		leadRes.setSourceInfo(rootLeadEntity.getSourceInfo());
 		return leadRes;
 	}
 
@@ -296,9 +342,9 @@ public class LeadDetailService implements ILeadDetailService {
 	}
 
 	@Override
-	public List<LeadRes> filterLeads(FilterLeadRes filterLeadRes) {
+	public List<LeadRes> filterLeads(FilterLeadRes filterLeadRes, Pagination pagination) {
 		List<LeadRes> leads = new ArrayList<LeadRes>();
-		List<LeadEntity> leadEntityList = leadDAO.filterLeads(filterLeadRes);
+		List<LeadEntity> leadEntityList = leadDAO.filterLeads(filterLeadRes, pagination);
 		for (LeadEntity leadEntity : leadEntityList) {
 			LeadRes leadRes = prepareLeadRes(leadEntity);
 			leads.add(leadRes);
@@ -307,8 +353,83 @@ public class LeadDetailService implements ILeadDetailService {
 	}
 
 	@Override
-	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes,Boolean busummary,Long userId) {	
-		return leadDAO.getLeadStatistics(filterLeadRes,busummary,userId);
+	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId) {
+		return leadDAO.getLeadStatistics(filterLeadRes, busummary, userId);
+	}
+
+	@Override
+	public ByteArrayInputStream getLeadStatisticsReport(FilterLeadRes filterLeadRes, Boolean busummary, Long userId)
+			throws IOException {
+		String[] COLUMNs = { "Status", "Count" };
+
+		LeadStatistictsRes LeadStatistictsRes = leadDAO.getLeadStatistics(filterLeadRes, busummary, userId);
+		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+
+			Sheet sheet = workbook.createSheet("Leads");
+
+			Font headerFont = workbook.createFont();
+			headerFont.setBold(true);
+			headerFont.setColor(IndexedColors.BLUE.getIndex());
+
+			CellStyle headerCellStyle = workbook.createCellStyle();
+			headerCellStyle.setFont(headerFont);
+
+			// Row for Header
+			Row headerRow = sheet.createRow(0);
+
+			// Header
+			for (int col = 0; col < COLUMNs.length; col++) {
+				Cell cell = headerRow.createCell(col);
+				cell.setCellValue(COLUMNs[col]);
+				cell.setCellStyle(headerCellStyle);
+			}
+
+			Map<String, Long> leadStatusCountMap = LeadStatistictsRes.getLeadStatusCountMap();
+			int rowIdx = 1;
+			for (Map.Entry<String, Long> entry : leadStatusCountMap.entrySet()) {
+				String status = entry.getKey();
+				Long statusCount = (Long) entry.getValue();
+				Row row = sheet.createRow(rowIdx++);
+				row.createCell(0).setCellValue(status);
+				row.createCell(1).setCellValue(statusCount);
+			}
+
+			workbook.write(out);
+			return new ByteArrayInputStream(out.toByteArray());
+		}
+	}
+
+	@Override
+	public Long updateLeadAttachment(Long leadId, String path) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public UploadFileRes uploadLeadAttachment(Long id, Long uerId, List<MultipartFile> files) throws IOException {
+		UploadFileRes uploadFileRes = fileStorageService.uploadLeadAttachment(id, files);
+		LeadEntity leadEntity = new LeadEntity();
+		leadEntity.setUpdateDate(new java.sql.Date((new Date()).getTime()));
+		leadEntity.setUpdatorId(uerId);
+		leadEntity.setId(id);
+		leadEntity.setAttachment(uploadFileRes.getFileName());
+		leadDAO.updateLeadAttachment(leadEntity);
+		return uploadFileRes;
+	}
+
+	@Override
+	public UploadFileRes uploadLeadAttachments(List<Long> leadIds, Long userId, List<MultipartFile> files)
+			throws IOException {
+		UploadFileRes uploadFileRes = null;
+		for (Long id : leadIds) {
+			uploadFileRes = this.uploadLeadAttachment(id, userId, files);
+		}
+		return uploadFileRes;
+	}
+
+	@Override
+	public DownloadFileRes downloadLeadAttachment(Long leadId, String name) throws IOException {
+		return fileStorageService.downloadLeadAttachment(leadId, name);
 	}
 
 }

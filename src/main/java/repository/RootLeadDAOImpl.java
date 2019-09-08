@@ -30,7 +30,7 @@ public class RootLeadDAOImpl implements IRootLeadDAO {
 
 	@Override
 	public RootLeadEntity getRootLead(Long id) {
-		String sql = "SELECT ID, SOURCE,CUST_NAME,DESCRIPTION,CONTACT_ID,DELETED,CREATION_DATE,CREATOR_ID,BUDGET,CURRENCY,SELF_APPROVED,TENURE FROM ROOT_LEAD WHERE ID = ?";
+		String sql = "SELECT ID, SOURCE,CUST_NAME,DESCRIPTION,CONTACT_ID,DELETED,CREATION_DATE,CREATOR_ID,BUDGET,CURRENCY,SELF_APPROVED,TENURE, SOURCE_INFO FROM ROOT_LEAD WHERE ID = ?";
 		RowMapper<RootLeadEntity> rowMapper = new RootLeadRowMapper();
 		return this.jdbcTemplate.queryForObject(sql, rowMapper, new Object[] { id });
 	}
@@ -40,7 +40,7 @@ public class RootLeadDAOImpl implements IRootLeadDAO {
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
 		Long id = null;
 		try {
-			String sql = "INSERT INTO ROOT_LEAD (SOURCE,CUST_NAME,DESCRIPTION,CONTACT_ID,CREATION_DATE,CREATOR_ID,SELF_APPROVED,BUDGET,CURRENCY,TENURE,SALES_REP) VALUES (?,?,?,?,?,?,?,?,?,?,?);";
+			String sql = "INSERT INTO ROOT_LEAD (SOURCE,CUST_NAME,DESCRIPTION,CONTACT_ID,CREATION_DATE,CREATOR_ID,SELF_APPROVED,BUDGET,CURRENCY,TENURE,SALES_REP, SOURCE_INFO) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);";
 			KeyHolder keyHolder = new GeneratedKeyHolder();
 			jdbcTemplate.update(new PreparedStatementCreator() {
 				public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -68,6 +68,7 @@ public class RootLeadDAOImpl implements IRootLeadDAO {
 					ps.setString(9, rootLeadEntity.getCurrency());
 					ps.setString(10, rootLeadEntity.getTenure());
 					ps.setString(11, rootLeadEntity.getSalesRep());
+					ps.setString(12, rootLeadEntity.getSourceInfo());
 					return ps;
 				}
 			}, keyHolder);

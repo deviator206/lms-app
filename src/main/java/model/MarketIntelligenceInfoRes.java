@@ -8,6 +8,15 @@ public class MarketIntelligenceInfoRes {
 	private String info;
 	private Date creationDate;
 	private Long creatorId;
+	private UserRes creator;
+
+	public UserRes getCreator() {
+		return creator;
+	}
+
+	public void setCreator(UserRes creator) {
+		this.creator = creator;
+	}
 	
 	public Long getCreatorId() {
 		return creatorId;

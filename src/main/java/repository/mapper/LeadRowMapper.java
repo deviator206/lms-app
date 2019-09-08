@@ -16,7 +16,7 @@ public class LeadRowMapper implements RowMapper<LeadEntity> {
 		leadEntity.setBusinessUnit(rs.getString("BU"));
 		leadEntity.setStatus(rs.getString("STATUS"));
 		if (rs.getObject("SALES_REP_ID") != null) {
-			leadEntity.setSalesRep(rs.getString("SALES_REP_ID"));
+			leadEntity.setSalesRepId(rs.getLong("SALES_REP_ID"));
 		}
 		leadEntity.setRootLeadId(rs.getLong("ROOT_ID"));
 		leadEntity.setDeleted(rs.getBoolean("DELETED"));
@@ -27,6 +27,7 @@ public class LeadRowMapper implements RowMapper<LeadEntity> {
 		leadEntity.setBudget(rs.getDouble("BUDGET"));
 		leadEntity.setCurrency(rs.getString("CURRENCY"));
 		leadEntity.setMessage(rs.getString("MESSAGE"));
+		leadEntity.setAttachment(rs.getString("ATTACHMENT"));
 		return leadEntity;
 	}
 

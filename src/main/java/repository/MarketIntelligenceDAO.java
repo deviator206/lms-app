@@ -19,6 +19,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import consts.LeadManagementConstants;
 import model.FilterMarketIntelligenceRes;
+import model.Pagination;
+import repository.entity.LeadEntity;
 import repository.entity.MarketIntelligenceEntity;
 import repository.entity.MarketIntelligenceInfoEntity;
 import repository.mapper.MarketIntelligenceInfoRowMapper;
@@ -33,24 +35,28 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	private PlatformTransactionManager transactionManager;
 
 	@Override
-	public List<MarketIntelligenceEntity> getMarketIntelligence() {
-		String sql = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE,CREATOR_ID, UPDATOR_ID, UPDATE_DATE FROM MI";
+	public List<MarketIntelligenceEntity> getMarketIntelligence(Pagination pagination) {
+		String sql = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE,CREATOR_ID, UPDATOR_ID, UPDATE_DATE,ATTACHMENT FROM MI ORDER BY CREATION_DATE DESC";
 		RowMapper<MarketIntelligenceEntity> rowMapper = new MarketIntelligenceRowMapper();
+		if ((pagination != null) && pagination.isPaginatedQuery()) {
+			sql = RepositoryHelper.getPaginatedQuery(sql, pagination.getStart(), pagination.getPageSize());
+		}
 		return this.jdbcTemplate.query(sql, rowMapper);
 	}
 
 	@Override
 	public MarketIntelligenceEntity getMarkByIdetIntelligenceById(Long id) {
-		String sql = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE, CREATOR_ID, UPDATOR_ID, UPDATE_DATE FROM MI WHERE ID = ?";
+		String sql = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE, CREATOR_ID, UPDATOR_ID, UPDATE_DATE,ATTACHMENT FROM MI WHERE ID = ?";
 		RowMapper<MarketIntelligenceEntity> rowMapper = new MarketIntelligenceRowMapper();
 		MarketIntelligenceEntity miEntity = jdbcTemplate.queryForObject(sql, rowMapper, id);
 		return miEntity;
 	}
 
 	@Override
-	public void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status, Long updatorId,Date updateDate) {
+	public void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status, Long updatorId,
+			Date updateDate) {
 		String sql = "UPDATE MI SET LEAD_ID = ?, STATUS = ?  UPDATOR_ID = ?, UPDATE_DATE = ? WHERE ID = ?;";
-		jdbcTemplate.update(sql, rootLeadId, status, updatorId,updateDate);
+		jdbcTemplate.update(sql, rootLeadId, status, updatorId, updateDate);
 	}
 
 	@Override
@@ -91,7 +97,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	@Override
 	public void addMarketIntelligenceInfo(Long miId, MarketIntelligenceInfoEntity miEntity) {
 		String sql = "INSERT INTO MI_INFO (MI_ID, INFO, CREATION_DATE,CREATOR_ID) VALUES (?,?,?)";
-		jdbcTemplate.update(sql, miId, miEntity.getInfo(), miEntity.getCreationDate(),miEntity.getCreatorId());
+		jdbcTemplate.update(sql, miId, miEntity.getInfo(), miEntity.getCreationDate(), miEntity.getCreatorId());
 	}
 
 	@Override
@@ -101,11 +107,11 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	}
 
 	@Override
-	public List<MarketIntelligenceEntity> filterMarketIntelligence(
-			FilterMarketIntelligenceRes filterMarketIntelligence) {
+	public List<MarketIntelligenceEntity> filterMarketIntelligence(FilterMarketIntelligenceRes filterMarketIntelligence,
+			Pagination pagination) {
 		RowMapper<MarketIntelligenceEntity> rowMapper = new MarketIntelligenceRowMapper();
 
-		String query = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE, CREATOR_ID, UPDATOR_ID, UPDATE_DATE FROM MI WHERE 1 = 1";
+		String query = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE, CREATOR_ID, UPDATOR_ID, UPDATE_DATE,ATTACHMENT FROM MI WHERE 1 = 1";
 
 		if (filterMarketIntelligence.getSearchText() != null && !filterMarketIntelligence.getSearchText().isEmpty()) {
 			// query = query + " AND NAME LIKE '%" + filterMarketIntelligence.getName() +
@@ -134,9 +140,21 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 		} else if (filterMarketIntelligence.getEndDate() != null) {
 			query = query + " AND CREATION_DATE <= '" + filterMarketIntelligence.getEndDate() + "'";
 		}
-		System.out.println(query);
+
+		query = query + " ORDER BY CREATION_DATE DESC ";
+		
+		if ((pagination != null) && pagination.isPaginatedQuery()) {
+			query = RepositoryHelper.getPaginatedQuery(query, pagination.getStart(), pagination.getPageSize());
+		}	
 
 		return this.jdbcTemplate.query(query, rowMapper);
+	}
+
+	@Override
+	public void updateMarketIntelligenceAttachment(LeadEntity leadEntity) {
+		String sql = "UPDATE MI SET ATTACHMENT = ?, UPDATOR_ID = ?, UPDATE_DATE = ? WHERE ID = ?;";
+		jdbcTemplate.update(sql, leadEntity.getAttachment(), leadEntity.getUpdatorId(), leadEntity.getUpdateDate(),
+				leadEntity.getId());
 	}
 
 }

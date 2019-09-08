@@ -7,18 +7,14 @@ import org.springframework.jdbc.core.RowMapper;
 
 import repository.entity.UserEntity;
 
-public class UserRowMapper implements RowMapper<UserEntity> {
+public class UserSummaryRowMapper implements RowMapper<UserEntity> {
 
 	@Override
 	public UserEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
 		UserEntity user = new UserEntity();
 		user.setId(rs.getLong("ID"));
-		user.setUserName(rs.getString("USERNAME"));
-		if(rs.getObject("PASSWORD") != null) {
-			user.setPassword(rs.getString("PASSWORD"));
-		}		
+		user.setUserName(rs.getString("USERNAME"));		
 		user.setEmail(rs.getString("EMAIL"));
-		user.setEnabled(rs.getBoolean("ENABLED"));
 		user.setUserDisplayName(rs.getString("USER_DISPLAY_NAME"));
 		user.setBusinessUnit(rs.getString("BU"));
 		return user;

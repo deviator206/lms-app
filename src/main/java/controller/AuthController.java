@@ -54,7 +54,6 @@ public class AuthController {
 				.map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.toList());
 		Map<String, String> policies = policyProviderService.getPolicies(roles);
 
-		
 		UserInfo userInfo = new UserInfo();
 		userInfo.setPolicies(policies);
 		userInfo.setUserId(((UserPrincipal) authentication.getPrincipal()).getUserId());
@@ -62,8 +61,8 @@ public class AuthController {
 		userInfo.setBusinessUnit(((UserPrincipal) authentication.getPrincipal()).getBusinessUnit());
 		userInfo.setUserDisplayName(((UserPrincipal) authentication.getPrincipal()).getUserDisplayName());
 		userInfo.setRoles(roles);
-		
-		
+		userInfo.setEnabled(((UserPrincipal) authentication.getPrincipal()).isEnabled());
+
 		String jwt = tokenProvider.generateToken(authentication);
 		return new JwtAuthenticationResponse(jwt, userInfo);
 	}

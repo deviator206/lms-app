@@ -18,7 +18,23 @@ public class MarketIntelligenceRes {
 	private Long creatorId;
 	private Long updatorId;
 	private Date updateDate;
-	
+	private UserRes creator;
+	private String attachment;
+
+	public String getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
+	}
+	public UserRes getCreator() {
+		return creator;
+	}
+
+	public void setCreator(UserRes creator) {
+		this.creator = creator;
+	}
 	public Long getCreatorId() {
 		return creatorId;
 	}

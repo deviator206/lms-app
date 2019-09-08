@@ -15,6 +15,33 @@ public class LeadRes {
 	private long inactiveDuration;
 	private String tenure;
 	private String status;
+	private Long creatorId;
+	private UserRes creator;
+	private String attachment;
+	private String sourceInfo;
+	public String getSourceInfo() {
+		return sourceInfo;
+	}
+
+	public void setSourceInfo(String sourceInfo) {
+		this.sourceInfo = sourceInfo;
+	}
+
+	public String getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
+	}
+
+	public UserRes getCreator() {
+		return creator;
+	}
+
+	public void setCreator(UserRes creator) {
+		this.creator = creator;
+	}
 
 	public String getStatus() {
 		return status;
@@ -69,7 +96,7 @@ public class LeadRes {
 	}
 
 	// TODO : Check whether name or Id?
-	private Long creatorId;
+	
 
 	public Long getId() {
 		return id;
