@@ -79,7 +79,11 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 				ps.setDate(6,
 						miEntity.getCreationDate() != null ? new java.sql.Date(miEntity.getCreationDate().getTime())
 								: new java.sql.Date(new Date().getTime()));
-				ps.setLong(7, miEntity.getCreatorId());
+				if (miEntity.getCreatorId() != null) {
+					ps.setLong(7, miEntity.getCreatorId());
+				}else {
+					ps.setNull(7, Types.DOUBLE);
+				}
 				return ps;
 			}
 		}, keyHolder);
