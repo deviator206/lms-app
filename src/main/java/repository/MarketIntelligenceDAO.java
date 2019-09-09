@@ -61,7 +61,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 
 	@Override
 	public Long addMarketIntelligence(MarketIntelligenceEntity miEntity) {
-		String sql = "INSERT INTO MI (TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT, CREATION_DATE, CREATOR_ID) VALUES (?,?,?,?,?,?) ";
+		String sql = "INSERT INTO MI (TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT, CREATION_DATE, CREATOR_ID) VALUES (?,?,?,?,?,?,?) ";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
