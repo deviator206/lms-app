@@ -100,7 +100,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 
 	@Override
 	public void addMarketIntelligenceInfo(Long miId, MarketIntelligenceInfoEntity miEntity) {
-		String sql = "INSERT INTO MI_INFO (MI_ID, INFO, CREATION_DATE,CREATOR_ID) VALUES (?,?,?)";
+		String sql = "INSERT INTO MI_INFO (MI_ID, INFO, CREATION_DATE,CREATOR_ID) VALUES (?,?,?,?)";
 		jdbcTemplate.update(sql, miId, miEntity.getInfo(), miEntity.getCreationDate(), miEntity.getCreatorId());
 	}
 
