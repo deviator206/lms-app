@@ -22,7 +22,7 @@ public class RefDataController {
 	public IRefDataService refDataService;
 
 	@GetMapping("/refdata")
-	public List<RefDataRes> getUser(@RequestParam(value = "type", required = false) String type) {
+	public List<RefDataRes> getRefData(@RequestParam(value = "type", required = false) String type) {
 		List<RefDataEntity> refDataEtityLst = null;
 		if (type != null && !type.isEmpty()) {
 			List<String> typeList = Arrays.asList(type.split(",")); 
@@ -40,7 +40,7 @@ public class RefDataController {
 	}
 
 	@PostMapping("/refdata")
-	public void addUser(@RequestBody RefDataRes refDataRes) {
+	public void addRefData(@RequestBody RefDataRes refDataRes) {
 		RefDataEntity refDataEntity = new RefDataEntity();
 		ModelMappers.mapRefResToRefEntity(refDataRes, refDataEntity);
 		refDataService.createRefData(refDataEntity);

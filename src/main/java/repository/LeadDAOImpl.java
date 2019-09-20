@@ -24,6 +24,7 @@ import model.Pagination;
 import repository.entity.LeadEntity;
 import repository.entity.UserEntity;
 import repository.mapper.LeadRowMapper;
+import security.SqlSafeUtil;
 
 @Repository
 public class LeadDAOImpl implements ILeadDAO {
@@ -36,7 +37,6 @@ public class LeadDAOImpl implements ILeadDAO {
 	@Override
 	public LeadEntity getLead(Long id) {
 		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE, SALES_REP_ID,ATTACHMENT FROM LEADS WHERE ID = ?";
-
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 		return this.jdbcTemplate.queryForObject(sql, rowMapper, new Object[] { id });
 	}
@@ -113,7 +113,7 @@ public class LeadDAOImpl implements ILeadDAO {
 				sql = sql + " AND CREATOR_ID = " + userId + " AND SALES_REP_ID = " + userId;
 			}
 		}
-		
+
 		sql = sql + " ORDER BY CREATION_DATE DESC ";
 
 		if ((pagination != null) && pagination.isPaginatedQuery()) {
@@ -143,17 +143,20 @@ public class LeadDAOImpl implements ILeadDAO {
 	public List<LeadEntity> filterLeads(FilterLeadRes filterLeadRes, Pagination pagination) {
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 
+		if (!SqlSafeUtil.isSqlInjectionSafe(filterLeadRes.getCustName())) {
+			throw new RuntimeException("SQL Injection Error");
+		}
+
 		String query = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP_ID,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE,LEADS.ATTACHMENT FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID ";
 
 		query = getFilterLeadsQuery(filterLeadRes, query);
 
 		query = query + " ORDER BY CREATION_DATE DESC ";
-		
+
 		if ((pagination != null) && pagination.isPaginatedQuery()) {
 			query = RepositoryHelper.getPaginatedQuery(query, pagination.getStart(), pagination.getPageSize());
 		}
 
-		
 		return this.jdbcTemplate.query(query, rowMapper);
 	}
 

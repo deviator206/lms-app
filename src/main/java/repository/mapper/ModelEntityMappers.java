@@ -7,6 +7,7 @@ import model.LeadContactRes;
 import model.LeadRes;
 import model.LeadsSummaryRes;
 import model.MarketIntelligenceInfoRes;
+import model.MarketIntelligenceReq;
 import model.MarketIntelligenceRes;
 import model.RootLeadRes;
 import model.UserRes;
@@ -96,7 +97,22 @@ public class ModelEntityMappers {
 		return miRes;
 	}
 
-	public static MarketIntelligenceEntity mapMiResToMiEntity(MarketIntelligenceRes miRes,
+	/*
+	 * public static MarketIntelligenceEntity
+	 * mapMiResToMiEntity(MarketIntelligenceRes miRes, MarketIntelligenceEntity
+	 * miEntity) { // miEntity.setId(miRes.getId());
+	 * miEntity.setType(miRes.getType()); miEntity.setName(miRes.getName());
+	 * miEntity.setStatus(miRes.getStatus());
+	 * miEntity.setDescription(miRes.getDescription());
+	 * miEntity.setInvestment(miRes.getInvestment());
+	 * miEntity.setLeadId(miRes.getRootLeadId());
+	 * miEntity.setCreatorId(miRes.getCreatorId());
+	 * miEntity.setCreationDate(miRes.getCreationDate());
+	 * miEntity.setUpdatorId(miRes.getUpdatorId());
+	 * miEntity.setUpdateDate(miRes.getUpdateDate()); return miEntity; }
+	 */
+
+	public static MarketIntelligenceEntity mapMiReqToMiEntity(MarketIntelligenceReq miRes,
 			MarketIntelligenceEntity miEntity) {
 		// miEntity.setId(miRes.getId());
 		miEntity.setType(miRes.getType());

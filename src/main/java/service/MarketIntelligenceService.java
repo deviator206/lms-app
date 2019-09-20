@@ -17,6 +17,7 @@ import consts.LeadManagementConstants;
 import model.DownloadFileRes;
 import model.FilterMarketIntelligenceRes;
 import model.MarketIntelligenceInfoRes;
+import model.MarketIntelligenceReq;
 import model.MarketIntelligenceRes;
 import model.Pagination;
 import model.UploadFileRes;
@@ -59,12 +60,12 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	}
 
 	@Override
-	public MarketIntelligenceRes getMarkByIdetIntelligenceById(Long id) {
+	public MarketIntelligenceRes getMarkByIdetIntelligenceById(Long id, Pagination pagination) {
 		Map<Long, UserRes> userIdUserMap;
 		MarketIntelligenceEntity miEntity = mrketIntelligenceDAO.getMarkByIdetIntelligenceById(id);
 		MarketIntelligenceRes miRes = new MarketIntelligenceRes();
 		ModelEntityMappers.mapMiEntityToMiRes(miEntity, miRes);
-		List<MarketIntelligenceInfoRes> miInfoResLst = this.getMarketIntelligenceInfo(miRes.getId());
+		List<MarketIntelligenceInfoRes> miInfoResLst = this.getMarketIntelligenceInfo(miRes.getId(), pagination);
 		userIdUserMap = userService.getCachedUsersSummaryMap();
 		if (userIdUserMap != null && userIdUserMap.get(miEntity.getCreatorId()) != null) {
 			miRes.setCreator(userIdUserMap.get(miEntity.getCreatorId()));
@@ -74,7 +75,7 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	}
 
 	@Override
-	public Long updateMarketIntelligence(MarketIntelligenceRes marketIntelligenceRes) {
+	public Long updateMarketIntelligence(MarketIntelligenceReq marketIntelligenceRes) {
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
 		try {
 			if (marketIntelligenceRes.getMiInfoList() != null && !marketIntelligenceRes.getMiInfoList().isEmpty()) {
@@ -114,15 +115,16 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	}
 
 	@Override
-	public Long addMarketIntelligence(MarketIntelligenceRes marketIntelligenceRes) {
+	public Long addMarketIntelligence(MarketIntelligenceReq marketIntelligenceRes) {
 		MarketIntelligenceEntity miEntity = new MarketIntelligenceEntity();
-		ModelEntityMappers.mapMiResToMiEntity(marketIntelligenceRes, miEntity);
+		ModelEntityMappers.mapMiReqToMiEntity(marketIntelligenceRes, miEntity);
 		return mrketIntelligenceDAO.addMarketIntelligence(miEntity);
 	}
 
 	@Override
-	public List<MarketIntelligenceInfoRes> getMarketIntelligenceInfo(Long miId) {
-		List<MarketIntelligenceInfoEntity> miInfoList = mrketIntelligenceDAO.getMarketIntelligenceInfoList(miId);
+	public List<MarketIntelligenceInfoRes> getMarketIntelligenceInfo(Long miId, Pagination pagination) {
+		List<MarketIntelligenceInfoEntity> miInfoList = mrketIntelligenceDAO.getMarketIntelligenceInfoList(miId,
+				pagination);
 		List<MarketIntelligenceInfoRes> miInfoResList = new ArrayList<MarketIntelligenceInfoRes>();
 		Map<Long, UserRes> userIdUserMap;
 		MarketIntelligenceInfoRes miInfoRes;
@@ -148,7 +150,8 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	@Override
 	public List<MarketIntelligenceRes> filterMarketIntelligence(FilterMarketIntelligenceRes filterMarketIntelligence,
 			Pagination pagination) {
-		List<MarketIntelligenceEntity> miList = mrketIntelligenceDAO.filterMarketIntelligence(filterMarketIntelligence,pagination);
+		List<MarketIntelligenceEntity> miList = mrketIntelligenceDAO.filterMarketIntelligence(filterMarketIntelligence,
+				pagination);
 		List<MarketIntelligenceRes> miResList = new ArrayList<MarketIntelligenceRes>();
 		MarketIntelligenceRes miRes;
 		for (MarketIntelligenceEntity miEntity : miList) {

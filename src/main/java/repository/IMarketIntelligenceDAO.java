@@ -20,7 +20,7 @@ public interface IMarketIntelligenceDAO {
 
 	Long addMarketIntelligence(MarketIntelligenceEntity marketingIntelligenceEntity);
 
-	List<MarketIntelligenceInfoEntity> getMarketIntelligenceInfoList(Long miId);
+	List<MarketIntelligenceInfoEntity> getMarketIntelligenceInfoList(Long miId,Pagination pagination);
 
 	void addMarketIntelligenceInfo(Long miId, MarketIntelligenceInfoEntity miEntity);
 	

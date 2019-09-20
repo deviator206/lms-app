@@ -20,8 +20,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.annotations.ApiOperation;
 import model.DownloadFileRes;
 import model.FilterMarketIntelligenceRes;
+import model.MarketIntelligenceInfoRes;
+import model.MarketIntelligenceReq;
 import model.MarketIntelligenceRes;
 import model.Pagination;
 import model.UploadFileRes;
@@ -47,19 +50,31 @@ public class MarketIntelligenceController {
 	}
 
 	@GetMapping("/marketIntelligence/{id}")
-	public MarketIntelligenceRes getMarketIntelligenceById(@PathVariable("id") Long id) {
-		return marketIntelligenceService.getMarkByIdetIntelligenceById(id);
+	public MarketIntelligenceRes getMarketIntelligenceById(@PathVariable("id") Long id,@RequestParam(value = "infosize", required = false) Integer infoSize) {		
+		return marketIntelligenceService.getMarkByIdetIntelligenceById(id,new Pagination(1, infoSize));
 	}
 
+	@GetMapping("/marketIntelligence/{id}/marketIntelligenceInfo")
+	public List<MarketIntelligenceInfoRes> getMarketIntelligenceInfoByMiId(@PathVariable("id") Long miId,
+			@RequestParam(value = "start", required = false) Integer start,
+			@RequestParam(value = "pagesize", required = false) Integer pageSize) {
+		if (start != null && pageSize != null) {
+			return marketIntelligenceService.getMarketIntelligenceInfo(miId,new Pagination(start, pageSize));
+		}
+		return marketIntelligenceService.getMarketIntelligenceInfo(miId,null);
+		
+	}
+
+	@ApiOperation(value = "Update Market Intelligence. Only adding Market Intelligence infos is supported ", response = Long.class)
 	@PostMapping("/marketIntelligence/{id}")
 	public Long updateMarketIntelligence(@PathVariable("id") Long id,
-			@RequestBody MarketIntelligenceRes marketIntelligenceRes) {
+			@RequestBody MarketIntelligenceReq marketIntelligenceRes) {
 		return marketIntelligenceService.updateMarketIntelligence(marketIntelligenceRes);
 	}
 
 	@PostMapping("/marketIntelligence")
-	public Long addMarketIntelligence(@RequestBody MarketIntelligenceRes marketIntelligenceRes) {
-		return marketIntelligenceService.addMarketIntelligence(marketIntelligenceRes);
+	public Long addMarketIntelligence(@RequestBody MarketIntelligenceReq marketIntelligenceReq) {
+		return marketIntelligenceService.addMarketIntelligence(marketIntelligenceReq);
 	}
 
 	@PostMapping("/search/marketIntelligence")

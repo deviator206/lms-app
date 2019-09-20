@@ -2,10 +2,11 @@ package service;
 
 import java.util.List;
 
+import model.RefDataRes;
 import repository.entity.RefDataEntity;
 
 public interface IRefDataService {
-	RefDataEntity createRefData(RefDataEntity refData);
+	void createRefData(RefDataEntity refData);
 
 	boolean deleteRefDataFromType(String type);
 

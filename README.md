@@ -383,3 +383,22 @@ http://localhost:8080/marketIntelligence/attachment/upload?id=1&userid=1111
 http://localhost:8080/marketIntelligence/attachment/download?name=aa.txt&miid=1
 
 ---------------------------------------------------------------------------------
+-----------------------------------------
+Get MI Infor with Pagination 
+
+GET http://localhost:8080/marketIntelligence/1/marketIntelligenceInfo?start=1&pagesize=2
+
+---------------------------------------------------------------------------------
+Get MI Details with some no of MI Infor
+
+GET http://localhost:8080/marketIntelligence/1?infosize=2
+
+------------------------------------------------------------------------------
+
+Swagger Documentation -
+
+http://localhost:8080/swagger-ui.html
+
+-----------------------------------------------------------------------
+
+

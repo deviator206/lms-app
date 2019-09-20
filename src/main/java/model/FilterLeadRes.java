@@ -2,11 +2,13 @@ package model;
 
 import java.util.Date;
 
+import security.SQLInjectionSafe;
+
 public class FilterLeadRes {
-	private String custName;
+	private @SQLInjectionSafe String custName;
 	private String salesRep;
 	private Long salesRepId;
-	
+
 	private Long creatorId;
 
 	public Long getCreatorId() {

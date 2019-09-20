@@ -81,7 +81,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 								: new java.sql.Date(new Date().getTime()));
 				if (miEntity.getCreatorId() != null) {
 					ps.setLong(7, miEntity.getCreatorId());
-				}else {
+				} else {
 					ps.setNull(7, Types.DOUBLE);
 				}
 				return ps;
@@ -91,8 +91,11 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	}
 
 	@Override
-	public List<MarketIntelligenceInfoEntity> getMarketIntelligenceInfoList(Long miId) {
+	public List<MarketIntelligenceInfoEntity> getMarketIntelligenceInfoList(Long miId, Pagination pagination) {
 		String sql = "SELECT ID, MI_ID, INFO, CREATION_DATE,CREATOR_ID FROM MI_INFO WHERE MI_ID = ?";
+		if ((pagination != null) && pagination.isPaginatedQuery()) {
+			sql = RepositoryHelper.getPaginatedQuery(sql, pagination.getStart(), pagination.getPageSize());
+		}
 		RowMapper<MarketIntelligenceInfoEntity> rowMapper = new MarketIntelligenceInfoRowMapper();
 		List<MarketIntelligenceInfoEntity> miEntityLst = jdbcTemplate.query(sql, rowMapper, miId);
 		return miEntityLst;
@@ -146,10 +149,10 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 		}
 
 		query = query + " ORDER BY CREATION_DATE DESC ";
-		
+
 		if ((pagination != null) && pagination.isPaginatedQuery()) {
 			query = RepositoryHelper.getPaginatedQuery(query, pagination.getStart(), pagination.getPageSize());
-		}	
+		}
 
 		return this.jdbcTemplate.query(query, rowMapper);
 	}
