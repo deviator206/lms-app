@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -66,7 +67,7 @@ public class MarketIntelligenceController {
 	}
 
 	@ApiOperation(value = "Update Market Intelligence. Only adding Market Intelligence infos is supported ", response = Long.class)
-	@PostMapping("/marketIntelligence/{id}")
+	@PutMapping("/marketIntelligence/{id}")
 	public Long updateMarketIntelligence(@PathVariable("id") Long id,
 			@RequestBody MarketIntelligenceReq marketIntelligenceRes) {
 		return marketIntelligenceService.updateMarketIntelligence(marketIntelligenceRes);

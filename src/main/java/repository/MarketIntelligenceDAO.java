@@ -55,8 +55,8 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	@Override
 	public void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status, Long updatorId,
 			Date updateDate) {
-		String sql = "UPDATE MI SET LEAD_ID = ?, STATUS = ?  UPDATOR_ID = ?, UPDATE_DATE = ? WHERE ID = ?;";
-		jdbcTemplate.update(sql, rootLeadId, status, updatorId, updateDate);
+		String sql = "UPDATE MI SET LEAD_ID = ?, STATUS = ?,  UPDATOR_ID = ?, UPDATE_DATE = ? WHERE ID = ?;";
+		jdbcTemplate.update(sql, rootLeadId, status, updatorId, updateDate,miId);
 	}
 
 	@Override

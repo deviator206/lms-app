@@ -28,6 +28,7 @@ public class LeadRowMapper implements RowMapper<LeadEntity> {
 		leadEntity.setCurrency(rs.getString("CURRENCY"));
 		leadEntity.setMessage(rs.getString("MESSAGE"));
 		leadEntity.setAttachment(rs.getString("ATTACHMENT"));
+		leadEntity.setIndustry(rs.getString("INDUSTRY"));
 		return leadEntity;
 	}
 

@@ -44,8 +44,8 @@ public class LeadDAOImpl implements ILeadDAO {
 	@Override
 	public Long insertLead(LeadEntity leadEntity) {
 		Long id = null;
-		String sql = "INSERT INTO LEADS (BU,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,SALES_REP,BUDGET,CURRENCY,MESSAGE,ORIGINATING_BU,SALES_REP_ID) \r\n"
-				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
+		String sql = "INSERT INTO LEADS (BU,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,SALES_REP,BUDGET,CURRENCY,MESSAGE,ORIGINATING_BU,SALES_REP_ID, INDUSTRY) \r\n"
+				+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
@@ -76,7 +76,9 @@ public class LeadDAOImpl implements ILeadDAO {
 				} else {
 					ps.setNull(14, Types.INTEGER);
 				}
-
+				
+				ps.setString(15, leadEntity.getIndustry());
+				
 				return ps;
 			}
 		}, keyHolder);
@@ -147,7 +149,11 @@ public class LeadDAOImpl implements ILeadDAO {
 			throw new RuntimeException("SQL Injection Error");
 		}
 
-		String query = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP_ID,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE,LEADS.ATTACHMENT FROM LEADS,ROOT_LEAD WHERE LEADS.ROOT_ID = ROOT_LEAD.ID ";
+		String query = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP_ID,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,"
+				+ "LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE,LEADS.ATTACHMENT,ROOT_LEAD.SOURCE,LEADS.INDUSTRY,"
+				+ "ROOT_LEAD.TENURE,LEAD_CONTACT.COUNTRY,LEAD_CONTACT.STATE "
+				+ "FROM LEADS,ROOT_LEAD,LEAD_CONTACT "
+				+ "WHERE LEADS.ROOT_ID = ROOT_LEAD.ID AND ROOT_LEAD.CONTACT_ID = LEAD_CONTACT.ID";
 
 		query = getFilterLeadsQuery(filterLeadRes, query);
 
@@ -198,6 +204,67 @@ public class LeadDAOImpl implements ILeadDAO {
 			query = query + " AND LEADS.BU = " + filterLeadRes.getCreatorId();
 		}
 
+		if (filterLeadRes.getSource() != null && !filterLeadRes.getSource().isEmpty()) {
+			query = query + " AND ROOT_LEAD.SOURCE = '" + filterLeadRes.getSource() + "'";
+		}
+		
+		if (filterLeadRes.getIndustry() != null && !filterLeadRes.getIndustry().isEmpty()) {
+			query = query + " AND LEADS.INDUSTRY = '" + filterLeadRes.getIndustry() + "'";
+		}
+
+		if (filterLeadRes.getTenure() != null && !filterLeadRes.getTenure().isEmpty()) {
+			query = query + " AND ROOT_LEAD.TENURE = '" + filterLeadRes.getTenure() + "'";
+		}
+		
+		if (filterLeadRes.getCountry() != null && !filterLeadRes.getCountry().isEmpty()) {
+			query = query + " AND LEAD_CONTACT.COUNTRY = '" + filterLeadRes.getCountry() + "'";
+		}
+		
+		if (filterLeadRes.getState() != null && !filterLeadRes.getState().isEmpty()) {
+			query = query + " AND LEAD_CONTACT.STATE = '" + filterLeadRes.getState() + "'";
+		}
+		
+		return query;
+	}
+
+	private String getLeadStatisticsQuery(FilterLeadRes filterLeadRes, String query) {
+		if (filterLeadRes.getCustName() != null && !filterLeadRes.getCustName().isEmpty()) {
+			query = query + " AND ROOT_LEAD.CUST_NAME LIKE '%" + filterLeadRes.getCustName() + "%'";
+		}
+
+		if (filterLeadRes.getStatus() != null && !filterLeadRes.getStatus().isEmpty()) {
+			query = query + " AND LEADS.STATUS = '" + filterLeadRes.getStatus() + "'";
+		}
+
+		if (filterLeadRes.getSalesRepId() != null) {
+			query = query + " AND SALES_REP_ID = " + filterLeadRes.getSalesRepId();
+		}
+
+		if (filterLeadRes.getSalesRep() != null && !filterLeadRes.getSalesRep().isEmpty()) {
+			query = query + " AND LEADS.SALES_REP LIKE '%" + filterLeadRes.getSalesRep() + "%'";
+		}
+
+		if (filterLeadRes.getStartDate() != null && filterLeadRes.getEndDate() != null) {
+			query = query + " AND LEADS.CREATION_DATE BETWEEN '" + filterLeadRes.getStartDate() + "' AND '"
+					+ filterLeadRes.getEndDate() + "'";
+		} else if (filterLeadRes.getStartDate() != null) {
+			query = query + " AND LEADS.CREATION_DATE >= '" + filterLeadRes.getStartDate() + "'";
+		} else if (filterLeadRes.getEndDate() != null) {
+			query = query + " AND LEADS.CREATION_DATE <= '" + filterLeadRes.getEndDate() + "'";
+		}
+
+		if (filterLeadRes.getFromBu() != null && !filterLeadRes.getFromBu().isEmpty()) {
+			query = query + " AND LEADS.ORIGINATING_BU = '" + filterLeadRes.getFromBu() + "'";
+		}
+
+		if (filterLeadRes.getToBu() != null && !filterLeadRes.getToBu().isEmpty()) {
+			query = query + " AND LEADS.BU = '" + filterLeadRes.getToBu() + "'";
+		}
+
+		if (filterLeadRes.getCreatorId() != null) {
+			query = query + " AND LEADS.BU = " + filterLeadRes.getCreatorId();
+		}
+
 		return query;
 	}
 
@@ -205,7 +272,7 @@ public class LeadDAOImpl implements ILeadDAO {
 	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId) {
 		String query = "SELECT STATUS, COUNT(*) STATUS_COUNT FROM LEADS WHERE 1 = 1 ";
 
-		query = getFilterLeadsQuery(filterLeadRes, query);
+		query = getLeadStatisticsQuery(filterLeadRes, query);
 
 		query = query + " GROUP BY STATUS";
 
@@ -233,7 +300,7 @@ public class LeadDAOImpl implements ILeadDAO {
 			tempFilterLeadRes = new FilterLeadRes();
 			tempFilterLeadRes.setFromBu(salesRepBu);
 			tempFilterLeadRes.setToBu(salesRepBu);
-			tempQuery = getFilterLeadsQuery(tempFilterLeadRes, tempQuery);
+			tempQuery = getLeadStatisticsQuery(tempFilterLeadRes, tempQuery);
 			buLeadsRs = jdbcTemplate.queryForList(tempQuery);
 			for (Map statusCountRow : buLeadsRs) {
 				leadStatistictsRes.setInternalBuLeadsCount((Long) statusCountRow.get("COUNT"));
@@ -243,7 +310,7 @@ public class LeadDAOImpl implements ILeadDAO {
 			tempQuery = mainQuery;
 			tempFilterLeadRes = new FilterLeadRes();
 			tempFilterLeadRes.setFromBu(salesRepBu);
-			tempQuery = getFilterLeadsQuery(tempFilterLeadRes, tempQuery);
+			tempQuery = getLeadStatisticsQuery(tempFilterLeadRes, tempQuery);
 			buLeadsRs = jdbcTemplate.queryForList(tempQuery);
 			for (Map statusCountRow : buLeadsRs) {
 				leadStatistictsRes.setExternalBuLeadsCount((Long) statusCountRow.get("COUNT"));
@@ -253,7 +320,7 @@ public class LeadDAOImpl implements ILeadDAO {
 			tempQuery = mainQuery;
 			tempFilterLeadRes = new FilterLeadRes();
 			tempFilterLeadRes.setToBu(salesRepBu);
-			tempQuery = getFilterLeadsQuery(tempFilterLeadRes, tempQuery);
+			tempQuery = getLeadStatisticsQuery(tempFilterLeadRes, tempQuery);
 			buLeadsRs = jdbcTemplate.queryForList(tempQuery);
 			for (Map statusCountRow : buLeadsRs) {
 				leadStatistictsRes.setCrossBuLeadsCount((Long) statusCountRow.get("COUNT"));
@@ -263,7 +330,7 @@ public class LeadDAOImpl implements ILeadDAO {
 			tempQuery = mainQuery;
 			tempFilterLeadRes = new FilterLeadRes();
 			tempFilterLeadRes.setCreatorId(userId);
-			tempQuery = getFilterLeadsQuery(tempFilterLeadRes, tempQuery);
+			tempQuery = getLeadStatisticsQuery(tempFilterLeadRes, tempQuery);
 			buLeadsRs = jdbcTemplate.queryForList(tempQuery);
 			for (Map statusCountRow : buLeadsRs) {
 				leadStatistictsRes.setTotalLeadsGeneratedByUser((Long) statusCountRow.get("COUNT"));

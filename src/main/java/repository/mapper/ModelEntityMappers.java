@@ -6,6 +6,7 @@ import java.util.List;
 import model.LeadContactRes;
 import model.LeadRes;
 import model.LeadsSummaryRes;
+import model.MarketIntelligenceInfoReq;
 import model.MarketIntelligenceInfoRes;
 import model.MarketIntelligenceReq;
 import model.MarketIntelligenceRes;
@@ -131,6 +132,15 @@ public class ModelEntityMappers {
 	public static MarketIntelligenceInfoEntity mapMiInfoResToMiInfoEntity(MarketIntelligenceInfoRes miRes,
 			MarketIntelligenceInfoEntity miEntity) {
 		// miEntity.setId(miRes.getId());
+		miEntity.setMiId(miRes.getMiId());
+		miEntity.setInfo(miRes.getInfo());
+		miEntity.setCreationDate(miRes.getCreationDate());
+		miEntity.setCreatorId(miRes.getCreatorId());
+		return miEntity;
+	}
+	
+	public static MarketIntelligenceInfoEntity mapMiInfoReqToMiInfoEntity(MarketIntelligenceInfoReq miRes,
+			MarketIntelligenceInfoEntity miEntity) {
 		miEntity.setMiId(miRes.getMiId());
 		miEntity.setInfo(miRes.getInfo());
 		miEntity.setCreationDate(miRes.getCreationDate());

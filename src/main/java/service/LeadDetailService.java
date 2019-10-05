@@ -80,8 +80,11 @@ public class LeadDetailService implements ILeadDetailService {
 		UserEntity tempSalesRep = null;
 		try {
 			LeadContactEntity leadContactEntity = new LeadContactEntity();
-			RootLeadEntity rootLeadEntity = new RootLeadEntity();
+			RootLeadEntity rootLeadEntity = new RootLeadEntity();			
 
+			ModelEntityMappers.mapRootLeadResToRootLeadEntity(rootLeadRes, rootLeadEntity);
+			
+			//Set Contact Id
 			if (rootLeadRes.getLeadContact() != null) {
 				ModelEntityMappers.mapLeadContactResToLeadContactEntity(rootLeadRes.getLeadContact(),
 						leadContactEntity);
@@ -89,9 +92,8 @@ public class LeadDetailService implements ILeadDetailService {
 				rootLeadEntity.setContactId(leadContactId);
 			}
 
-			ModelEntityMappers.mapRootLeadResToRootLeadEntity(rootLeadRes, rootLeadEntity);
-
 			rootLeadId = rootLeadDAO.insertRootLead(rootLeadEntity);
+			
 			if (rootLeadRes.getLeadsSummaryRes() != null) {
 				for (String businessUnit : rootLeadRes.getLeadsSummaryRes().getBusinessUnits()) {
 					LeadEntity leadEntity = new LeadEntity();

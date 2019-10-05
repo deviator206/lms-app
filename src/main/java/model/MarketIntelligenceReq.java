@@ -17,7 +17,7 @@ public class MarketIntelligenceReq {
 	private Long creatorId;
 	private Long updatorId;
 	private Date updateDate;
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -58,13 +58,13 @@ public class MarketIntelligenceReq {
 		this.creationDate = creationDate;
 	}
 
-	List<MarketIntelligenceInfoRes> miInfoList;
+	List<MarketIntelligenceInfoReq> miInfoList;
 
-	public List<MarketIntelligenceInfoRes> getMiInfoList() {
+	public List<MarketIntelligenceInfoReq> getMiInfoList() {
 		return miInfoList;
 	}
 
-	public void setMiInfoList(List<MarketIntelligenceInfoRes> miInfoList) {
+	public void setMiInfoList(List<MarketIntelligenceInfoReq> miInfoList) {
 		this.miInfoList = miInfoList;
 	}
 

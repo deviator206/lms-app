@@ -401,4 +401,34 @@ http://localhost:8080/swagger-ui.html
 
 -----------------------------------------------------------------------
 
+Bug Fixes 
 
+Status Changed -
+
+{
+  "id" : 3,
+  "miInfoList" : [{
+    "info" : "infonew1"
+  }],
+  "rootLeadId" : 36,
+  "updatorId" : 1
+}
+
+
+--------------------------------
+Contact Info in Get Leads pupulated
+
+-----------------------------------
+Creator in mi info returned
+
+---------------------------------
+Filters corrcted
+
+
+{
+  "tenure": "LT1Y",
+  "country":"IND",
+  "state" : "KAR"
+}
+
+-----------------------------------------------------------------

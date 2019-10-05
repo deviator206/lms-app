@@ -80,14 +80,19 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 		try {
 			if (marketIntelligenceRes.getMiInfoList() != null && !marketIntelligenceRes.getMiInfoList().isEmpty()) {
 				MarketIntelligenceInfoEntity miInfoEntity = new MarketIntelligenceInfoEntity();
-				ModelEntityMappers.mapMiInfoResToMiInfoEntity(marketIntelligenceRes.getMiInfoList().get(0),
+				ModelEntityMappers.mapMiInfoReqToMiInfoEntity(marketIntelligenceRes.getMiInfoList().get(0),
 						miInfoEntity);
 
 				// Set Creation Date
 				Date currentDate = new Date();
+				Long infoCreatorId = null;
+				if (marketIntelligenceRes.getUpdatorId() != null) {
+					infoCreatorId = marketIntelligenceRes.getUpdatorId();
+				} else if (miInfoEntity.getCreatorId() != null) {
+					infoCreatorId = miInfoEntity.getCreatorId();
+				}
+				miInfoEntity.setCreatorId(infoCreatorId);
 				miInfoEntity.setCreationDate(currentDate);
-				miInfoEntity.setCreatorId(marketIntelligenceRes.getUpdatorId());
-
 				this.addMarketIntelligenceInfo(marketIntelligenceRes.getId(), miInfoEntity);
 			}
 
@@ -135,6 +140,7 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 			userIdUserMap = userService.getCachedUsersSummaryMap();
 			if (userIdUserMap != null && userIdUserMap.get(miInfoEntity.getCreatorId()) != null) {
 				miInfoRes.setCreator(userIdUserMap.get(miInfoEntity.getCreatorId()));
+				miInfoRes.setCreatorId(miInfoEntity.getCreatorId());
 			}
 
 			miInfoResList.add(miInfoRes);

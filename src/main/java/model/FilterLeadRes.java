@@ -8,6 +8,50 @@ public class FilterLeadRes {
 	private @SQLInjectionSafe String custName;
 	private String salesRep;
 	private Long salesRepId;
+	private String source;
+	private String industry;
+	private String tenure;
+	private String country;
+	private String state;
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public String getState() {
+		return state;
+	}
+
+	public void setState(String state) {
+		this.state = state;
+	}
+
+	public String getTenure() {
+		return tenure;
+	}
+
+	public void setTenure(String tenure) {
+		this.tenure = tenure;
+	}
+
+	public String getIndustry() {
+		return industry;
+	}
+
+	public void setIndustry(String industry) {
+		this.industry = industry;
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
 
 	private Long creatorId;
 
