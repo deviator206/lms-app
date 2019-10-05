@@ -1,11 +1,65 @@
 {
    "policies":{
       "ADMIN":{
-         "userList":"SHOW",
-         "salesRepList" : "DISABLE"
+          "report_all_bu_to_all": "show",
+            "sales_rep_selection": "show",
+            "policy_action_mapping": {
+                "ASSIGNED":{
+                    "STATUS_UPDATE": "yes",
+                    "ASSIGN_SALES_REP": "yes",
+                    "BUDGET_UPDATE":"yes",
+                    "NOTIFY_BU": "yes",
+                    "ADD_MORE_BU": "yes"
+                },
+                "NOT_ASSIGNED":{
+                    "STATUS_UPDATE": "yes",
+                    "ASSIGN_SALES_REP": "yes",
+                    "BUDGET_UPDATE":"yes",
+                    "NOTIFY_BU": "yes",
+                    "ADD_MORE_BU": "yes"
+                }
+
+            }
       },
       "SALES_REP":{
-         "userList":"HIDE"
-      }
+         "self_lead_view_mode": "show",
+            "policy_action_mapping": {
+                "ASSIGNED":{
+                    "STATUS_UPDATE": "yes",
+                    "ASSIGN_SALES_REP": "yes",
+                    "BUDGET_UPDATE":"yes",
+                    "NOTIFY_BU": "yes",
+                    "ADD_MORE_BU": "yes"
+                },
+                "NOT_ASSIGNED":{
+                    "STATUS_UPDATE": "no",
+                    "ASSIGN_SALES_REP": "no",
+                    "BUDGET_UPDATE":"yes",
+                    "NOTIFY_BU": "yes",
+                    "ADD_MORE_BU": "yes"
+                }
+
+            }
+      },
+	  "BU_HEAD":{
+	   "general_bu_lead_view_mode": "show",
+            "policy_action_mapping": {
+                "ASSIGNED":{
+                    "STATUS_UPDATE": "yes",
+                    "ASSIGN_SALES_REP": "yes",
+                    "BUDGET_UPDATE":"yes",
+                    "NOTIFY_BU": "yes",
+                    "ADD_MORE_BU": "yes"
+                },
+                "NOT_ASSIGNED":{
+                    "STATUS_UPDATE": "yes",
+                    "ASSIGN_SALES_REP": "yes",
+                    "BUDGET_UPDATE":"yes",
+                    "NOTIFY_BU": "yes",
+                    "ADD_MORE_BU": "yes"
+                }
+
+            }
+	  }
    }
 }
