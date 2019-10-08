@@ -450,7 +450,7 @@ Authorization - Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMTEzIiwiaWF0IjoxNTcwMzk1
 
 ---------------------------------------------
 Download Excel Report -
-http://localhost:8080/report/lead?busummary=true&userid=1111
+POST http://localhost:8080/report/lead?busummary=true&userid=1111
 
 ---------------------------------------------
 
