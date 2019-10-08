@@ -1,0 +1,14 @@
+{
+   "policies":{
+      "ADMIN":{
+         "userList":"SHOW",
+         "salesRepList" : "DISABLE"
+      },
+      "SALES_REP":{
+         "userList":"HIDE"
+      }
+   },
+   "controllersAccessPolicies": {
+		"/user": "ADMIN1"
+	}
+}

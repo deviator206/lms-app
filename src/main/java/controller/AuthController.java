@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,9 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 import model.JwtAuthenticationResponse;
 import model.LoginRequest;
 import model.UserInfo;
+import security.ApplicationPropertiesProvider;
 import security.JwtTokenProvider;
 import security.UserPrincipal;
-import service.IPolicyProviderService;
+import service.IApplicationPropertiesProviderService;
 
 @RestController
 public class AuthController {
@@ -41,7 +41,7 @@ public class AuthController {
 	JwtTokenProvider tokenProvider;
 
 	@Autowired
-	private IPolicyProviderService policyProviderService;
+	private IApplicationPropertiesProviderService applicationPropertiesProviderService;
 
 	@PostMapping("/login")
 	public JwtAuthenticationResponse authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -52,7 +52,7 @@ public class AuthController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		List<String> roles = authentication.getAuthorities().stream()
 				.map(grantedAuthority -> grantedAuthority.getAuthority()).collect(Collectors.toList());
-		Map<String, String> policies = policyProviderService.getPolicies(roles);
+		Map<String, String> policies = applicationPropertiesProviderService.getPolicies(roles);
 
 		UserInfo userInfo = new UserInfo();
 		userInfo.setPolicies(policies);

@@ -11,4 +11,5 @@ public class LeadManagementConstants {
 	public static final String LEAD_TYPE_ALL = "all";
 	public static final String LEAD_TYPE_GENERATED = "generated";
 	public static final String LEAD_TYPE_ASSIGNED = "assigned";
+	public static final String ALL_BU = "ALL";
 }

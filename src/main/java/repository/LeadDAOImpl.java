@@ -76,9 +76,9 @@ public class LeadDAOImpl implements ILeadDAO {
 				} else {
 					ps.setNull(14, Types.INTEGER);
 				}
-				
+
 				ps.setString(15, leadEntity.getIndustry());
-				
+
 				return ps;
 			}
 		}, keyHolder);
@@ -151,8 +151,7 @@ public class LeadDAOImpl implements ILeadDAO {
 
 		String query = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP_ID,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,"
 				+ "LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE,LEADS.ATTACHMENT,ROOT_LEAD.SOURCE,LEADS.INDUSTRY,"
-				+ "ROOT_LEAD.TENURE,LEAD_CONTACT.COUNTRY,LEAD_CONTACT.STATE "
-				+ "FROM LEADS,ROOT_LEAD,LEAD_CONTACT "
+				+ "ROOT_LEAD.TENURE,LEAD_CONTACT.COUNTRY,LEAD_CONTACT.STATE " + "FROM LEADS,ROOT_LEAD,LEAD_CONTACT "
 				+ "WHERE LEADS.ROOT_ID = ROOT_LEAD.ID AND ROOT_LEAD.CONTACT_ID = LEAD_CONTACT.ID";
 
 		query = getFilterLeadsQuery(filterLeadRes, query);
@@ -192,11 +191,13 @@ public class LeadDAOImpl implements ILeadDAO {
 			query = query + " AND LEADS.CREATION_DATE <= '" + filterLeadRes.getEndDate() + "'";
 		}
 
-		if (filterLeadRes.getFromBu() != null && !filterLeadRes.getFromBu().isEmpty()) {
+		if (filterLeadRes.getFromBu() != null && !filterLeadRes.getFromBu().isEmpty()
+				&& (!LeadManagementConstants.ALL_BU.equalsIgnoreCase(filterLeadRes.getFromBu()))) {
 			query = query + " AND LEADS.ORIGINATING_BU = '" + filterLeadRes.getFromBu() + "'";
 		}
 
-		if (filterLeadRes.getToBu() != null && !filterLeadRes.getToBu().isEmpty()) {
+		if (filterLeadRes.getToBu() != null && !filterLeadRes.getToBu().isEmpty()
+				&& (!LeadManagementConstants.ALL_BU.equalsIgnoreCase(filterLeadRes.getToBu()))) {
 			query = query + " AND LEADS.BU = '" + filterLeadRes.getToBu() + "'";
 		}
 
@@ -207,7 +208,7 @@ public class LeadDAOImpl implements ILeadDAO {
 		if (filterLeadRes.getSource() != null && !filterLeadRes.getSource().isEmpty()) {
 			query = query + " AND ROOT_LEAD.SOURCE = '" + filterLeadRes.getSource() + "'";
 		}
-		
+
 		if (filterLeadRes.getIndustry() != null && !filterLeadRes.getIndustry().isEmpty()) {
 			query = query + " AND LEADS.INDUSTRY = '" + filterLeadRes.getIndustry() + "'";
 		}
@@ -215,15 +216,15 @@ public class LeadDAOImpl implements ILeadDAO {
 		if (filterLeadRes.getTenure() != null && !filterLeadRes.getTenure().isEmpty()) {
 			query = query + " AND ROOT_LEAD.TENURE = '" + filterLeadRes.getTenure() + "'";
 		}
-		
+
 		if (filterLeadRes.getCountry() != null && !filterLeadRes.getCountry().isEmpty()) {
 			query = query + " AND LEAD_CONTACT.COUNTRY = '" + filterLeadRes.getCountry() + "'";
 		}
-		
+
 		if (filterLeadRes.getState() != null && !filterLeadRes.getState().isEmpty()) {
 			query = query + " AND LEAD_CONTACT.STATE = '" + filterLeadRes.getState() + "'";
 		}
-		
+
 		return query;
 	}
 

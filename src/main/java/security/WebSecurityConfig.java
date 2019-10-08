@@ -1,5 +1,7 @@
 package security;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,19 +19,23 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-/*
- * @EnableWebSecurity
- * 
- * @EnableGlobalMethodSecurity( securedEnabled = true, jsr250Enabled = true,
- * prePostEnabled = true )
- */
+
+@EnableWebSecurity
+
+@EnableGlobalMethodSecurity(securedEnabled = true, jsr250Enabled = true, prePostEnabled = true)
+
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	private static final String CREATE_USER = "/user";
 
 	@Autowired
 	CustomUserDetailsService customUserDetailsService;
 
 	@Autowired
-	private JwtAuthenticationEntryPoint unauthorizedHandler;
+	ApplicationPropertiesProvider applicationPropertiesProvider;
+
+	@Autowired
+	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
@@ -52,11 +58,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new BCryptPasswordEncoder();
 	}
 
-	// Uncomment below code o disable security
+	// Uncomment below code to disable security
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
-		httpSecurity.cors().and().csrf().disable();
-		httpSecurity.authorizeRequests().antMatchers("/").permitAll();
+		//Map<String, String> ctrlAccessPolicies = applicationPropertiesProvider.getControllersAccessPolicies();
+		httpSecurity.cors().and().csrf().disable().exceptionHandling()
+				.authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
+				.antMatchers(HttpMethod.POST, "/login").permitAll()
+				.anyRequest().authenticated();
+		// .hasRole("ADMIN").anyRequest().authenticated();
+		// Add our custom JWT security filter
+		httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 
 }

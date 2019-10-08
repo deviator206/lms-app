@@ -432,3 +432,18 @@ Filters corrcted
 }
 
 -----------------------------------------------------------------
+-----------------------------------------------------
+Login
+
+POST http://localhost:8080/login
+Payload -
+{"userName":"syadav1","password":"password"}
+
+Response -
+{"accessToken":"eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMTEzIiwiaWF0IjoxNTcwNTA2ODczLCJleHAiOjE1NzExMTE2NzN9.-jM1TvtjixlV82QkGSUbw1rev9lcKGWERamJ_wxwjkrt1D2ie_nwGa5-mlCeVobf6rS-NFxA7v517hIq_Dk53A","tokenType":"Bearer","userInfo":{"policies":{},"userId":1113,"userName":"syadav1","enabled":true,"userDisplayName":null,"businessUnit":null,"roles":["ADMIN1"]}}
+
+----------------------------------------------------
+Send Authorization Token in REST -
+Authorization - Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMTEzIiwiaWF0IjoxNTcwMzk1MzI3LCJleHAiOjE1NzEwMDAxMjd9.FhSZRVRiS22FPJMBHXG_ZlW2fR4oZtPVBOyf3kpqjfnmbUZKluLuenkAYlXv_VNKZExvlmIqciZmnLjxz-zGCg
+
+-----------------------------------------------------
