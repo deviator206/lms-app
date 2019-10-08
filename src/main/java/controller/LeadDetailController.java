@@ -33,6 +33,7 @@ import model.LeadStatistictsRes;
 import model.Pagination;
 import model.RootLeadRes;
 import model.UploadFileRes;
+import service.FileServices;
 import service.ILeadDetailService;
 
 @RestController
@@ -40,6 +41,9 @@ import service.ILeadDetailService;
 public class LeadDetailController {
 	@Autowired
 	public ILeadDetailService leadDetailService;
+
+	@Autowired
+	FileServices fileServices;
 
 	@GetMapping("/rootlead/{id}")
 	public RootLeadRes getRootLead(@PathVariable("id") Long id) {
@@ -99,7 +103,7 @@ public class LeadDetailController {
 		return leadDetailService.getLeadStatistics(filterLeadRes, busummary, userId);
 	}
 
-	@PostMapping("/report/lead")
+	@PostMapping(value = "/report/lead", produces = "application/vnd.ms-excel")
 	public ResponseEntity<InputStreamResource> getLeadStatisticsReport(
 			@RequestParam(value = "busummary", required = false, defaultValue = "false") Boolean busummary,
 			@RequestParam(value = "userid", required = false) Long userId, @RequestBody FilterLeadRes filterLeadRes)
@@ -109,11 +113,23 @@ public class LeadDetailController {
 		// return IOUtils.toByteArray(in);
 
 		HttpHeaders headers = new HttpHeaders();
+		// headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
+		// change the file name
 		headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
 
-		return ResponseEntity.ok().headers(headers).contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+		return ResponseEntity.ok().headers(headers).contentType(MediaType.parseMediaType("application/ms-excel"))
 				.body(new InputStreamResource(in));
 	}
+
+	/*@GetMapping(value = "/report/file", produces = "application/vnd.ms-excel")
+	public ResponseEntity<InputStreamResource> downloadFile() {
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
+
+		return ResponseEntity.ok().headers(headers).body(new InputStreamResource(fileServices.loadFile()));
+	}
+	*/
 
 	@PostMapping("/lead/attachment/upload")
 	public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile uploadfile,

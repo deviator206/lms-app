@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
@@ -36,7 +37,6 @@ import model.LeadsSummaryRes;
 import model.Pagination;
 import model.RootLeadRes;
 import model.UploadFileRes;
-import model.User;
 import model.UserRes;
 import repository.ILeadContactDAO;
 import repository.ILeadDAO;
@@ -80,11 +80,11 @@ public class LeadDetailService implements ILeadDetailService {
 		UserEntity tempSalesRep = null;
 		try {
 			LeadContactEntity leadContactEntity = new LeadContactEntity();
-			RootLeadEntity rootLeadEntity = new RootLeadEntity();			
+			RootLeadEntity rootLeadEntity = new RootLeadEntity();
 
 			ModelEntityMappers.mapRootLeadResToRootLeadEntity(rootLeadRes, rootLeadEntity);
-			
-			//Set Contact Id
+
+			// Set Contact Id
 			if (rootLeadRes.getLeadContact() != null) {
 				ModelEntityMappers.mapLeadContactResToLeadContactEntity(rootLeadRes.getLeadContact(),
 						leadContactEntity);
@@ -93,7 +93,7 @@ public class LeadDetailService implements ILeadDetailService {
 			}
 
 			rootLeadId = rootLeadDAO.insertRootLead(rootLeadEntity);
-			
+
 			if (rootLeadRes.getLeadsSummaryRes() != null) {
 				for (String businessUnit : rootLeadRes.getLeadsSummaryRes().getBusinessUnits()) {
 					LeadEntity leadEntity = new LeadEntity();
@@ -364,10 +364,37 @@ public class LeadDetailService implements ILeadDetailService {
 			throws IOException {
 		String[] COLUMNs = { "Status", "Count" };
 
-		LeadStatistictsRes LeadStatistictsRes = leadDAO.getLeadStatistics(filterLeadRes, busummary, userId);
+		LeadStatistictsRes leadStatistictsRes = leadDAO.getLeadStatistics(filterLeadRes, busummary, userId);
 		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
 
-			Sheet sheet = workbook.createSheet("Leads");
+			Sheet leadsSheet = workbook.createSheet("Leads");
+			Row leadsHeaderRow = null;
+
+			if (leadStatistictsRes.getInternalBuLeadsCount() != null) {
+				leadsHeaderRow = leadsSheet.createRow(0);
+				leadsHeaderRow.createCell(0).setCellValue("My BU Internal");
+				leadsHeaderRow.createCell(1).setCellValue(leadStatistictsRes.getInternalBuLeadsCount());
+			}
+
+			if (leadStatistictsRes.getExternalBuLeadsCount() != null) {
+				leadsHeaderRow = leadsSheet.createRow(1);
+				leadsHeaderRow.createCell(0).setCellValue("My BU External");
+				leadsHeaderRow.createCell(1).setCellValue(leadStatistictsRes.getExternalBuLeadsCount());
+			}
+
+			if (leadStatistictsRes.getCrossBuLeadsCount() != null) {
+				leadsHeaderRow = leadsSheet.createRow(2);
+				leadsHeaderRow.createCell(0).setCellValue("Cross BU");
+				leadsHeaderRow.createCell(1).setCellValue(leadStatistictsRes.getCrossBuLeadsCount());
+			}
+
+			if (leadStatistictsRes.getTotalLeadsGeneratedByUser() != null) {
+				leadsHeaderRow = leadsSheet.createRow(3);
+				leadsHeaderRow.createCell(0).setCellValue("Self");
+				leadsHeaderRow.createCell(1).setCellValue(leadStatistictsRes.getTotalLeadsGeneratedByUser());
+			}
+
+			Sheet sheet = workbook.createSheet("LeadsStatus");
 
 			Font headerFont = workbook.createFont();
 			headerFont.setBold(true);
@@ -386,7 +413,7 @@ public class LeadDetailService implements ILeadDetailService {
 				cell.setCellStyle(headerCellStyle);
 			}
 
-			Map<String, Long> leadStatusCountMap = LeadStatistictsRes.getLeadStatusCountMap();
+			Map<String, Long> leadStatusCountMap = leadStatistictsRes.getLeadStatusCountMap();
 			int rowIdx = 1;
 			for (Map.Entry<String, Long> entry : leadStatusCountMap.entrySet()) {
 				String status = entry.getKey();
@@ -401,6 +428,44 @@ public class LeadDetailService implements ILeadDetailService {
 		}
 	}
 
+	/*
+	 * @Override public ByteArrayInputStream getLeadStatisticsReport1(FilterLeadRes
+	 * filterLeadRes, Boolean busummary, Long userId) throws IOException { String[]
+	 * COLUMNs = {"Id", "Name", "Address", "Age"};
+	 * 
+	 * try( Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new
+	 * ByteArrayOutputStream(); ){ CreationHelper createHelper =
+	 * workbook.getCreationHelper();
+	 * 
+	 * Sheet sheet = workbook.createSheet("Customers");
+	 * 
+	 * Font headerFont = workbook.createFont(); headerFont.setBold(true);
+	 * headerFont.setColor(IndexedColors.BLUE.getIndex());
+	 * 
+	 * CellStyle headerCellStyle = workbook.createCellStyle();
+	 * headerCellStyle.setFont(headerFont);
+	 * 
+	 * // Row for Header Row headerRow = sheet.createRow(0);
+	 * 
+	 * // Header for (int col = 0; col < COLUMNs.length; col++) { Cell cell =
+	 * headerRow.createCell(col); cell.setCellValue(COLUMNs[col]);
+	 * cell.setCellStyle(headerCellStyle); }
+	 * 
+	 * // CellStyle for Age CellStyle ageCellStyle = workbook.createCellStyle();
+	 * ageCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("#"));
+	 * 
+	 * int rowIdx = 1; for (Customer customer : customers) { Row row =
+	 * sheet.createRow(rowIdx++);
+	 * 
+	 * row.createCell(0).setCellValue(customer.getId());
+	 * row.createCell(1).setCellValue(customer.getName());
+	 * row.createCell(2).setCellValue(customer.getAddress());
+	 * 
+	 * Cell ageCell = row.createCell(3); ageCell.setCellValue(customer.getAge());
+	 * ageCell.setCellStyle(ageCellStyle); }
+	 * 
+	 * workbook.write(out); return new ByteArrayInputStream(out.toByteArray()); } }
+	 */
 	@Override
 	public Long updateLeadAttachment(Long leadId, String path) {
 		// TODO Auto-generated method stub

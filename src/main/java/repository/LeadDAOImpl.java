@@ -254,16 +254,18 @@ public class LeadDAOImpl implements ILeadDAO {
 			query = query + " AND LEADS.CREATION_DATE <= '" + filterLeadRes.getEndDate() + "'";
 		}
 
-		if (filterLeadRes.getFromBu() != null && !filterLeadRes.getFromBu().isEmpty()) {
+		if (filterLeadRes.getFromBu() != null && !filterLeadRes.getFromBu().isEmpty()
+				&& (!LeadManagementConstants.ALL_BU.equalsIgnoreCase(filterLeadRes.getFromBu()))) {
 			query = query + " AND LEADS.ORIGINATING_BU = '" + filterLeadRes.getFromBu() + "'";
 		}
 
-		if (filterLeadRes.getToBu() != null && !filterLeadRes.getToBu().isEmpty()) {
+		if (filterLeadRes.getToBu() != null && !filterLeadRes.getToBu().isEmpty()
+				&& (!LeadManagementConstants.ALL_BU.equalsIgnoreCase(filterLeadRes.getToBu()))) {
 			query = query + " AND LEADS.BU = '" + filterLeadRes.getToBu() + "'";
 		}
 
 		if (filterLeadRes.getCreatorId() != null) {
-			query = query + " AND LEADS.BU = " + filterLeadRes.getCreatorId();
+			query = query + " AND LEADS.CREATOR_ID = " + filterLeadRes.getCreatorId();
 		}
 
 		return query;
@@ -272,8 +274,9 @@ public class LeadDAOImpl implements ILeadDAO {
 	@Override
 	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId) {
 		String query = "SELECT STATUS, COUNT(*) STATUS_COUNT FROM LEADS WHERE 1 = 1 ";
-
+		String queryTotal = "SELECT COUNT(*) STATUS_COUNT FROM LEADS WHERE 1 = 1 ";
 		query = getLeadStatisticsQuery(filterLeadRes, query);
+		queryTotal = getLeadStatisticsQuery(filterLeadRes, queryTotal);
 
 		query = query + " GROUP BY STATUS";
 
@@ -282,13 +285,19 @@ public class LeadDAOImpl implements ILeadDAO {
 		Map<String, Long> leadStatusCountMap = new HashMap<String, Long>();
 		LeadStatistictsRes leadStatistictsRes = new LeadStatistictsRes();
 		List<Map<String, Object>> statusCountRows = jdbcTemplate.queryForList(query);
+		Long totalLeads = jdbcTemplate.queryForObject(queryTotal, Long.class);
 
 		for (Map statusCountRow : statusCountRows) {
 			leadStatusCountMap.put(((String) statusCountRow.get("STATUS")),
 					((Long) statusCountRow.get("STATUS_COUNT")));
 		}
-		leadStatistictsRes.setLeadStatusCountMap(leadStatusCountMap);
+		
+		if(totalLeads != null) {
+			leadStatusCountMap.put("TOTAL", totalLeads);
+		}
 
+		leadStatistictsRes.setLeadStatusCountMap(leadStatusCountMap);
+		
 		if (busummary && (userId != null)) {
 			UserEntity userEntity = userDAO.getUserByUserId(userId);
 			String salesRepBu = userEntity.getBusinessUnit();
