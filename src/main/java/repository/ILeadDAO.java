@@ -9,6 +9,7 @@ import repository.entity.LeadEntity;
 
 public interface ILeadDAO {
 	LeadEntity getLead(Long id);
+	public List<LeadEntity> getLeadsByRoot(Long rootLeadId);
 
 	List<LeadEntity> getLeads(String leadtype, Long userId, Pagination pagination);
 

@@ -157,6 +157,17 @@ public class LeadDetailService implements ILeadDetailService {
 		LeadRes leadRes = prepareLeadRes(leadEntity);
 		return leadRes;
 	}
+	
+	@Override
+	public List<LeadRes> getLeadsByRoot(Long rootLeadId) {		
+		List<LeadRes> leads = new ArrayList<LeadRes>();
+		List<LeadEntity> leadEntities = leadDAO.getLeadsByRoot(rootLeadId);
+		for (LeadEntity leadEntity : leadEntities) {
+			LeadRes leadRes = prepareLeadRes(leadEntity);
+			leads.add(leadRes);
+		}
+		return leads;
+	}
 
 	@Override
 	public Long updateLead(LeadRes leadRes) {

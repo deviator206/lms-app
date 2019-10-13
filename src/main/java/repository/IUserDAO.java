@@ -19,4 +19,5 @@ public interface IUserDAO {
 	void updateUser(UserEntity user);
 	
 	public void disableUser(UserEntity user);
+	public List<UserEntity> getUserDetailsByBuAndRole(String businessUnit, String role);
 }

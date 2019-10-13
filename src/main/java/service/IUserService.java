@@ -33,4 +33,8 @@ public interface IUserService {
 	public List<UserRes> filterUsers(FilterUserRes filterUserRes);
 	
 	public void disableUser(Long userId);
+	
+	public List<UserRes> getUsersByRoles(List<String> userRoles);
+	
+	public List<UserRes> getUserDetailsByBuAndRole(String businessUnit, String role);
 }

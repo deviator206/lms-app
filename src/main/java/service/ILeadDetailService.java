@@ -24,13 +24,15 @@ public interface ILeadDetailService {
 
 	List<LeadRes> getLeads(String leadtype, Long userId, Pagination pagination);
 
+	List<LeadRes> getLeadsByRoot(Long rootLeadId);
+
 	List<LeadRes> searchLeads(String name, String description);
 
 	Long updateLead(LeadRes leadRes);
 
 	Long updateLeadAttachment(Long leadId, String path);
 
-	List<LeadRes> filterLeads(FilterLeadRes filterLeadRes,Pagination pagination);
+	List<LeadRes> filterLeads(FilterLeadRes filterLeadRes, Pagination pagination);
 
 	LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId);
 

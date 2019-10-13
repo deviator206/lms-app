@@ -12,4 +12,6 @@ public class LeadManagementConstants {
 	public static final String LEAD_TYPE_GENERATED = "generated";
 	public static final String LEAD_TYPE_ASSIGNED = "assigned";
 	public static final String ALL_BU = "ALL";
+	public static final String ROLE_ADMIN = "ADMIN";
+	public static final String ROLE_BU_HEAD = "BU_HEAD";
 }

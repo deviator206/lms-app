@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,8 +35,10 @@ import model.LeadStatistictsRes;
 import model.Pagination;
 import model.RootLeadRes;
 import model.UploadFileRes;
+import security.JwtTokenReader;
 import service.FileServices;
 import service.ILeadDetailService;
+import service.INotificationService;
 
 @RestController
 @Scope("prototype")
@@ -45,14 +49,24 @@ public class LeadDetailController {
 	@Autowired
 	FileServices fileServices;
 
+	@Autowired
+	private JwtTokenReader jwtTokenReader;
+
+	@Autowired
+	INotificationService notificationService;
+
 	@GetMapping("/rootlead/{id}")
 	public RootLeadRes getRootLead(@PathVariable("id") Long id) {
 		return leadDetailService.getRootLead(id);
 	}
 
 	@PostMapping("/rootlead")
-	public CreateRootLeadRes addRootLead(@RequestBody RootLeadRes rootLeadRes) {
-		return leadDetailService.createRootLead(rootLeadRes);
+	public ResponseEntity<CreateRootLeadRes> addRootLead(@RequestHeader("Authorization") String autorizationHeader,
+			@RequestBody RootLeadRes rootLeadRes) {
+		CreateRootLeadRes createRootLeadRes = leadDetailService.createRootLead(rootLeadRes);
+		Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
+		notificationService.sendNotificationAfterLeadCreation(userId, createRootLeadRes.getLeads());
+		return new ResponseEntity<CreateRootLeadRes>(createRootLeadRes, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/lead/{id}")
@@ -121,15 +135,16 @@ public class LeadDetailController {
 				.body(new InputStreamResource(in));
 	}
 
-	/*@GetMapping(value = "/report/file", produces = "application/vnd.ms-excel")
-	public ResponseEntity<InputStreamResource> downloadFile() {
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
-
-		return ResponseEntity.ok().headers(headers).body(new InputStreamResource(fileServices.loadFile()));
-	}
-	*/
+	/*
+	 * @GetMapping(value = "/report/file", produces = "application/vnd.ms-excel")
+	 * public ResponseEntity<InputStreamResource> downloadFile() {
+	 * 
+	 * HttpHeaders headers = new HttpHeaders(); headers.add("Content-Disposition",
+	 * "attachment; filename=customers.xlsx");
+	 * 
+	 * return ResponseEntity.ok().headers(headers).body(new
+	 * InputStreamResource(fileServices.loadFile())); }
+	 */
 
 	@PostMapping("/lead/attachment/upload")
 	public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile uploadfile,

@@ -58,18 +58,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		return new BCryptPasswordEncoder();
 	}
 
-	// Uncomment below code to disable security
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
-		//Map<String, String> ctrlAccessPolicies = applicationPropertiesProvider.getControllersAccessPolicies();
 		httpSecurity.cors().and().csrf().disable().exceptionHandling()
 				.authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers(HttpMethod.POST, "/login").permitAll()
+				.antMatchers(HttpMethod.POST, "/login").permitAll().antMatchers(HttpMethod.POST, "/user").permitAll()
 				.anyRequest().authenticated();
-				//.anyRequest().permitAll();
-		// .hasRole("ADMIN").anyRequest().authenticated();
-		// Add our custom JWT security filter
 		httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 

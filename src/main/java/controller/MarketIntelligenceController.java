@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,13 +30,21 @@ import model.MarketIntelligenceReq;
 import model.MarketIntelligenceRes;
 import model.Pagination;
 import model.UploadFileRes;
+import security.JwtTokenReader;
 import service.IFileStorageService;
 import service.IMarketIntelligenceService;
+import service.INotificationService;
 
 @RestController
 public class MarketIntelligenceController {
 	@Autowired
 	public IMarketIntelligenceService marketIntelligenceService;
+	
+	@Autowired
+	private JwtTokenReader jwtTokenReader;
+
+	@Autowired
+	INotificationService notificationService;
 
 	@Autowired
 	IFileStorageService fileStorageService;
@@ -68,9 +77,17 @@ public class MarketIntelligenceController {
 
 	@ApiOperation(value = "Update Market Intelligence. Only adding Market Intelligence infos is supported ", response = Long.class)
 	@PutMapping("/marketIntelligence/{id}")
-	public Long updateMarketIntelligence(@PathVariable("id") Long id,
+	public Long updateMarketIntelligence(@RequestHeader("Authorization") String autorizationHeader, @PathVariable("id") Long id,
 			@RequestBody MarketIntelligenceReq marketIntelligenceRes) {
-		return marketIntelligenceService.updateMarketIntelligence(marketIntelligenceRes);
+		Long miId = marketIntelligenceService.updateMarketIntelligence(marketIntelligenceRes);
+		
+		
+		if(marketIntelligenceRes.getRootLeadId() != null) {
+			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
+			notificationService.sendNotificationAfterMiToLeadCreation(userId, marketIntelligenceRes.getRootLeadId());
+		}
+		
+		return miId;
 	}
 
 	@PostMapping("/marketIntelligence")

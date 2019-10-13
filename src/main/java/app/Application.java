@@ -3,14 +3,11 @@ package app;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 
-import config.FileStorageProperties;
-
 @SpringBootApplication
-@ComponentScan(basePackages = { "controller", "repository", "service", "security", "config" })
+@ComponentScan(basePackages = { "controller", "repository", "service", "security", "config", "filter" })
 /*
  * public class Application {
  * 

@@ -67,6 +67,25 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	@Override
+	public List<UserRes> getUsersByRoles(List<String> userRoles) {
+		List<UserEntity> userEntities = userDAO.getUsers();
+		List<UserRes> users = new ArrayList<UserRes>();
+		for (UserEntity userEntity : userEntities) {
+			UserRes user = new UserRes();
+			this.mapUserEntityToUserRes(userEntity, user);
+			List<String> roles = this.getUserRoleByUserId(userEntity.getId());
+			for (String role : userRoles) {
+				if (roles.contains(role)) {
+					user.setRoles(roles);
+					users.add(user);
+					break;
+				}
+			}
+		}
+		return users;
+	}
+
+	@Override
 	public Map<Long, UserRes> getCachedUsersSummaryMap() {
 		if (userIdUserMap == null) {
 			userIdUserMap = new HashMap<Long, UserRes>();
@@ -79,6 +98,20 @@ public class UserServiceImpl implements IUserService {
 			}
 		}
 		return userIdUserMap;
+	}
+	
+	@Override
+	public List<UserRes> getUserDetailsByBuAndRole(String businessUnit, String role) {
+		List<UserEntity> userEntityLst = userDAO.getUserDetailsByBuAndRole(businessUnit, role);
+		List<UserRes> users = new ArrayList<UserRes>();
+		for (UserEntity userEntity : userEntityLst) {
+			UserRes user = new UserRes();
+			this.mapUserEntityToUserRes(userEntity, user);
+			List<String> roles = this.getUserRoleByUserId(userEntity.getId());
+			user.setRoles(roles);
+			users.add(user);
+		}
+		return users;
 	}
 
 	/*

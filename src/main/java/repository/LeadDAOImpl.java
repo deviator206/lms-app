@@ -36,9 +36,16 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public LeadEntity getLead(Long id) {
-		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE, SALES_REP_ID,ATTACHMENT FROM LEADS WHERE ID = ?";
+		String sql = "SELECT ID, BU,INDUSTRY,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE, SALES_REP_ID,ATTACHMENT FROM LEADS WHERE ID = ?";
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 		return this.jdbcTemplate.queryForObject(sql, rowMapper, new Object[] { id });
+	}
+
+	@Override
+	public List<LeadEntity> getLeadsByRoot(Long rootLeadId) {
+		String sql = "SELECT ID, INDUSTRY, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE, SALES_REP_ID,ATTACHMENT FROM LEADS WHERE ROOT_ID = ?";
+		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
+		return this.jdbcTemplate.query(sql, rowMapper, new Object[] { rootLeadId });
 	}
 
 	@Override
@@ -104,7 +111,7 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public List<LeadEntity> getLeads(String leadtype, Long userId, Pagination pagination) {
-		String sql = "SELECT ID, BU,SALES_REP_ID,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE,ATTACHMENT FROM LEADS WHERE 1 = 1";
+		String sql = "SELECT ID, BU,INDUSTRY, SALES_REP_ID,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE,ATTACHMENT FROM LEADS WHERE 1 = 1";
 
 		if (userId != null) {
 			if (LeadManagementConstants.LEAD_TYPE_ASSIGNED.equalsIgnoreCase(leadtype)) {
@@ -291,13 +298,13 @@ public class LeadDAOImpl implements ILeadDAO {
 			leadStatusCountMap.put(((String) statusCountRow.get("STATUS")),
 					((Long) statusCountRow.get("STATUS_COUNT")));
 		}
-		
-		if(totalLeads != null) {
+
+		if (totalLeads != null) {
 			leadStatusCountMap.put("TOTAL", totalLeads);
 		}
 
 		leadStatistictsRes.setLeadStatusCountMap(leadStatusCountMap);
-		
+
 		if (busummary && (userId != null)) {
 			UserEntity userEntity = userDAO.getUserByUserId(userId);
 			String salesRepBu = userEntity.getBusinessUnit();

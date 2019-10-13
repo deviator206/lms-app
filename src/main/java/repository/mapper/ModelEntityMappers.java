@@ -10,12 +10,14 @@ import model.MarketIntelligenceInfoReq;
 import model.MarketIntelligenceInfoRes;
 import model.MarketIntelligenceReq;
 import model.MarketIntelligenceRes;
+import model.Notification;
 import model.RootLeadRes;
 import model.UserRes;
 import repository.entity.LeadContactEntity;
 import repository.entity.LeadEntity;
 import repository.entity.MarketIntelligenceEntity;
 import repository.entity.MarketIntelligenceInfoEntity;
+import repository.entity.NotificationEntity;
 import repository.entity.RootLeadEntity;
 import repository.entity.UserEntity;
 
@@ -138,7 +140,7 @@ public class ModelEntityMappers {
 		miEntity.setCreatorId(miRes.getCreatorId());
 		return miEntity;
 	}
-	
+
 	public static MarketIntelligenceInfoEntity mapMiInfoReqToMiInfoEntity(MarketIntelligenceInfoReq miRes,
 			MarketIntelligenceInfoEntity miEntity) {
 		miEntity.setMiId(miRes.getMiId());
@@ -223,6 +225,24 @@ public class ModelEntityMappers {
 		user.setUserDisplayName(userEntity.getUserDisplayName());
 		user.setBusinessUnit(userEntity.getBusinessUnit());
 		return user;
+	}
+
+	public static NotificationEntity mapNotificationToNotificationEntity(Notification notification,
+			NotificationEntity notificationEntity) {
+		//notificationEntity.setId(notification.getId());
+		notificationEntity.setNotificationKey(notification.getNotificationKey());
+		notificationEntity.setUserId(notification.getUserId());
+		notificationEntity.setEnabled(notification.isEnabled());
+		return notificationEntity;
+	}
+
+	public static Notification mapNotificationEntityToNotification(NotificationEntity notificationEntity,
+			Notification notification) {
+		notification.setId(notificationEntity.getId());
+		notification.setNotificationKey(notificationEntity.getNotificationKey());
+		notification.setUserId(notificationEntity.getUserId());
+		notification.setEnabled(notificationEntity.isEnabled());
+		return notification;
 	}
 
 }

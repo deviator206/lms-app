@@ -84,6 +84,13 @@ public class UserDAOImpl implements IUserDAO {
 	}
 
 	@Override
+	public List<UserEntity> getUserDetailsByBuAndRole(String businessUnit, String role) {
+		String sql = "SELECT USERS.ID, USERS.USERNAME, USERS.EMAIL, USERS.ENABLED, USERS.USER_DISPLAY_NAME, USERS.BU FROM USERS, USER_ROLE WHERE USERS.BU = ? AND USER_ROLE.USER_ROLE = ? AND USERS.ID = USER_ROLE.USER_ID";
+		RowMapper<UserEntity> rowMapper = new UserSummaryRowMapper();
+		return this.jdbcTemplate.query(sql, rowMapper, businessUnit, role);
+	}
+
+	@Override
 	public List<UserEntity> filterUsers(FilterUserRes filterUserRes) {
 		String query = "SELECT ID, USERNAME, EMAIL, ENABLED, USER_DISPLAY_NAME, BU FROM USERS WHERE 1 = 1";
 		RowMapper<UserEntity> rowMapper = new UserSummaryRowMapper();
