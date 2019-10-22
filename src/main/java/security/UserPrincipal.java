@@ -5,11 +5,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import model.User;
 
@@ -79,6 +79,9 @@ public class UserPrincipal implements UserDetails {
 		List<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role))
 				.collect(Collectors.toList());
 
+		System.out.println(" ##22222 &&&&&&&&&&&&& ****** &&&&&&&&&");
+		System.out.println(authorities.toString());
+		
 		return new UserPrincipal(user.getId(), user.getUserName(), user.getEmail(), user.getPassword(),
 				user.getUserDisplayName(), user.getBusinessUnit(), authorities, user.isEnabled());
 	}
@@ -99,6 +102,8 @@ public class UserPrincipal implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
+		System.out.println(" ##3333 &&&&&&&&&&&&& ****** &&&&&&&&&");
+		System.out.println(authorities.toString());
 		return authorities;
 	}
 

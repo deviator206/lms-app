@@ -139,7 +139,10 @@ public class UserServiceImpl implements IUserService {
 		// System.out.println("Password --------------------- >>> "+
 		// userEntity.getPassword());
 		List<String> roles = this.getUserRoleByUserId(userEntity.getId());
+		System.out.println("  &&&&&&&&&&&&& ****** &&&&&&&&&");
+		System.out.println(roles.toString());
 		User user = new User();
+
 		this.mapUserEntityToUser(userEntity, user);
 		user.setRoles(roles);
 		return user;

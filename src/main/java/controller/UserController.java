@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,13 +27,13 @@ public class UserController {
 	public IUserService userService;
 
 	// @Secured("ADMIN")
-	@PreAuthorize("hasRole('ADMIN')")
+	@PreAuthorize("hasAnyAuthority('ADMIN','SALES_REP','BU_HEAD')")
 	@GetMapping("/users")
 	public List<UserRes> getUser() {
 		return userService.getUsers();
 	}
 
-	@Secured("SALES_REP")
+	@PreAuthorize("hasAnyAuthority('ADMIN','SALES_REP','BU_HEAD')")
 	@GetMapping("/user/{userName}")
 	public UserRes getUserByUserName(@PathVariable("userName") String userName) {
 		User user = userService.getUserByUserName(userName);
