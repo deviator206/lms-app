@@ -1,7 +1,5 @@
 package security;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,6 +64,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 				.authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
 				.antMatchers(HttpMethod.POST, "/login").permitAll()
+				.antMatchers(HttpMethod.POST, "/user").permitAll()
+				.antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
+				.antMatchers(HttpMethod.GET, "/swagger-ui.html/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/v2/api-docs/").permitAll()
+				.antMatchers(HttpMethod.GET, "/v2/api-docs").permitAll()
+				.antMatchers(HttpMethod.GET, "/configuration/ui").permitAll()
+				.antMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/configuration/security").permitAll()
 				.anyRequest().authenticated();
 				//.anyRequest().permitAll();
 		// .hasRole("ADMIN").anyRequest().authenticated();
