@@ -12,6 +12,8 @@ public interface ILeadDAO {
 
 	List<LeadEntity> getLeads(String leadtype, Long userId, Pagination pagination);
 
+	List<LeadEntity> getLeadsBasedOnBU(String buSpecific, String currentBu, Long userId, Pagination pagination);
+
 	List<LeadEntity> searchLeads(String name, String description);
 
 	Long insertLead(LeadEntity leadEntity);

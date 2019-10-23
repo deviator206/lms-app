@@ -12,4 +12,9 @@ public class LeadManagementConstants {
 	public static final String LEAD_TYPE_GENERATED = "generated";
 	public static final String LEAD_TYPE_ASSIGNED = "assigned";
 	public static final String ALL_BU = "ALL";
+	public static final String LEAD_TYPE_BU_ALL = "all";
+	public static final String LEAD_TYPE_BU_INTERNAL = "internal";
+	public static final String LEAD_TYPE_BU_EXTERNAL = "external";
+	public static final String LEAD_TYPE_BU_ACROSS = "across";
+	public static final String LEAD_TYPE_BU_GENERATED = "generated";
 }

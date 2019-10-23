@@ -12,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
@@ -274,6 +273,17 @@ public class LeadDetailService implements ILeadDetailService {
 	public List<LeadRes> getLeads(String leadType, Long userId, Pagination pagination) {
 		List<LeadRes> leads = new ArrayList<LeadRes>();
 		List<LeadEntity> leadEntityList = leadDAO.getLeads(leadType, userId, pagination);
+		for (LeadEntity leadEntity : leadEntityList) {
+			LeadRes leadRes = prepareLeadRes(leadEntity);
+			leads.add(leadRes);
+		}
+		return leads;
+	}
+
+	@Override
+	public List<LeadRes> getLeadsBasedOnBU(String buSpecific, String currentBu, Long userId, Pagination pagination) {
+		List<LeadRes> leads = new ArrayList<LeadRes>();
+		List<LeadEntity> leadEntityList = leadDAO.getLeadsBasedOnBU(buSpecific,currentBu, userId, pagination);
 		for (LeadEntity leadEntity : leadEntityList) {
 			LeadRes leadRes = prepareLeadRes(leadEntity);
 			leads.add(leadRes);

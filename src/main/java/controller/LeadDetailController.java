@@ -66,14 +66,25 @@ public class LeadDetailController {
 			@RequestParam(value = "leadtype", required = false, defaultValue = LeadManagementConstants.LEAD_TYPE_ALL) String leadType,
 			@RequestParam(value = "userid", required = false) Long userid,
 			@RequestParam(value = "start", required = false) Integer start,
-			@RequestParam(value = "pagesize", required = false) Integer pageSize) {
+			@RequestParam(value = "pagesize", required = false) Integer pageSize,
+			@RequestParam(value = "buSpecific", required = false) String buSpecific,
+			@RequestParam(value = "currentBu", required = false) String currentBu) {
 		if ((name != null) && (!name.isEmpty()) || (description != null) && (!description.isEmpty())) {
 			return leadDetailService.searchLeads(name, description);
 		} else {
+			System.out.println("GET leads REST ");
+			Pagination pgInstance = null;
 			if (start != null && pageSize != null) {
-				return leadDetailService.getLeads(leadType, userid, new Pagination(start, pageSize));
+				pgInstance = new Pagination(start, pageSize);
 			}
-			return leadDetailService.getLeads(leadType, userid, null);
+			if (buSpecific != null && !buSpecific.isEmpty()) {
+				System.out.println(" BU specific condition ");
+				return leadDetailService.getLeadsBasedOnBU(buSpecific, currentBu, userid, pgInstance);
+			} else {
+				System.out.println(" Sales Regular Leads Fetch ");
+				return leadDetailService.getLeads(leadType, userid, pgInstance);
+			}
+			// return leadDetailService.getLeads(leadType, userid, null);
 		}
 	}
 
@@ -121,15 +132,16 @@ public class LeadDetailController {
 				.body(new InputStreamResource(in));
 	}
 
-	/*@GetMapping(value = "/report/file", produces = "application/vnd.ms-excel")
-	public ResponseEntity<InputStreamResource> downloadFile() {
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.add("Content-Disposition", "attachment; filename=customers.xlsx");
-
-		return ResponseEntity.ok().headers(headers).body(new InputStreamResource(fileServices.loadFile()));
-	}
-	*/
+	/*
+	 * @GetMapping(value = "/report/file", produces = "application/vnd.ms-excel")
+	 * public ResponseEntity<InputStreamResource> downloadFile() {
+	 * 
+	 * HttpHeaders headers = new HttpHeaders(); headers.add("Content-Disposition",
+	 * "attachment; filename=customers.xlsx");
+	 * 
+	 * return ResponseEntity.ok().headers(headers).body(new
+	 * InputStreamResource(fileServices.loadFile())); }
+	 */
 
 	@PostMapping("/lead/attachment/upload")
 	public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile uploadfile,

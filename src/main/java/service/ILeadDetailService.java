@@ -24,6 +24,8 @@ public interface ILeadDetailService {
 
 	List<LeadRes> getLeads(String leadtype, Long userId, Pagination pagination);
 
+	List<LeadRes> getLeadsBasedOnBU(String buSpecific, String currentBu, Long userId, Pagination pagination);
+
 	List<LeadRes> searchLeads(String name, String description);
 
 	Long updateLead(LeadRes leadRes);
