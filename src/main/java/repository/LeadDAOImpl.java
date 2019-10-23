@@ -36,7 +36,7 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public LeadEntity getLead(Long id) {
-		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE, SALES_REP_ID,ATTACHMENT FROM LEADS WHERE ID = ?";
+		String sql = "SELECT ID, BU,SALES_REP,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE, SALES_REP_ID,INDUSTRY, ATTACHMENT FROM LEADS WHERE ID = ?";
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
 		return this.jdbcTemplate.queryForObject(sql, rowMapper, new Object[] { id });
 	}
@@ -104,7 +104,7 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public List<LeadEntity> getLeads(String leadtype, Long userId, Pagination pagination) {
-		String sql = "SELECT ID, BU,SALES_REP_ID,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE,ATTACHMENT FROM LEADS WHERE 1 = 1";
+		String sql = "SELECT ID, BU,SALES_REP_ID,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE,INDUSTRY, ATTACHMENT FROM LEADS WHERE 1 = 1";
 
 		if (userId != null) {
 			if (LeadManagementConstants.LEAD_TYPE_ASSIGNED.equalsIgnoreCase(leadtype)) {
