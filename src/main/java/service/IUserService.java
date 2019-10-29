@@ -9,7 +9,6 @@ import model.User;
 import model.UserRegistrationDetails;
 import model.UserRes;
 import model.UserRoles;
-import repository.entity.UserEntity;
 
 public interface IUserService {
 	public List<UserRes> getUsers();
@@ -24,17 +23,17 @@ public interface IUserService {
 
 	public void changePasswordByUserId(UserRegistrationDetails userRegistrationDetails);
 
-	public void addUser(UserRegistrationDetails userRegistrationDetails);
+	public Long addUser(UserRegistrationDetails userRegistrationDetails);
 
 	public void replaceRoles(UserRoles userRoles);
 
 	public ForgotPasswordResponse forgotPassword(UserRegistrationDetails userRegistrationDetails);
 
 	public List<UserRes> filterUsers(FilterUserRes filterUserRes);
-	
+
 	public void disableUser(Long userId);
-	
+
 	public List<UserRes> getUsersByRoles(List<String> userRoles);
-	
+
 	public List<UserRes> getUserDetailsByBuAndRole(String businessUnit, String role);
 }

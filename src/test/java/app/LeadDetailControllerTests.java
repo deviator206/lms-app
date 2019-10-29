@@ -19,6 +19,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.UnsupportedEncodingException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +33,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import model.JwtAuthenticationResponse;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
@@ -42,10 +48,21 @@ public class LeadDetailControllerTests {
 	private HttpHeaders httpHeaders;
 
 	@Before
-	public void init() {
+	public void init() throws UnsupportedEncodingException, Exception {
+		String jsonString = "{\"userName\":\"syadav1\",\"password\":\"password\"}";
+
+		String responseString = this.mockMvc
+				.perform(MockMvcRequestBuilders.post("/login").content(jsonString)
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+				.andDo(print()).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+		ObjectMapper mapper = new ObjectMapper();
+		JwtAuthenticationResponse jwtAuthenticationResponse = mapper.readValue(responseString,
+				JwtAuthenticationResponse.class);
+		String fullAccessToken = jwtAuthenticationResponse.getTokenType() + " "
+				+ jwtAuthenticationResponse.getAccessToken();
 		HttpHeaders httpHeadersTemp = new HttpHeaders();
-		httpHeadersTemp.add("Authorization",
-				"Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMTEzIiwiaWF0IjoxNTcwNjk2MTgwLCJleHAiOjE1NzEzMDA5Nzl9.NUiiQPdNs9gxzCdhzDw6LZm6uNmyGZW7zR5_5V9qJJ9BsV2cCwNnpCLrjGhOcf1yQ3R7F2mu-fu9S8gVc0FvgA");
+		httpHeadersTemp.add("Authorization", fullAccessToken);
 		this.httpHeaders = httpHeadersTemp;
 	}
 

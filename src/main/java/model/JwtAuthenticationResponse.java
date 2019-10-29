@@ -4,8 +4,9 @@ public class JwtAuthenticationResponse {
 	private String accessToken;
 	private String tokenType = "Bearer";
 	private UserInfo userInfo;
-	
-	
+
+	public JwtAuthenticationResponse() {
+	}
 
 	public UserInfo getUserInfo() {
 		return userInfo;
@@ -15,7 +16,7 @@ public class JwtAuthenticationResponse {
 		this.userInfo = userInfo;
 	}
 
-	public JwtAuthenticationResponse(String accessToken,UserInfo userInfo) {
+	public JwtAuthenticationResponse(String accessToken, UserInfo userInfo) {
 		this.accessToken = accessToken;
 		this.userInfo = userInfo;
 	}

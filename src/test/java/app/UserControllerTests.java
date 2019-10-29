@@ -17,10 +17,10 @@ package app;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,12 +41,14 @@ import model.JwtAuthenticationResponse;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
 @AutoConfigureMockMvc
-public class GreetingControllerTests {
+public class UserControllerTests {
 
 	@Autowired
 	private MockMvc mockMvc;
 
 	private HttpHeaders httpHeaders;
+
+	Long createdUserId;
 
 	@Before
 	public void init() throws UnsupportedEncodingException, Exception {
@@ -68,17 +70,40 @@ public class GreetingControllerTests {
 	}
 
 	@Test
-	public void noParamGreetingShouldReturnDefaultMessage() throws Exception {
-		this.mockMvc.perform(get("/greeting").headers(this.httpHeaders)).andDo(print()).andExpect(status().isOk())
-				.andExpect(jsonPath("$.content").value("Hello, World!"));
+	public void addUser() throws Exception {
+		this.createUser();
+	}
+
+	public Long createUser() throws UnsupportedEncodingException, Exception {
+		Random rand = new Random();
+		int randomNum = rand.nextInt((1000 - 1) + 1) + 1;
+		long time = System.currentTimeMillis();
+		String uniqueValue = "TestUser" + randomNum + "" + time;
+		System.out.println("Random User Name -- >> " + uniqueValue);
+		String jsonString = "{\n" + "		\"userName\" : \"" + uniqueValue + "\",\n"
+				+ "		\"password\" : \"password\"\n" + "}";
+
+		String responseString = this.mockMvc
+				.perform(MockMvcRequestBuilders.post("/user").content(jsonString)
+						.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+				.andDo(print()).andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+
+		ObjectMapper mapper = new ObjectMapper();
+		Long createdUserId = mapper.readValue(responseString, Long.class);
+
+		return createdUserId;
 	}
 
 	@Test
-	public void paramGreetingShouldReturnTailoredMessage() throws Exception {
+	public void getUsers() throws Exception {
+		this.mockMvc.perform(get("/users").headers(this.httpHeaders)).andDo(print()).andExpect(status().isOk());
+	}
 
-		this.mockMvc.perform(get("/greeting").headers(this.httpHeaders).param("name", "Spring Community"))
-				.andDo(print()).andExpect(status().isOk())
-				.andExpect(jsonPath("$.content").value("Hello, Spring Community!"));
+	@Test
+	public void getUserByUserId() throws Exception {
+		Long userId = this.createUser();
+		this.mockMvc.perform(get("/user/{userId}", userId).headers(this.httpHeaders)).andDo(print())
+				.andExpect(status().isOk());
 	}
 
 }

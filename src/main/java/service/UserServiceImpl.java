@@ -99,7 +99,7 @@ public class UserServiceImpl implements IUserService {
 		}
 		return userIdUserMap;
 	}
-	
+
 	@Override
 	public List<UserRes> getUserDetailsByBuAndRole(String businessUnit, String role) {
 		List<UserEntity> userEntityLst = userDAO.getUserDetailsByBuAndRole(businessUnit, role);
@@ -124,7 +124,7 @@ public class UserServiceImpl implements IUserService {
 	 */
 
 	@Override
-	public void addUser(UserRegistrationDetails userRegistrationDetails) {
+	public Long addUser(UserRegistrationDetails userRegistrationDetails) {
 		UserEntity user = new UserEntity();
 		user.setUserName(userRegistrationDetails.getUserName());
 
@@ -135,10 +135,11 @@ public class UserServiceImpl implements IUserService {
 		user.setBusinessUnit(userRegistrationDetails.getBusinessUnit());
 		user.setEmail(userRegistrationDetails.getEmail());
 		user.setPassword(passwordEncoder.encode(userRegistrationDetails.getPassword()));
+		Long userId;
 
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
 		try {
-			Long userId = userDAO.insertUser(user);
+			userId = userDAO.insertUser(user);
 			UserRoles userRoles = new UserRoles();
 			userRoles.setUserId(userId);
 			userRoles.setRoles(userRegistrationDetails.getRoles());
@@ -152,6 +153,7 @@ public class UserServiceImpl implements IUserService {
 			transactionManager.rollback(ts);
 			throw new RuntimeException(e);
 		}
+		return userId;
 	}
 
 	@Override
