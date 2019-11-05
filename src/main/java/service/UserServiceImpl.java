@@ -53,8 +53,13 @@ public class UserServiceImpl implements IUserService {
 	private PlatformTransactionManager transactionManager;
 
 	@Override
-	public List<UserRes> getUsers() {
-		List<UserEntity> userEntities = userDAO.getUsers();
+	public List<UserRes> getUsers(String bu) {
+		List<UserEntity> userEntities = null;
+		if (bu != null) {
+			userEntities = userDAO.getUserDetailsByBu(bu);			
+		} else {
+			userEntities = userDAO.getUsers();
+		}
 		List<UserRes> users = new ArrayList<UserRes>();
 		for (UserEntity userEntity : userEntities) {
 			UserRes user = new UserRes();

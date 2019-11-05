@@ -20,4 +20,5 @@ public interface IUserDAO {
 	
 	public void disableUser(UserEntity user);
 	public List<UserEntity> getUserDetailsByBuAndRole(String businessUnit, String role);
+	public List<UserEntity> getUserDetailsByBu(String businessUnit);
 }

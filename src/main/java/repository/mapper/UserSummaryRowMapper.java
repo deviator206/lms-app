@@ -17,6 +17,9 @@ public class UserSummaryRowMapper implements RowMapper<UserEntity> {
 		user.setEmail(rs.getString("EMAIL"));
 		user.setUserDisplayName(rs.getString("USER_DISPLAY_NAME"));
 		user.setBusinessUnit(rs.getString("BU"));
+		if(rs.getObject("ENABLED") != null) {
+			user.setEnabled(rs.getBoolean("ENABLED"));
+		}
 		return user;
 	}
 

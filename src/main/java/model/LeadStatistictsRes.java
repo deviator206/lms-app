@@ -12,7 +12,7 @@ public class LeadStatistictsRes {
 	public void setLeadStatusCountMap(Map<String, Long> leadStatusCountMap) {
 		this.leadStatusCountMap = leadStatusCountMap;
 	}
-	
+
 	private Long internalBuLeadsCount;
 	private Long externalBuLeadsCount;
 	private Long crossBuLeadsCount;

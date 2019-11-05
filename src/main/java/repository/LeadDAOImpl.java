@@ -22,7 +22,6 @@ import model.FilterLeadRes;
 import model.LeadStatistictsRes;
 import model.Pagination;
 import repository.entity.LeadEntity;
-import repository.entity.UserEntity;
 import repository.mapper.LeadRowMapper;
 import security.SqlSafeUtil;
 
@@ -156,6 +155,10 @@ public class LeadDAOImpl implements ILeadDAO {
 			throw new RuntimeException("SQL Injection Error");
 		}
 
+		if (!SqlSafeUtil.isSqlInjectionSafe(filterLeadRes.getDescription())) {
+			throw new RuntimeException("SQL Injection Error");
+		}
+
 		String query = "SELECT LEADS.ID, LEADS.BU,LEADS.SALES_REP_ID,LEADS.STATUS,LEADS.ROOT_ID,LEADS.DELETED,LEADS.CREATION_DATE,LEADS.CREATOR_ID,"
 				+ "LEADS.UPDATE_DATE,LEADS.UPDATOR_ID,LEADS.BUDGET,LEADS.CURRENCY,LEADS.MESSAGE,LEADS.ATTACHMENT,ROOT_LEAD.SOURCE,LEADS.INDUSTRY,"
 				+ "ROOT_LEAD.TENURE,LEAD_CONTACT.COUNTRY,LEAD_CONTACT.STATE " + "FROM LEADS,ROOT_LEAD,LEAD_CONTACT "
@@ -175,6 +178,10 @@ public class LeadDAOImpl implements ILeadDAO {
 	private String getFilterLeadsQuery(FilterLeadRes filterLeadRes, String query) {
 		if (filterLeadRes.getCustName() != null && !filterLeadRes.getCustName().isEmpty()) {
 			query = query + " AND ROOT_LEAD.CUST_NAME LIKE '%" + filterLeadRes.getCustName() + "%'";
+		}
+
+		if (filterLeadRes.getDescription() != null && !filterLeadRes.getDescription().isEmpty()) {
+			query = query + " AND ROOT_LEAD.DESCRIPTION LIKE '%" + filterLeadRes.getDescription() + "%'";
 		}
 
 		if (filterLeadRes.getStatus() != null && !filterLeadRes.getStatus().isEmpty()) {
@@ -236,9 +243,9 @@ public class LeadDAOImpl implements ILeadDAO {
 	}
 
 	private String getLeadStatisticsQuery(FilterLeadRes filterLeadRes, String query) {
-		if (filterLeadRes.getCustName() != null && !filterLeadRes.getCustName().isEmpty()) {
-			query = query + " AND ROOT_LEAD.CUST_NAME LIKE '%" + filterLeadRes.getCustName() + "%'";
-		}
+		//if (filterLeadRes.getCustName() != null && !filterLeadRes.getCustName().isEmpty()) {
+			//query = query + " AND ROOT_LEAD.CUST_NAME LIKE '%" + filterLeadRes.getCustName() + "%'";
+		//}
 
 		if (filterLeadRes.getStatus() != null && !filterLeadRes.getStatus().isEmpty()) {
 			query = query + " AND LEADS.STATUS = '" + filterLeadRes.getStatus() + "'";
@@ -278,8 +285,32 @@ public class LeadDAOImpl implements ILeadDAO {
 		return query;
 	}
 
+	
+	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId) {
+		String query = "SELECT ID, STATUS FROM LEADS WHERE 1 = 1 ";
+		query = getLeadStatisticsQuery(filterLeadRes, query);
+		List<Map<String, Object>> statusCountRows = jdbcTemplate.queryForList(query);
+		Map<String, Long> leadStatusCountMap = new HashMap<String, Long>();
+		LeadStatistictsRes leadStatistictsRes = new LeadStatistictsRes();
+		for (Map statusCountRow : statusCountRows) {
+			Long temlCount=new Long(0);
+			if(leadStatusCountMap.get((String) statusCountRow.get("STATUS")) != null){
+				temlCount =  leadStatusCountMap.get((String) statusCountRow.get("STATUS")) + 1;
+				leadStatusCountMap.put((String) statusCountRow.get("STATUS"),temlCount);
+			}else {
+				leadStatusCountMap.put((String) statusCountRow.get("STATUS"),new Long(1));
+			}
+		}		
+		leadStatistictsRes.setLeadStatusCountMap(leadStatusCountMap);
+		return leadStatistictsRes;
+	}
+	
+	/*
 	@Override
 	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId) {
+		String query = "SELECT LEADS.STATUS, LEADS.STATUS FROM LEADS WHERE 1 = 1 ";
+		
+		
 		String query = "SELECT STATUS, COUNT(*) STATUS_COUNT FROM LEADS WHERE 1 = 1 ";
 		String queryTotal = "SELECT COUNT(*) STATUS_COUNT FROM LEADS WHERE 1 = 1 ";
 		query = getLeadStatisticsQuery(filterLeadRes, query);
@@ -287,7 +318,7 @@ public class LeadDAOImpl implements ILeadDAO {
 
 		query = query + " GROUP BY STATUS";
 
-		System.out.println(query);
+		//System.out.println(query);
 
 		Map<String, Long> leadStatusCountMap = new HashMap<String, Long>();
 		LeadStatistictsRes leadStatistictsRes = new LeadStatistictsRes();
@@ -310,10 +341,14 @@ public class LeadDAOImpl implements ILeadDAO {
 			String salesRepBu = userEntity.getBusinessUnit();
 			FilterLeadRes tempFilterLeadRes;
 			List<Map<String, Object>> buLeadsRs;
+			List<Map<String, Object>> leadStatusCountRows;
+			Map<String, Long> tmpLeadStatusCountMap = new HashMap<String, Long>();
 			String mainQuery = "SELECT COUNT(*) COUNT FROM LEADS WHERE 1 = 1 ";
+			String statusMainQuery = "SELECT STATUS, COUNT(*) STATUS_COUNT FROM LEADS WHERE 1 = 1 ";
 
 			// Internal BU Leads
 			String tempQuery = mainQuery;
+			String statusTempQuery = statusMainQuery;
 			tempFilterLeadRes = new FilterLeadRes();
 			tempFilterLeadRes.setFromBu(salesRepBu);
 			tempFilterLeadRes.setToBu(salesRepBu);
@@ -322,9 +357,19 @@ public class LeadDAOImpl implements ILeadDAO {
 			for (Map statusCountRow : buLeadsRs) {
 				leadStatistictsRes.setInternalBuLeadsCount((Long) statusCountRow.get("COUNT"));
 			}
-
+			tmpLeadStatusCountMap = new HashMap<String, Long>();
+			tempQuery = getLeadStatisticsQuery(tempFilterLeadRes, statusTempQuery);
+			leadStatusCountRows = jdbcTemplate.queryForList(query);
+			for (Map statusCountRow : leadStatusCountRows) {
+				tmpLeadStatusCountMap.put(((String) statusCountRow.get("STATUS")),
+						((Long) statusCountRow.get("STATUS_COUNT")));			}
+			
+			leadStatistictsRes.setInternalBuLeadsCountStatusCountMap(tmpLeadStatusCountMap);
+			
+			
 			// External BU Leads
 			tempQuery = mainQuery;
+			
 			tempFilterLeadRes = new FilterLeadRes();
 			tempFilterLeadRes.setFromBu(salesRepBu);
 			tempQuery = getLeadStatisticsQuery(tempFilterLeadRes, tempQuery);
@@ -332,6 +377,15 @@ public class LeadDAOImpl implements ILeadDAO {
 			for (Map statusCountRow : buLeadsRs) {
 				leadStatistictsRes.setExternalBuLeadsCount((Long) statusCountRow.get("COUNT"));
 			}
+			tmpLeadStatusCountMap = new HashMap<String, Long>();
+			statusTempQuery = statusMainQuery;
+			tempQuery = getLeadStatisticsQuery(tempFilterLeadRes, statusTempQuery);
+			leadStatusCountRows = jdbcTemplate.queryForList(query);
+			for (Map statusCountRow : leadStatusCountRows) {
+				tmpLeadStatusCountMap.put(((String) statusCountRow.get("STATUS")),
+						((Long) statusCountRow.get("STATUS_COUNT")));			}
+			
+			leadStatistictsRes.setExternalBuLeadsCountStatusCountMap(tmpLeadStatusCountMap);
 
 			// Cross BU Leads
 			tempQuery = mainQuery;
@@ -342,6 +396,16 @@ public class LeadDAOImpl implements ILeadDAO {
 			for (Map statusCountRow : buLeadsRs) {
 				leadStatistictsRes.setCrossBuLeadsCount((Long) statusCountRow.get("COUNT"));
 			}
+			tmpLeadStatusCountMap = new HashMap<String, Long>();
+			statusTempQuery = statusMainQuery;
+			tempQuery = getLeadStatisticsQuery(tempFilterLeadRes, statusTempQuery);
+			leadStatusCountRows = jdbcTemplate.queryForList(query);
+			for (Map statusCountRow : leadStatusCountRows) {
+				tmpLeadStatusCountMap.put(((String) statusCountRow.get("STATUS")),
+						((Long) statusCountRow.get("STATUS_COUNT")));
+				}
+			
+			leadStatistictsRes.setCrossBuLeadsCountStatusCountMap(tmpLeadStatusCountMap);
 
 			// Leads generated by user
 			tempQuery = mainQuery;
@@ -352,11 +416,22 @@ public class LeadDAOImpl implements ILeadDAO {
 			for (Map statusCountRow : buLeadsRs) {
 				leadStatistictsRes.setTotalLeadsGeneratedByUser((Long) statusCountRow.get("COUNT"));
 			}
+			
+			tmpLeadStatusCountMap = new HashMap<String, Long>();
+			statusTempQuery = statusMainQuery;
+			tempQuery = getLeadStatisticsQuery(tempFilterLeadRes, statusTempQuery);
+			leadStatusCountRows = jdbcTemplate.queryForList(query);
+			for (Map statusCountRow : leadStatusCountRows) {
+				tmpLeadStatusCountMap.put(((String) statusCountRow.get("STATUS")),
+						((Long) statusCountRow.get("STATUS_COUNT")));
+				}
+			
+			leadStatistictsRes.setGeneratedByLeadsCountStatusCountMap(tmpLeadStatusCountMap);
 
 		}
 
 		return leadStatistictsRes;
-	}
+	}*/
 
 	@Override
 	public boolean updateLeadAttachment(LeadEntity leadEntity) {

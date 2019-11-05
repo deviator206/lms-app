@@ -10,14 +10,16 @@ import model.MarketIntelligenceInfoReq;
 import model.MarketIntelligenceInfoRes;
 import model.MarketIntelligenceReq;
 import model.MarketIntelligenceRes;
-import model.Notification;
+import model.NotificationDetails;
+import model.NotificationHistory;
 import model.RootLeadRes;
 import model.UserRes;
 import repository.entity.LeadContactEntity;
 import repository.entity.LeadEntity;
 import repository.entity.MarketIntelligenceEntity;
 import repository.entity.MarketIntelligenceInfoEntity;
-import repository.entity.NotificationEntity;
+import repository.entity.NotificationDetailsEntity;
+import repository.entity.NotificationHistoryEntity;
 import repository.entity.RootLeadEntity;
 import repository.entity.UserEntity;
 
@@ -227,22 +229,46 @@ public class ModelEntityMappers {
 		return user;
 	}
 
-	public static NotificationEntity mapNotificationToNotificationEntity(Notification notification,
-			NotificationEntity notificationEntity) {
-		//notificationEntity.setId(notification.getId());
+	public static NotificationDetailsEntity mapNotificationToNotificationEntity(NotificationDetails notification,
+			NotificationDetailsEntity notificationEntity) {
+		// notificationEntity.setId(notification.getId());
 		notificationEntity.setNotificationKey(notification.getNotificationKey());
 		notificationEntity.setUserId(notification.getUserId());
 		notificationEntity.setEnabled(notification.isEnabled());
 		return notificationEntity;
 	}
 
-	public static Notification mapNotificationEntityToNotification(NotificationEntity notificationEntity,
-			Notification notification) {
+	public static NotificationDetails mapNotificationEntityToNotification(NotificationDetailsEntity notificationEntity,
+			NotificationDetails notification) {
 		notification.setId(notificationEntity.getId());
 		notification.setNotificationKey(notificationEntity.getNotificationKey());
 		notification.setUserId(notificationEntity.getUserId());
 		notification.setEnabled(notificationEntity.isEnabled());
 		return notification;
+	}
+
+	public static NotificationHistory mapNotificationHistoryEntityToNotificationHistory(
+			NotificationHistoryEntity notificationHistoryEntity, NotificationHistory notificationHistory) {
+		notificationHistory.setId(notificationHistoryEntity.getId());
+		notificationHistory.setNotificationText(notificationHistoryEntity.getNotificationText());
+		notificationHistory.setRecipientId(notificationHistoryEntity.getRecipientId());
+		notificationHistory.setDeleted(notificationHistoryEntity.getDeleted());
+		notificationHistory.setOriginatorId(notificationHistoryEntity.getOriginatorId());
+		notificationHistory.setOriginationDate(notificationHistoryEntity.getOriginationDate());
+		notificationHistory.setNotificationType(notificationHistoryEntity.getNotificationType());
+		return notificationHistory;
+	}
+
+	public static NotificationHistoryEntity mapNotificationHistoryToNotificationHistoryEntity(
+			NotificationHistory notificationHistory, NotificationHistoryEntity notificationHistoryEntity) {
+		notificationHistoryEntity.setId(notificationHistory.getId());
+		notificationHistoryEntity.setNotificationText(notificationHistory.getNotificationText());
+		notificationHistoryEntity.setRecipientId(notificationHistory.getRecipientId());
+		notificationHistoryEntity.setDeleted(notificationHistory.getDeleted());
+		notificationHistoryEntity.setOriginatorId(notificationHistory.getOriginatorId());
+		notificationHistoryEntity.setOriginationDate(notificationHistory.getOriginationDate());
+		notificationHistoryEntity.setNotificationType(notificationHistory.getNotificationType());
+		return notificationHistoryEntity;
 	}
 
 }

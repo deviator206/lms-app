@@ -2,16 +2,25 @@ package repository;
 
 import java.util.List;
 
-import repository.entity.NotificationEntity;
+import repository.entity.NotificationDetailsEntity;
+import repository.entity.NotificationHistoryEntity;
 
 public interface INotificationDAO {
-	NotificationEntity getNotificationDetailsById(Long userId);
+	NotificationDetailsEntity getNotificationDetailsById(Long userId);
 
-	List<NotificationEntity> getAllNotificationDetails();
+	List<NotificationDetailsEntity> getAllNotificationDetails();
 
-	void insertNotificationDetails(NotificationEntity notification);
+	void insertNotificationDetails(NotificationDetailsEntity notification);
 
-	void updateNotificationStatus(Long userId, Boolean enabled);
-	
-	public List<NotificationEntity> getNotificationDetailsByIds(List<Long> userIds);
+	void updateNotificationDetailStatus(Long userId, Boolean enabled);
+
+	public List<NotificationDetailsEntity> getNotificationDetailsByIds(List<Long> userIds);
+
+	public List<NotificationHistoryEntity> getAllNotifications();
+
+	public List<NotificationHistoryEntity> getAllNotificationsbyRecipientId(Long recipientId);
+
+	public void updateNotificationStatus(Long notificationId, Boolean read);
+
+	public Long insertNotification(NotificationHistoryEntity notificationistory);
 }

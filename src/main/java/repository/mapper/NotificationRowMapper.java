@@ -5,13 +5,13 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import repository.entity.NotificationEntity;
+import repository.entity.NotificationDetailsEntity;
 
-public class NotificationRowMapper implements RowMapper<NotificationEntity> {
+public class NotificationRowMapper implements RowMapper<NotificationDetailsEntity> {
 
 	@Override
-	public NotificationEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
-		NotificationEntity notificationEntity = new NotificationEntity();
+	public NotificationDetailsEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
+		NotificationDetailsEntity notificationEntity = new NotificationDetailsEntity();
 		notificationEntity.setId(rs.getLong("ID"));
 		notificationEntity.setUserId(rs.getLong("USERID"));
 		notificationEntity.setNotificationKey(rs.getString("NOTIFICATION_KEY"));

@@ -13,6 +13,15 @@ public class FilterLeadRes {
 	private String tenure;
 	private String country;
 	private String state;
+	private String description;
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public String getCountry() {
 		return country;
 	}

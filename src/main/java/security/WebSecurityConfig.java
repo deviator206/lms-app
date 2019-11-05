@@ -63,7 +63,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		httpSecurity.cors().and().csrf().disable().exceptionHandling()
 				.authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers(HttpMethod.POST, "/login").permitAll().antMatchers(HttpMethod.POST, "/user").permitAll()
+				.antMatchers(HttpMethod.POST, "/login").permitAll()
+				.antMatchers(HttpMethod.POST, "/user").permitAll()
+				.antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
+				.antMatchers(HttpMethod.GET, "/swagger-ui.html/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/webjars/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/v2/api-docs/").permitAll()
+				.antMatchers(HttpMethod.GET, "/v2/api-docs").permitAll()
+				.antMatchers(HttpMethod.GET, "/configuration/ui").permitAll()
+				.antMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
+				.antMatchers(HttpMethod.GET, "/configuration/security").permitAll()
 				.anyRequest().authenticated();
 		httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}

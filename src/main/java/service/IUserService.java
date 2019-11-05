@@ -11,7 +11,7 @@ import model.UserRes;
 import model.UserRoles;
 
 public interface IUserService {
-	public List<UserRes> getUsers();
+	public List<UserRes> getUsers(String bu);
 
 	public Map<Long, UserRes> getCachedUsersSummaryMap();
 
