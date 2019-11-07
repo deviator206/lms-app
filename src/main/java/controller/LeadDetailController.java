@@ -160,6 +160,20 @@ public class LeadDetailController {
 
 	}
 
+	@PostMapping("/lead/contact/upload")
+	public ResponseEntity<?> uploadContactAttachment(@RequestParam("file") MultipartFile uploadfile,
+			@RequestParam(value = "rootleadid", required = true) Long rootLeadId) throws IOException {
+		if (uploadfile.isEmpty()) {
+			return new ResponseEntity("You must select a file!", HttpStatus.OK);
+		}
+		UploadFileRes uploadFileRes = leadDetailService.uploadRootLeadContactAttachment(rootLeadId,
+				Arrays.asList(uploadfile));
+
+		return new ResponseEntity("Successfully uploaded - " + uploadFileRes.getFileName(), new HttpHeaders(),
+				HttpStatus.OK);
+
+	}
+
 	@RequestMapping(path = "/lead/attachment/download", method = RequestMethod.GET)
 	public ResponseEntity<Resource> download(@RequestParam(value = "name", required = true) String name,
 			@RequestParam(value = "leadid", required = true) Long leadid) throws IOException {
@@ -168,6 +182,20 @@ public class LeadDetailController {
 		headers.add("Pragma", "no-cache");
 		headers.add("Expires", "0");
 		DownloadFileRes downloadFileRes = leadDetailService.downloadLeadAttachment(leadid, name);
+		return ResponseEntity.ok().headers(headers).contentLength(downloadFileRes.getContentLength())
+				.contentType(MediaType.parseMediaType("application/octet-stream"))
+				.body(downloadFileRes.getFileResource());
+	}
+
+	@RequestMapping(path = "/lead/contact/download", method = RequestMethod.GET)
+	public ResponseEntity<Resource> downloadContactAttachment(
+			@RequestParam(value = "name", required = true) String name,
+			@RequestParam(value = "leadid", required = true) Long leadid) throws IOException {
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+		headers.add("Pragma", "no-cache");
+		headers.add("Expires", "0");
+		DownloadFileRes downloadFileRes = leadDetailService.downloadContactAttachment(leadid, name);
 		return ResponseEntity.ok().headers(headers).contentLength(downloadFileRes.getContentLength())
 				.contentType(MediaType.parseMediaType("application/octet-stream"))
 				.body(downloadFileRes.getFileResource());

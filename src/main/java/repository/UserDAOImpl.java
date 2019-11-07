@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,8 +19,10 @@ import model.FilterUserRes;
 import repository.entity.UserEntity;
 import repository.mapper.UserRowMapper;
 import repository.mapper.UserSummaryRowMapper;
+import security.SqlSafeUtil;
 
 @Repository
+@Scope("prototype")
 public class UserDAOImpl implements IUserDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -52,6 +55,11 @@ public class UserDAOImpl implements IUserDAO {
 
 	@Override
 	public UserEntity getUserByUserName(String userName) {
+
+		if (!SqlSafeUtil.isSqlInjectionSafe(userName)) {
+			throw new RuntimeException("SQL Injection Error");
+		}
+
 		String sql = "SELECT ID, USERNAME,PASSWORD, EMAIL, ENABLED, USER_DISPLAY_NAME, BU FROM USERS WHERE USERNAME = ?";
 		RowMapper<UserEntity> rowMapper = new UserRowMapper();
 		UserEntity user = jdbcTemplate.queryForObject(sql, rowMapper, userName);
@@ -85,6 +93,15 @@ public class UserDAOImpl implements IUserDAO {
 
 	@Override
 	public List<UserEntity> getUserDetailsByBuAndRole(String businessUnit, String role) {
+
+		if (!SqlSafeUtil.isSqlInjectionSafe(businessUnit)) {
+			throw new RuntimeException("SQL Injection Error");
+		}
+
+		if (!SqlSafeUtil.isSqlInjectionSafe(role)) {
+			throw new RuntimeException("SQL Injection Error");
+		}
+
 		String sql = "SELECT USERS.ID, USERS.USERNAME, USERS.EMAIL, USERS.ENABLED, USERS.USER_DISPLAY_NAME, USERS.BU FROM USERS, USER_ROLE WHERE USERS.BU = ? AND USER_ROLE.USER_ROLE = ? AND USERS.ID = USER_ROLE.USER_ID";
 		RowMapper<UserEntity> rowMapper = new UserSummaryRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper, businessUnit, role);
@@ -92,6 +109,11 @@ public class UserDAOImpl implements IUserDAO {
 
 	@Override
 	public List<UserEntity> getUserDetailsByBu(String businessUnit) {
+
+		if (!SqlSafeUtil.isSqlInjectionSafe(businessUnit)) {
+			throw new RuntimeException("SQL Injection Error");
+		}
+
 		String sql = "SELECT USERS.ID, USERS.USERNAME, USERS.EMAIL, USERS.ENABLED, USERS.USER_DISPLAY_NAME, USERS.BU FROM USERS, USER_ROLE WHERE USERS.BU = ? AND USERS.ID = USER_ROLE.USER_ID";
 		RowMapper<UserEntity> rowMapper = new UserSummaryRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper, businessUnit);
@@ -99,6 +121,11 @@ public class UserDAOImpl implements IUserDAO {
 
 	@Override
 	public List<UserEntity> filterUsers(FilterUserRes filterUserRes) {
+
+		if (!filterUserRes.isSqlInjectionSafe()) {
+			throw new RuntimeException("SQL Injection Error");
+		}
+
 		String query = "SELECT ID, USERNAME, EMAIL, ENABLED, USER_DISPLAY_NAME, BU FROM USERS WHERE 1 = 1";
 		RowMapper<UserEntity> rowMapper = new UserSummaryRowMapper();
 		query = getFilterLeadsQuery(filterUserRes, query);

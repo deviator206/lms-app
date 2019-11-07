@@ -3,8 +3,10 @@ package model;
 import java.util.Date;
 
 import security.SQLInjectionSafe;
+import security.SqlSafeUtil;
 
 public class FilterLeadRes {
+
 	private @SQLInjectionSafe String custName;
 	private String salesRep;
 	private Long salesRepId;
@@ -14,6 +16,7 @@ public class FilterLeadRes {
 	private String country;
 	private String state;
 	private String description;
+
 	public String getDescription() {
 		return description;
 	}
@@ -141,6 +144,18 @@ public class FilterLeadRes {
 
 	public void setCustName(String custName) {
 		this.custName = custName;
+	}
+
+	public Boolean isSqlInjectionSafe() {
+		if (SqlSafeUtil.isSqlInjectionSafe(this.getDescription()) && SqlSafeUtil.isSqlInjectionSafe(this.getCustName())
+				&& SqlSafeUtil.isSqlInjectionSafe(this.getFromBu()) && SqlSafeUtil.isSqlInjectionSafe(this.getToBu())
+				&& SqlSafeUtil.isSqlInjectionSafe(this.getSource())
+				&& SqlSafeUtil.isSqlInjectionSafe(this.getIndustry()) && SqlSafeUtil.isSqlInjectionSafe(this.getState())
+				&& SqlSafeUtil.isSqlInjectionSafe(this.getStatus()) && SqlSafeUtil.isSqlInjectionSafe(this.getTenure())
+				&& SqlSafeUtil.isSqlInjectionSafe(this.getCountry())) {
+			return true;
+		}
+		return false;
 	}
 
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -29,6 +30,7 @@ import repository.entity.MarketIntelligenceInfoEntity;
 import repository.mapper.ModelEntityMappers;
 
 @Service
+@Scope("prototype")
 public class MarketIntelligenceService implements IMarketIntelligenceService {
 	@Autowired
 	private IMarketIntelligenceDAO mrketIntelligenceDAO;

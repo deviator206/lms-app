@@ -4,18 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.annotation.Resource;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,8 +34,14 @@ public class UserServiceImpl implements IUserService {
 	@Autowired
 	private IUserDAO userDAO;
 
+	@Value("${app.mail.userName}")
+	private String mailUserName;
+
 	@Autowired
 	private IUserRoleDAO userRoleDAO;
+
+	@Autowired
+	private IMailService mailService;
 
 	@Resource
 	private PasswordEncoder passwordEncoder;
@@ -56,7 +55,7 @@ public class UserServiceImpl implements IUserService {
 	public List<UserRes> getUsers(String bu) {
 		List<UserEntity> userEntities = null;
 		if (bu != null) {
-			userEntities = userDAO.getUserDetailsByBu(bu);			
+			userEntities = userDAO.getUserDetailsByBu(bu);
 		} else {
 			userEntities = userDAO.getUsers();
 		}
@@ -249,7 +248,7 @@ public class UserServiceImpl implements IUserService {
 			forgotPasswordResponse.setForgotPasswordUri("https://testuri");
 			forgotPasswordResponse.setValidUser(true);
 			this.disableUser(users.get(0).getUserId());
-			sendMail();
+			sendMail(mailUserName, user.getEmail());
 		} else {
 			forgotPasswordResponse.setValidUser(false);
 		}
@@ -262,39 +261,39 @@ public class UserServiceImpl implements IUserService {
 	 * roles; }
 	 */
 
-	private void sendMail() {
-		final String username = "shiv.orian@gmail.com";
-		final String password = "d1ngd0ng";
-
-		Properties prop = new Properties();
-		prop.put("mail.smtp.host", "smtp.gmail.com");
-		prop.put("mail.smtp.port", "465");
-		prop.put("mail.smtp.auth", "true");
-		prop.put("mail.smtp.socketFactory.port", "465");
-		prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-
-		Session session = Session.getInstance(prop, new javax.mail.Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(username, password);
-			}
-		});
-
-		try {
-
-			Message message = new MimeMessage(session);
-			message.setFrom(new InternetAddress("shiv.orian@gmail.com"));
-			message.setRecipients(Message.RecipientType.TO,
-					InternetAddress.parse("shiv.orian@gmail.com, shivanshu.yadav@amdocs.com, deviator206@gmail.com"));
-			message.setSubject("Testing Gmail SSL from Java");
-			message.setText("Dear Mail Crawler," + "\n\n Please do not spam my email!");
-
-			Transport.send(message);
-
-			System.out.println("Done");
-
-		} catch (MessagingException e) {
-			e.printStackTrace();
-		}
+	private void sendMail(String mailFrom, String mailTo) {
+		List<String> mailToLst = new ArrayList<String>();
+		mailToLst.add(mailTo);
+		mailService.sendMail(mailFrom, mailToLst, "Forgot password", "Test Body");
+		/*
+		 * final String username = "shiv.orian@gmail.com"; final String password =
+		 * "d1ngd0ng";
+		 * 
+		 * Properties prop = new Properties(); prop.put("mail.smtp.host",
+		 * "smtp.gmail.com"); prop.put("mail.smtp.port", "465");
+		 * prop.put("mail.smtp.auth", "true"); prop.put("mail.smtp.socketFactory.port",
+		 * "465"); prop.put("mail.smtp.socketFactory.class",
+		 * "javax.net.ssl.SSLSocketFactory");
+		 * 
+		 * Session session = Session.getInstance(prop, new javax.mail.Authenticator() {
+		 * protected PasswordAuthentication getPasswordAuthentication() { return new
+		 * PasswordAuthentication(username, password); } });
+		 * 
+		 * try {
+		 * 
+		 * Message message = new MimeMessage(session); message.setFrom(new
+		 * InternetAddress("shiv.orian@gmail.com"));
+		 * message.setRecipients(Message.RecipientType.TO, InternetAddress.
+		 * parse("shiv.orian@gmail.com, shivanshu.yadav@amdocs.com, deviator206@gmail.com"
+		 * )); message.setSubject("Testing Gmail SSL from Java");
+		 * message.setText("Dear Mail Crawler," + "\n\n Please do not spam my email!");
+		 * 
+		 * Transport.send(message);
+		 * 
+		 * System.out.println("Done");
+		 * 
+		 * } catch (MessagingException e) { e.printStackTrace(); }
+		 */
 	}
 
 	@Override

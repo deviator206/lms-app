@@ -6,6 +6,15 @@ public class RootLeadRes {
 	private Long id;
 	private String source;
 	private String sourceInfo;
+	private String attachment;
+	public String getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
+	}
+
 	public String getSourceInfo() {
 		return sourceInfo;
 	}

@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -24,6 +25,7 @@ import repository.mapper.NotificationHistoryRowMapper;
 import repository.mapper.NotificationRowMapper;
 
 @Repository
+@Scope("prototype")
 public class NotificationDAO implements INotificationDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;

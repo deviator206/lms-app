@@ -45,4 +45,7 @@ public interface ILeadDetailService {
 
 	DownloadFileRes downloadLeadAttachment(Long leadId, String name) throws IOException;
 
+	UploadFileRes uploadRootLeadContactAttachment(Long id, List<MultipartFile> files) throws IOException;
+	public DownloadFileRes downloadContactAttachment(Long leadId, String name) throws IOException;
+
 }

@@ -1,5 +1,7 @@
 package model;
 
+import security.SqlSafeUtil;
+
 public class FilterUserRes {
 	private String userName;
 	private String userDisplayName;
@@ -12,6 +14,15 @@ public class FilterUserRes {
 			return true;
 		}
 
+		return false;
+	}
+
+	public Boolean isSqlInjectionSafe() {
+		if (SqlSafeUtil.isSqlInjectionSafe(this.getBusinessUnit()) && SqlSafeUtil.isSqlInjectionSafe(this.getEmail())
+				&& SqlSafeUtil.isSqlInjectionSafe(this.getUserDisplayName())
+				&& SqlSafeUtil.isSqlInjectionSafe(this.getUserName())) {
+			return true;
+		}
 		return false;
 	}
 

@@ -2,7 +2,14 @@ package repository.entity;
 
 public class LeadContactEntity {
 	private Long id;
-	
+	private String attachment;
+	public String getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
+	} 
 
 	public Long getId() {
 		return id;

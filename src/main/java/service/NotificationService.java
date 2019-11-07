@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import consts.LeadManagementConstants;
@@ -17,6 +18,7 @@ import repository.entity.NotificationHistoryEntity;
 import repository.mapper.ModelEntityMappers;
 
 @Service
+@Scope("prototype")
 public class NotificationService implements INotificationService {
 
 	@Autowired

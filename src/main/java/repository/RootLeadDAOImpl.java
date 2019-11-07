@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.sql.Types;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -21,6 +22,7 @@ import repository.entity.RootLeadEntity;
 import repository.mapper.RootLeadRowMapper;
 
 @Repository
+@Scope("prototype")
 public class RootLeadDAOImpl implements IRootLeadDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -48,21 +50,21 @@ public class RootLeadDAOImpl implements IRootLeadDAO {
 					ps.setString(1, rootLeadEntity.getSource());
 					ps.setString(2, rootLeadEntity.getCustName());
 					ps.setString(3, rootLeadEntity.getDescription());
-					
+
 					if (rootLeadEntity.getContactId() != null) {
 						ps.setLong(4, rootLeadEntity.getContactId());
 					} else {
 						ps.setNull(4, Types.FLOAT);
 					}
-					
+
 					ps.setDate(5, rootLeadEntity.getCreationDate());
-					
+
 					if (rootLeadEntity.getCreatorId() != null) {
 						ps.setLong(6, rootLeadEntity.getCreatorId());
 					} else {
 						ps.setNull(6, Types.FLOAT);
-					}					
-					
+					}
+
 					ps.setBoolean(7, rootLeadEntity.isSelfApproved());
 					ps.setFloat(8, rootLeadEntity.getBudget());
 					ps.setString(9, rootLeadEntity.getCurrency());
@@ -89,4 +91,9 @@ public class RootLeadDAOImpl implements IRootLeadDAO {
 		return true;
 	}
 
+	@Override
+	public void updateRootLead(RootLeadEntity rootLeadEntity) {
+		String sql = "UPDATE ROOT_LEAD SET CONTACT_ID = ?, WHERE ID = ?;";
+		jdbcTemplate.update(sql, rootLeadEntity.getContactId(), rootLeadEntity.getId());
+	}
 }

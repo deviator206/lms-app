@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import consts.LeadManagementConstants;
+import model.FilterLeadRes;
 import model.FilterMarketIntelligenceRes;
 import model.Pagination;
 import repository.entity.LeadEntity;
@@ -27,6 +29,7 @@ import repository.mapper.MarketIntelligenceInfoRowMapper;
 import repository.mapper.MarketIntelligenceRowMapper;
 
 @Repository
+@Scope("prototype")
 public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -56,7 +59,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	public void updateLeadInMarketIntelligence(Long miId, Long rootLeadId, String status, Long updatorId,
 			Date updateDate) {
 		String sql = "UPDATE MI SET LEAD_ID = ?, STATUS = ?,  UPDATOR_ID = ?, UPDATE_DATE = ? WHERE ID = ?;";
-		jdbcTemplate.update(sql, rootLeadId, status, updatorId, updateDate,miId);
+		jdbcTemplate.update(sql, rootLeadId, status, updatorId, updateDate, miId);
 	}
 
 	@Override
@@ -116,6 +119,11 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 	@Override
 	public List<MarketIntelligenceEntity> filterMarketIntelligence(FilterMarketIntelligenceRes filterMarketIntelligence,
 			Pagination pagination) {
+
+		if (!filterMarketIntelligence.isSqlInjectionSafe()) {
+			throw new RuntimeException("SQL Injection Error");
+		}
+
 		RowMapper<MarketIntelligenceEntity> rowMapper = new MarketIntelligenceRowMapper();
 
 		String query = "SELECT ID, TYPE, STATUS, NAME, DESCRIPTION, INVESTMENT,LEAD_ID, CREATION_DATE, CREATOR_ID, UPDATOR_ID, UPDATE_DATE,ATTACHMENT FROM MI WHERE 1 = 1";

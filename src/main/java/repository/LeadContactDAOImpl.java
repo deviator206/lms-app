@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,6 +21,7 @@ import repository.entity.LeadContactEntity;
 import repository.mapper.LeadContactRowMapper;
 
 @Repository
+@Scope("prototype")
 public class LeadContactDAOImpl implements ILeadContactDAO {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
@@ -68,6 +70,13 @@ public class LeadContactDAOImpl implements ILeadContactDAO {
 		String sql = "DELETE FROM LEAD_CONTACT WHERE ID = ?";
 		jdbcTemplate.update(sql, id);
 		return true;
+	}
+	
+	@Override
+	public boolean updateLeadContact(LeadContactEntity leadContactEntity) {
+		String sql = "UPDATE LEAD_CONTACT SET ATTACHMENT = ? WHERE ID = ?;";
+		int affectedRows = jdbcTemplate.update(sql, leadContactEntity.getAttachment(), leadContactEntity.getId());
+		return affectedRows == 0 ? false : true;
 	}
 
 }

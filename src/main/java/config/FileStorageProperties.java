@@ -23,4 +23,13 @@ public class FileStorageProperties {
 	}
 	@Value("${file.mi-upload-dir}")
 	private String marketIntlUploadDir;
+	
+	@Value("${file.lead-contact-upload-dir}")
+	private String leadContactDir;
+	public String getLeadContactDir() {
+		return leadContactDir;
+	}
+	public void setLeadContactDir(String leadContactDir) {
+		this.leadContactDir = leadContactDir;
+	}
 }

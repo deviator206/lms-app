@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
@@ -48,6 +49,7 @@ import repository.entity.UserEntity;
 import repository.mapper.ModelEntityMappers;
 
 @Service
+@Scope("prototype")
 public class LeadDetailService implements ILeadDetailService {
 	@Autowired
 	private IRootLeadDAO rootLeadDAO;
@@ -138,6 +140,23 @@ public class LeadDetailService implements ILeadDetailService {
 	}
 
 	@Override
+	public UploadFileRes uploadRootLeadContactAttachment(Long id, List<MultipartFile> files) throws IOException {
+		UploadFileRes uploadFileRes = fileStorageService.uploadLeadContactAttachment(id, files);
+		RootLeadEntity rootLeadEntity = rootLeadDAO.getRootLead(id);
+		if (rootLeadEntity.getContactId() != null) {
+			LeadContactEntity leadContactEntity = new LeadContactEntity();
+			leadContactEntity.setAttachment(uploadFileRes.getFileName());
+			leadContactEntity.setId(rootLeadEntity.getContactId());
+			leadContactDAO.updateLeadContact(leadContactEntity);
+		} else {
+			LeadContactEntity leadContactEntity = new LeadContactEntity();
+			leadContactEntity.setAttachment(uploadFileRes.getFileName());
+			Long leadContactId = leadContactDAO.insertLeadContact(leadContactEntity);
+		}
+		return uploadFileRes;
+	}
+
+	@Override
 	public RootLeadRes getRootLead(Long id) {
 		RootLeadEntity rootLeadEntity = rootLeadDAO.getRootLead(id);
 		RootLeadRes rootLeadRes = new RootLeadRes();
@@ -156,9 +175,9 @@ public class LeadDetailService implements ILeadDetailService {
 		LeadRes leadRes = prepareLeadRes(leadEntity);
 		return leadRes;
 	}
-	
+
 	@Override
-	public List<LeadRes> getLeadsByRoot(Long rootLeadId) {		
+	public List<LeadRes> getLeadsByRoot(Long rootLeadId) {
 		List<LeadRes> leads = new ArrayList<LeadRes>();
 		List<LeadEntity> leadEntities = leadDAO.getLeadsByRoot(rootLeadId);
 		for (LeadEntity leadEntity : leadEntities) {
@@ -507,6 +526,11 @@ public class LeadDetailService implements ILeadDetailService {
 	@Override
 	public DownloadFileRes downloadLeadAttachment(Long leadId, String name) throws IOException {
 		return fileStorageService.downloadLeadAttachment(leadId, name);
+	}
+	
+	@Override
+	public DownloadFileRes downloadContactAttachment(Long leadId, String name) throws IOException {
+		return fileStorageService.downloadContactAttachment(leadId, name);
 	}
 
 }

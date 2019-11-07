@@ -5,15 +5,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * <h2>SqlSafeUtil</h2> Util Class to help verify if provided string value is
- * sql injection safe
- *
- * @author Ramakrishna Punjal
- * @version 1.0.0
- * @since 2016-08-26
- *
- */
 public class SqlSafeUtil {
 
 	private static final String SQL_TYPES = "TABLE, TABLESPACE, PROCEDURE, FUNCTION, TRIGGER, KEY, VIEW, MATERIALIZED VIEW, LIBRARY"
@@ -62,6 +53,10 @@ public class SqlSafeUtil {
 	 * @return 'true' for safe and 'false' for unsafe
 	 */
 	public static boolean isSqlInjectionSafe(String dataString) {
+		if (isEmpty(dataString)) {
+			return true;
+		}
+		
 		if (isEmpty(dataString)) {
 			return true;
 		}

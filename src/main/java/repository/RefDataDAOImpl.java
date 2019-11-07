@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -13,6 +14,7 @@ import repository.entity.RefDataEntity;
 import repository.mapper.RefDataRowMapper;
 
 @Repository
+@Scope("prototype")
 public class RefDataDAOImpl implements IRefDataDAO {
 
 	@Autowired
@@ -41,6 +43,7 @@ public class RefDataDAOImpl implements IRefDataDAO {
 
 	@Override
 	public List<RefDataEntity> getRefDataFromType(List<String> type) {
+		
 		RowMapper<RefDataEntity> rowMapper = new RefDataRowMapper();
 		NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
 	    String sql = "SELECT CODE, NAME, TYPE FROM REF_DATA WHERE TYPE IN(:params)";

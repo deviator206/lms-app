@@ -3,6 +3,7 @@ package controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,6 +15,7 @@ import model.NotificationHistory;
 import service.INotificationService;
 
 @RestController
+@Scope("prototype")
 public class NotificationController {
 	@Autowired
 	public INotificationService notificationService;

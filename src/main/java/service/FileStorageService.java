@@ -48,6 +48,15 @@ public class FileStorageService implements IFileStorageService {
 	}
 
 	@Override
+	public UploadFileRes uploadLeadContactAttachment(Long id, List<MultipartFile> files) throws IOException {
+		UploadFileRes uploadFileRes = new UploadFileRes();
+		if (!files.isEmpty() && (files.get(0) != null)) {
+			uploadFileRes = this.uploadAttachment(id,fileStorageProperties.getLeadContactDir(), files.get(0));
+		}
+		return uploadFileRes;
+	}
+	
+	@Override
 	public UploadFileRes uploadMiAttachment(Long id, List<MultipartFile> files) throws IOException {
 		UploadFileRes uploadFileRes = new UploadFileRes();
 		if (!files.isEmpty() && (files.get(0) != null)) {
@@ -102,5 +111,10 @@ public class FileStorageService implements IFileStorageService {
 	@Override
 	public DownloadFileRes downloadMiAttachment(Long miId, String name) throws IOException {
 		return this.downLoadFile(fileStorageProperties.getMarketIntlUploadDir() + String.valueOf(miId) + "/", name);
+	}
+	
+	@Override
+	public DownloadFileRes downloadContactAttachment(Long leadId, String name) throws IOException {
+		return this.downLoadFile(fileStorageProperties.getLeadContactDir() + String.valueOf(leadId) + "/", name);
 	}
 }
