@@ -85,8 +85,8 @@ public class UserDAOImpl implements IUserDAO {
 
 	@Override
 	public void disableUser(UserEntity user) {
-		String sql = "UPDATE USERS SET ENABLED = ? WHERE ID = ?;";
-		int affectedRows = jdbcTemplate.update(sql, user.isEnabled(), user.getId());
+		String sql = "UPDATE USERS SET ENABLED = ?, PASSWORD = ? WHERE ID = ?;";
+		int affectedRows = jdbcTemplate.update(sql, user.isEnabled(), user.getPassword(), user.getId());
 		// return affectedRows == 0 ? false : true;
 
 	}

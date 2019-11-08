@@ -31,7 +31,7 @@ public interface IUserService {
 
 	public List<UserRes> filterUsers(FilterUserRes filterUserRes);
 
-	public void disableUser(Long userId);
+	public void disableUser(Long userId, String tempPassword);
 
 	public List<UserRes> getUsersByRoles(List<String> userRoles);
 

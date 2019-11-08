@@ -40,7 +40,7 @@ public class MailService implements IMailService {
 	@Override
 	public void sendMail(String mailFrom, List<String> mailTo, String subject, String body) {
 		final String username = this.mailUserName;
-		final String password = utilityService.decode(this.password);
+		final String password = utilityService.decrypt(this.password);
 
 		Properties prop = new Properties();
 		prop.put("mail.smtp.host", smtpHost);

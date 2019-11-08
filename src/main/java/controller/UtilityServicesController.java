@@ -2,11 +2,12 @@ package controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import model.EncodeDecode;
+import model.EncryptDecrypt;
 import service.IUtilityService;
 
 @RestController
@@ -15,13 +16,19 @@ public class UtilityServicesController {
 	@Autowired
 	public IUtilityService utilityService;
 
+	//@PreAuthorize("hasAnyAuthority('ADMIN')")
 	@PostMapping("/encode")
-	public String encode(@RequestBody EncodeDecode encodeDecode) {
-		return utilityService.encode(encodeDecode.getDecoded());
+	public EncryptDecrypt encode(@RequestBody EncryptDecrypt encodeDecode) {
+		EncryptDecrypt encryptDecrypt = new EncryptDecrypt();
+		encryptDecrypt.setEncrypted(utilityService.encrypt(encodeDecode.getDecrypted()));
+		return encryptDecrypt;
 	}
 
-	// @PostMapping("/decode")
-	public String decode(@RequestBody EncodeDecode encodeDecode) {
-		return utilityService.decode(encodeDecode.getEncoded());
+	//@PreAuthorize("hasAnyAuthority('ADMIN')")
+	@PostMapping("/decode")
+	public EncryptDecrypt decode(@RequestBody EncryptDecrypt encodeDecode) {
+		EncryptDecrypt encryptDecrypt = new EncryptDecrypt();
+		encryptDecrypt.setDecrypted(utilityService.decrypt(encodeDecode.getEncrypted()));
+		return encryptDecrypt;
 	}
 }

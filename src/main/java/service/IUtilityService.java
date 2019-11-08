@@ -2,8 +2,8 @@ package service;
 
 public interface IUtilityService {
 
-	String encode(String decodedStr);
+	String encrypt(String decryptedStr);
 
-	String decode(String encodedStr);
+	String decrypt(String encryptedStr);
 
 }

@@ -27,6 +27,7 @@ import repository.IUserRoleDAO;
 import repository.entity.UserEntity;
 import repository.entity.UserRoleEntity;
 import repository.mapper.ModelEntityMappers;
+import util.PasswordGenerationUtil;
 
 @Service
 @Scope("prototype")
@@ -245,10 +246,11 @@ public class UserServiceImpl implements IUserService {
 			forgotPasswordResponse.setEmail(user.getEmail());
 			forgotPasswordResponse.setUserName(user.getUserName());
 			forgotPasswordResponse.setUserDisplayName(user.getUserDisplayName());
-			forgotPasswordResponse.setForgotPasswordUri("https://testuri");
+			// forgotPasswordResponse.setForgotPasswordUri("https://testuri");
 			forgotPasswordResponse.setValidUser(true);
-			this.disableUser(users.get(0).getUserId());
-			sendMail(mailUserName, user.getEmail());
+			String tempPassword = PasswordGenerationUtil.getPassword();
+			this.disableUser(users.get(0).getUserId(), tempPassword);
+			sendForgotMail(mailUserName, user.getEmail(), tempPassword);
 		} else {
 			forgotPasswordResponse.setValidUser(false);
 		}
@@ -261,10 +263,10 @@ public class UserServiceImpl implements IUserService {
 	 * roles; }
 	 */
 
-	private void sendMail(String mailFrom, String mailTo) {
+	private void sendForgotMail(String mailFrom, String mailTo, String tempPassword) {
 		List<String> mailToLst = new ArrayList<String>();
 		mailToLst.add(mailTo);
-		mailService.sendMail(mailFrom, mailToLst, "Forgot password", "Test Body");
+		mailService.sendMail(mailFrom, mailToLst, "Forgot password", String.format("Your temporary password %s is sent on your Email %s",tempPassword,mailTo));
 		/*
 		 * final String username = "shiv.orian@gmail.com"; final String password =
 		 * "d1ngd0ng";
@@ -337,10 +339,11 @@ public class UserServiceImpl implements IUserService {
 	}
 
 	@Override
-	public void disableUser(Long userId) {
+	public void disableUser(Long userId, String tempPassword) {
 		UserEntity user = new UserEntity();
 		user.setEnabled(false);
 		user.setId(userId);
+		user.setPassword(passwordEncoder.encode(tempPassword));
 		userDAO.disableUser(user);
 	}
 
