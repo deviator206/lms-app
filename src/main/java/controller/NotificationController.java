@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import model.NotificationHistory;
+import model.Pagination;
 import service.INotificationService;
 
 @RestController
@@ -21,9 +22,14 @@ public class NotificationController {
 	public INotificationService notificationService;
 
 	@GetMapping("/notification")
-	public List<NotificationHistory> getNotifications(@RequestParam(value = "type", required = false) String type,
-			@RequestParam(value = "recipientId", required = false) Long recipientId) {
-		return notificationService.getNotifications(recipientId);
+	public List<NotificationHistory> getNotifications(
+			@RequestParam(value = "recipientId", required = false) Long recipientId,
+			@RequestParam(value = "start", required = false) Integer start,
+			@RequestParam(value = "pagesize", required = false) Integer pageSize) {
+		if (start != null && pageSize != null) {
+			return notificationService.getNotifications(recipientId, new Pagination(start, pageSize));
+		}
+		return notificationService.getNotifications(recipientId,null);
 	}
 
 	@PostMapping("/notification")

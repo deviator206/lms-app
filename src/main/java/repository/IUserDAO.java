@@ -3,6 +3,7 @@ package repository;
 import java.util.List;
 
 import model.FilterUserRes;
+import model.User;
 import repository.entity.UserEntity;
 
 public interface IUserDAO {
@@ -13,6 +14,7 @@ public interface IUserDAO {
 	UserEntity getUserByUserName(String userName);
 
 	UserEntity getUserByUserId(Long userId);
+	public void deleteUserByUserId(Long userId);
 
 	Long insertUser(UserEntity user);
 
@@ -21,4 +23,5 @@ public interface IUserDAO {
 	public void disableUser(UserEntity user);
 	public List<UserEntity> getUserDetailsByBuAndRole(String businessUnit, String role);
 	public List<UserEntity> getUserDetailsByBu(String businessUnit);
+	public void changePassword(UserEntity user);
 }

@@ -21,9 +21,7 @@ public class JwtTokenReader {
 	}
 	
 	public String getJwtFromAuthorizationHeader(String bearerToken) {
-		System.out.println("bearerToken --- >> " + bearerToken);
 		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-			System.out.println("bearerToken Split --- >> " + bearerToken.substring(7, bearerToken.length()));
 			return bearerToken.substring(7, bearerToken.length());
 		}
 		return null;

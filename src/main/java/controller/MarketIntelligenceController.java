@@ -41,7 +41,7 @@ import service.INotificationService;
 public class MarketIntelligenceController {
 	@Autowired
 	public IMarketIntelligenceService marketIntelligenceService;
-	
+
 	@Autowired
 	private JwtTokenReader jwtTokenReader;
 
@@ -62,8 +62,9 @@ public class MarketIntelligenceController {
 	}
 
 	@GetMapping("/marketIntelligence/{id}")
-	public MarketIntelligenceRes getMarketIntelligenceById(@PathVariable("id") Long id,@RequestParam(value = "infosize", required = false) Integer infoSize) {		
-		return marketIntelligenceService.getMarkByIdetIntelligenceById(id,new Pagination(1, infoSize));
+	public MarketIntelligenceRes getMarketIntelligenceById(@PathVariable("id") Long id,
+			@RequestParam(value = "infosize", required = false) Integer infoSize) {
+		return marketIntelligenceService.getMarkByIdetIntelligenceById(id, new Pagination(1, infoSize));
 	}
 
 	@GetMapping("/marketIntelligence/{id}/marketIntelligenceInfo")
@@ -71,30 +72,37 @@ public class MarketIntelligenceController {
 			@RequestParam(value = "start", required = false) Integer start,
 			@RequestParam(value = "pagesize", required = false) Integer pageSize) {
 		if (start != null && pageSize != null) {
-			return marketIntelligenceService.getMarketIntelligenceInfo(miId,new Pagination(start, pageSize));
+			return marketIntelligenceService.getMarketIntelligenceInfo(miId, new Pagination(start, pageSize));
 		}
-		return marketIntelligenceService.getMarketIntelligenceInfo(miId,null);
-		
+		return marketIntelligenceService.getMarketIntelligenceInfo(miId, null);
+
 	}
 
 	@ApiOperation(value = "Update Market Intelligence. Only adding Market Intelligence infos is supported ", response = Long.class)
 	@PutMapping("/marketIntelligence/{id}")
-	public Long updateMarketIntelligence(@RequestHeader("Authorization") String autorizationHeader, @PathVariable("id") Long id,
-			@RequestBody MarketIntelligenceReq marketIntelligenceRes) {
+	public Long updateMarketIntelligence(@RequestHeader("Authorization") String autorizationHeader,
+			@PathVariable("id") Long id, @RequestBody MarketIntelligenceReq marketIntelligenceRes) {
 		Long miId = marketIntelligenceService.updateMarketIntelligence(marketIntelligenceRes);
-		
-		
-		if(marketIntelligenceRes.getRootLeadId() != null) {
+
+		if (marketIntelligenceRes.getRootLeadId() != null) {
 			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
 			notificationService.sendNotificationAfterMiToLeadCreation(userId, marketIntelligenceRes.getRootLeadId());
 		}
-		
+
 		return miId;
 	}
 
 	@PostMapping("/marketIntelligence")
-	public Long addMarketIntelligence(@RequestBody MarketIntelligenceReq marketIntelligenceReq) {
-		return marketIntelligenceService.addMarketIntelligence(marketIntelligenceReq);
+	public Long addMarketIntelligence(@RequestHeader("Authorization") String autorizationHeader,
+			@RequestBody MarketIntelligenceReq marketIntelligenceReq) {
+		
+		Long createdMiId = marketIntelligenceService.addMarketIntelligence(marketIntelligenceReq);
+		if (createdMiId != null) {
+			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
+			//notificationService.sendNotificationAfterMiToLeadCreation(userId, marketIntelligenceRes.getRootLeadId());
+		}
+		
+		return createdMiId;
 	}
 
 	@PostMapping("/search/marketIntelligence")

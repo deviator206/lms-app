@@ -23,6 +23,15 @@ public class UserPrincipal implements UserDetails {
 
 	private Long userId;
 	private Boolean enabled;
+	private Boolean tempUser;
+
+	public Boolean isTempUser() {
+		return tempUser;
+	}
+
+	public void setTempUser(Boolean tempUser) {
+		this.tempUser = tempUser;
+	}
 
 	public Boolean getEnabled() {
 		return enabled;
@@ -63,7 +72,7 @@ public class UserPrincipal implements UserDetails {
 	private Collection<? extends GrantedAuthority> authorities;
 
 	public UserPrincipal(Long id, String username, String email, String password, String userDisplayName,
-			String businessUnit, Collection<? extends GrantedAuthority> authorities, Boolean enabled) {
+			String businessUnit, Collection<? extends GrantedAuthority> authorities, Boolean deleted, Boolean enabled) {
 		this.id = id;
 		this.userId = id;
 		this.username = username;
@@ -72,7 +81,8 @@ public class UserPrincipal implements UserDetails {
 		this.userDisplayName = userDisplayName;
 		this.businessUnit = businessUnit;
 		this.authorities = authorities;
-		this.enabled = enabled;
+		this.enabled = (deleted != null) ? !deleted : true;
+		this.tempUser = (enabled != null) ? !enabled : false;
 	}
 
 	public static UserPrincipal create(User user) {
@@ -80,7 +90,7 @@ public class UserPrincipal implements UserDetails {
 				.collect(Collectors.toList());
 
 		return new UserPrincipal(user.getId(), user.getUserName(), user.getEmail(), user.getPassword(),
-				user.getUserDisplayName(), user.getBusinessUnit(), authorities, user.isEnabled());
+				user.getUserDisplayName(), user.getBusinessUnit(), authorities, user.isDeleted(), user.isEnabled());
 	}
 
 	public Long getId() {
@@ -119,7 +129,7 @@ public class UserPrincipal implements UserDetails {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		return this.enabled;
 	}
 
 	@Override

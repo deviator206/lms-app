@@ -47,4 +47,9 @@ public class RefDataController {
 		ModelMappers.mapRefResToRefEntity(refDataRes, refDataEntity);
 		refDataService.createRefData(refDataEntity);
 	}
+	
+	@PostMapping("/refdatalist")
+	public void addRefData(@RequestBody List<RefDataRes> refDataResLst) {
+		refDataService.createRefDataLst(refDataResLst);
+	}
 }

@@ -91,10 +91,14 @@ public class LeadDetailController {
 	}
 
 	@PutMapping("/lead/{id}")
-	public Long updateLead(@PathVariable("id") Long id, @RequestBody LeadRes leadRes) {
+	public Long updateLead(@RequestHeader("Authorization") String autorizationHeader, @PathVariable("id") Long id,
+			@RequestBody LeadRes leadRes) {
 		if (id != leadRes.getId()) {
 			throw new RuntimeException("Bad Request. Ids in path and Resourse are not matching");
 		}
+
+		Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
+		//notificationService.sendNotificationAfterLeadCreation(userId,id);
 		return leadDetailService.updateLead(leadRes);
 	}
 

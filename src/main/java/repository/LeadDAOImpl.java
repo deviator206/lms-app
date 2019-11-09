@@ -117,7 +117,7 @@ public class LeadDAOImpl implements ILeadDAO {
 		if (!SqlSafeUtil.isSqlInjectionSafe(leadtype)) {
 			throw new RuntimeException("SQL Injection Error");
 		}
-		
+
 		if (userId != null) {
 			if (LeadManagementConstants.LEAD_TYPE_ASSIGNED.equalsIgnoreCase(leadtype)) {
 				sql = sql + " AND SALES_REP_ID = " + userId;
@@ -202,9 +202,9 @@ public class LeadDAOImpl implements ILeadDAO {
 			query = query + " AND SALES_REP_ID = " + filterLeadRes.getSalesRepId();
 		}
 
-		if (filterLeadRes.getSalesRep() != null && !filterLeadRes.getSalesRep().isEmpty()) {
-			query = query + " AND LEADS.SALES_REP LIKE '%" + filterLeadRes.getSalesRep() + "%'";
-		}
+		//if (filterLeadRes.getSalesRep() != null && !filterLeadRes.getSalesRep().isEmpty()) {
+			//query = query + " AND LEADS.SALES_REP LIKE '%" + filterLeadRes.getSalesRep() + "%'";
+		//}
 
 		if (filterLeadRes.getStartDate() != null && filterLeadRes.getEndDate() != null) {
 			query = query + " AND LEADS.CREATION_DATE BETWEEN '" + filterLeadRes.getStartDate() + "' AND '"
@@ -308,11 +308,13 @@ public class LeadDAOImpl implements ILeadDAO {
 		LeadStatistictsRes leadStatistictsRes = new LeadStatistictsRes();
 		for (Map statusCountRow : statusCountRows) {
 			Long temlCount = new Long(0);
-			if (leadStatusCountMap.get((String) statusCountRow.get("STATUS")) != null) {
-				temlCount = leadStatusCountMap.get((String) statusCountRow.get("STATUS")) + 1;
-				leadStatusCountMap.put((String) statusCountRow.get("STATUS"), temlCount);
-			} else {
-				leadStatusCountMap.put((String) statusCountRow.get("STATUS"), new Long(1));
+			if (statusCountRow.get("STATUS") != null) {
+				if (leadStatusCountMap.get((String) statusCountRow.get("STATUS")) != null) {
+					temlCount = leadStatusCountMap.get((String) statusCountRow.get("STATUS")) + 1;
+					leadStatusCountMap.put((String) statusCountRow.get("STATUS"), temlCount);
+				} else {
+					leadStatusCountMap.put((String) statusCountRow.get("STATUS"), new Long(1));
+				}
 			}
 		}
 		leadStatistictsRes.setLeadStatusCountMap(leadStatusCountMap);

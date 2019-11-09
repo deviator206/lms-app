@@ -11,6 +11,13 @@ public class User {
 	private String userDisplayName;
 	private String businessUnit;
 	private List<String> roles;
+	private boolean deleted;
+	public boolean isDeleted() {
+		return deleted;
+	}
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
 
 	public String getUserDisplayName() {
 		return userDisplayName;

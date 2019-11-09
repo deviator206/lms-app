@@ -6,6 +6,14 @@ public class UserEntity {
 	private Long id;
 	private String userName;
 	private boolean enabled;
+	private boolean deleted;
+	public boolean isDeleted() {
+		return deleted;
+	}
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+
 	private String password;
 	private String email;
 	private String userDisplayName;

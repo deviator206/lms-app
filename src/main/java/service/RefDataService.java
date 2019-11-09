@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import mapper.ModelMappers;
+import model.RefDataRes;
 import repository.IRefDataDAO;
 import repository.entity.RefDataEntity;
 
@@ -19,6 +21,16 @@ public class RefDataService implements IRefDataService {
 	@Override
 	public void createRefData(RefDataEntity refData) {
 		refDataDAO.insertRefData(refData);
+	}
+
+	@Override
+	public void createRefDataLst(List<RefDataRes> refDataLst) {
+		RefDataEntity refDataEntity = null;
+		for (RefDataRes RefDataRes : refDataLst) {
+			refDataEntity = new RefDataEntity();
+			ModelMappers.mapRefResToRefEntity(RefDataRes, refDataEntity);
+			refDataDAO.insertRefData(refDataEntity);
+		}
 	}
 
 	@Override

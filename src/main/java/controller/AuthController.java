@@ -63,7 +63,8 @@ public class AuthController {
 		userInfo.setUserDisplayName(((UserPrincipal) authentication.getPrincipal()).getUserDisplayName());
 		userInfo.setRoles(roles);
 		userInfo.setEnabled(((UserPrincipal) authentication.getPrincipal()).isEnabled());
-
+		userInfo.setTmpUser(((UserPrincipal) authentication.getPrincipal()).isTempUser());
+		
 		String jwt = tokenProvider.generateToken(authentication);
 		return new JwtAuthenticationResponse(jwt, userInfo);
 	}

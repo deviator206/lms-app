@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +29,7 @@ public class UserController {
 
 	// @Secured("ADMIN")
 	// @PreAuthorize("hasRole('ADMIN')")
-	//@PreAuthorize("hasAnyAuthority('ADMIN','SALES_REP','BU_HEAD')")
+	// @PreAuthorize("hasAnyAuthority('ADMIN','SALES_REP','BU_HEAD')")
 	@GetMapping("/users")
 	public List<UserRes> getUsers(@RequestParam(value = "bu", required = false) String bu) {
 		return userService.getUsers(bu);
@@ -36,12 +37,17 @@ public class UserController {
 
 	@GetMapping("/user/{userId}")
 	public UserRes getUserByUserId(@PathVariable("userId") Long userId) {
-		///System.out.println("getUserByUserId  ------------- >> " + userId);
+		/// System.out.println("getUserByUserId ------------- >> " + userId);
 		User user = userService.getUserByUserId(userId);
 		UserRes userRes = new UserRes();
 		ModelMappers.mapUserToUserRes(user, userRes);
 		return userRes;
-	}	
+	}
+
+	@DeleteMapping("/user/{userId}")
+	public void deleteUserByUserId(@PathVariable("userId") Long userId) {
+		userService.deleteUserByUserId(userId);
+	}
 
 	@GetMapping("/user")
 	public UserRes getUserByUserName(@RequestParam(value = "name", required = false) String userName) {

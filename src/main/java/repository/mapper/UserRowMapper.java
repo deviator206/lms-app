@@ -19,6 +19,7 @@ public class UserRowMapper implements RowMapper<UserEntity> {
 		}		
 		user.setEmail(rs.getString("EMAIL"));
 		user.setEnabled(rs.getBoolean("ENABLED"));
+		user.setDeleted(rs.getBoolean("DELETED"));
 		user.setUserDisplayName(rs.getString("USER_DISPLAY_NAME"));
 		user.setBusinessUnit(rs.getString("BU"));
 		return user;

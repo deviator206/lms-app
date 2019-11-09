@@ -36,4 +36,6 @@ public interface IUserService {
 	public List<UserRes> getUsersByRoles(List<String> userRoles);
 
 	public List<UserRes> getUserDetailsByBuAndRole(String businessUnit, String role);
+	
+	public void deleteUserByUserId(Long userId);
 }

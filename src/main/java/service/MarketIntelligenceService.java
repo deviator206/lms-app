@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import consts.LeadManagementConstants;
 import model.DownloadFileRes;
 import model.FilterMarketIntelligenceRes;
+import model.MarketIntelligenceInfoReq;
 import model.MarketIntelligenceInfoRes;
 import model.MarketIntelligenceReq;
 import model.MarketIntelligenceRes;
@@ -81,21 +82,23 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
 		try {
 			if (marketIntelligenceRes.getMiInfoList() != null && !marketIntelligenceRes.getMiInfoList().isEmpty()) {
-				MarketIntelligenceInfoEntity miInfoEntity = new MarketIntelligenceInfoEntity();
-				ModelEntityMappers.mapMiInfoReqToMiInfoEntity(marketIntelligenceRes.getMiInfoList().get(0),
-						miInfoEntity);
+				for (MarketIntelligenceInfoReq marketIntelligenceInfoReqTmp : marketIntelligenceRes.getMiInfoList()) {
+					MarketIntelligenceInfoEntity miInfoEntity = new MarketIntelligenceInfoEntity();
+					ModelEntityMappers.mapMiInfoReqToMiInfoEntity(marketIntelligenceInfoReqTmp,
+							miInfoEntity);
 
-				// Set Creation Date
-				Date currentDate = new Date();
-				Long infoCreatorId = null;
-				if (marketIntelligenceRes.getUpdatorId() != null) {
-					infoCreatorId = marketIntelligenceRes.getUpdatorId();
-				} else if (miInfoEntity.getCreatorId() != null) {
-					infoCreatorId = miInfoEntity.getCreatorId();
+					// Set Creation Date
+					Date currentDate = new Date();
+					Long infoCreatorId = null;
+					if (marketIntelligenceRes.getUpdatorId() != null) {
+						infoCreatorId = marketIntelligenceRes.getUpdatorId();
+					} else if (marketIntelligenceInfoReqTmp.getCreatorId() != null) {
+						infoCreatorId = marketIntelligenceInfoReqTmp.getCreatorId();
+					}
+					miInfoEntity.setCreatorId(infoCreatorId);
+					miInfoEntity.setCreationDate(currentDate);
+					this.addMarketIntelligenceInfo(marketIntelligenceRes.getId(), miInfoEntity);
 				}
-				miInfoEntity.setCreatorId(infoCreatorId);
-				miInfoEntity.setCreationDate(currentDate);
-				this.addMarketIntelligenceInfo(marketIntelligenceRes.getId(), miInfoEntity);
 			}
 
 			Date updateDate = marketIntelligenceRes.getUpdateDate() != null ? marketIntelligenceRes.getUpdateDate()

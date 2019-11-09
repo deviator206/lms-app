@@ -20,6 +20,9 @@ public class UserSummaryRowMapper implements RowMapper<UserEntity> {
 		if(rs.getObject("ENABLED") != null) {
 			user.setEnabled(rs.getBoolean("ENABLED"));
 		}
+		if(rs.getObject("DELETED") != null) {
+			user.setDeleted(rs.getBoolean("DELETED"));
+		}		
 		return user;
 	}
 

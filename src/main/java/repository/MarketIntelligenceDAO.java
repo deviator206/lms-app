@@ -131,7 +131,7 @@ public class MarketIntelligenceDAO implements IMarketIntelligenceDAO {
 		if (filterMarketIntelligence.getSearchText() != null && !filterMarketIntelligence.getSearchText().isEmpty()) {
 			// query = query + " AND NAME LIKE '%" + filterMarketIntelligence.getName() +
 			// "%'";
-			query = query + " AND CONCAT(NAME,' ',DESCRIPTION) LIKE '%" + filterMarketIntelligence.getSearchText()
+			query = query + " AND CONCAT(NAME,' ',DESCRIPTION, 'INVESTMENT') LIKE '%" + filterMarketIntelligence.getSearchText()
 					+ "%' ";
 		}
 

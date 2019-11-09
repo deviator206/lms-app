@@ -15,4 +15,6 @@ public interface IRefDataService {
 	List<RefDataEntity> getRefDataFromType(List<String> type);
 
 	List<RefDataEntity> getAllRefData();
+
+	void createRefDataLst(List<RefDataRes> refDataLst);
 }

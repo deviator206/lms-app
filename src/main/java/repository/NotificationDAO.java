@@ -19,6 +19,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import model.Pagination;
 import repository.entity.NotificationDetailsEntity;
 import repository.entity.NotificationHistoryEntity;
 import repository.mapper.NotificationHistoryRowMapper;
@@ -68,15 +69,25 @@ public class NotificationDAO implements INotificationDAO {
 	}
 
 	@Override
-	public List<NotificationHistoryEntity> getAllNotifications() {
+	public List<NotificationHistoryEntity> getAllNotifications(Pagination pagination) {
 		String sql = "SELECT ID, NOTIFICATION_TEXT,TYPE, DELETED, RECIPIENT_ID, ORIGINATOR_ID, ORIGINATION_DATE FROM NOTIFICATION_HISTORY";
+		
+		if ((pagination != null) && pagination.isPaginatedQuery()) {
+			sql = RepositoryHelper.getPaginatedQuery(sql, pagination.getStart(), pagination.getPageSize());
+		}
+		
 		RowMapper<NotificationHistoryEntity> rowMapper = new NotificationHistoryRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper);
 	}
 
 	@Override
-	public List<NotificationHistoryEntity> getAllNotificationsbyRecipientId(Long recipientId) {
+	public List<NotificationHistoryEntity> getAllNotificationsbyRecipientId(Long recipientId,Pagination pagination) {
 		String sql = "SELECT ID,NOTIFICATION_TEXT,TYPE, DELETED, RECIPIENT_ID, ORIGINATOR_ID, ORIGINATION_DATE FROM NOTIFICATION_HISTORY WHERE RECIPIENT_ID = ?";
+		
+		if ((pagination != null) && pagination.isPaginatedQuery()) {
+			sql = RepositoryHelper.getPaginatedQuery(sql, pagination.getStart(), pagination.getPageSize());
+		}
+		
 		RowMapper<NotificationHistoryEntity> rowMapper = new NotificationHistoryRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper, new Object[] { recipientId });
 	}

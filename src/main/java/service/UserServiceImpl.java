@@ -37,6 +37,12 @@ public class UserServiceImpl implements IUserService {
 
 	@Value("${app.mail.userName}")
 	private String mailUserName;
+	
+	@Value("${app.mail.message.userRegistration}")
+	private String messageUserRegistration;
+	
+	@Value("${app.mail.message.forgotPassword}")
+	private String messageForgotPassword;
 
 	@Autowired
 	private IUserRoleDAO userRoleDAO;
@@ -135,11 +141,19 @@ public class UserServiceImpl implements IUserService {
 
 		// Enabled false while adding user
 		user.setEnabled(false);
-
+		String tempPassword = null;
 		user.setUserDisplayName(userRegistrationDetails.getUserDisplayName());
+		user.setEmail(userRegistrationDetails.getEmail());
 		user.setBusinessUnit(userRegistrationDetails.getBusinessUnit());
 		user.setEmail(userRegistrationDetails.getEmail());
-		user.setPassword(passwordEncoder.encode(userRegistrationDetails.getPassword()));
+		if (userRegistrationDetails.getPassword() != null) {
+			tempPassword = userRegistrationDetails.getPassword();
+			user.setPassword(passwordEncoder.encode(userRegistrationDetails.getPassword()));
+		} else {
+			tempPassword = PasswordGenerationUtil.getPassword();
+			user.setPassword(passwordEncoder.encode(tempPassword));
+		}
+
 		Long userId;
 
 		TransactionStatus ts = transactionManager.getTransaction(new DefaultTransactionDefinition());
@@ -158,6 +172,11 @@ public class UserServiceImpl implements IUserService {
 			transactionManager.rollback(ts);
 			throw new RuntimeException(e);
 		}
+
+		if (tempPassword != null) {
+			sendUserRegistrationMail(mailUserName, userRegistrationDetails.getEmail(), tempPassword);
+		}
+
 		return userId;
 	}
 
@@ -171,6 +190,11 @@ public class UserServiceImpl implements IUserService {
 		this.mapUserEntityToUser(userEntity, user);
 		user.setRoles(roles);
 		return user;
+	}
+
+	@Override
+	public void deleteUserByUserId(Long userId) {
+		userDAO.deleteUserByUserId(userId);
 	}
 
 	@Override
@@ -191,6 +215,7 @@ public class UserServiceImpl implements IUserService {
 		user.setEmail(userEntity.getEmail());
 		user.setPassword(userEntity.getPassword());
 		user.setEnabled(userEntity.isEnabled());
+		user.setDeleted(userEntity.isDeleted());
 		user.setUserDisplayName(userEntity.getUserDisplayName());
 		user.setBusinessUnit(userEntity.getBusinessUnit());
 		return user;
@@ -201,6 +226,7 @@ public class UserServiceImpl implements IUserService {
 		user.setUserName(userEntity.getUserName());
 		user.setEmail(userEntity.getEmail());
 		user.setEnabled(userEntity.isEnabled());
+		user.setDeleted(userEntity.isDeleted());
 		user.setUserDisplayName(userEntity.getUserDisplayName());
 		user.setBusinessUnit(userEntity.getBusinessUnit());
 		return user;
@@ -263,39 +289,18 @@ public class UserServiceImpl implements IUserService {
 	 * roles; }
 	 */
 
+	private void sendUserRegistrationMail(String mailFrom, String mailTo, String tempPassword) {
+		List<String> mailToLst = new ArrayList<String>();
+		mailToLst.add(mailTo);
+		mailService.sendMail(mailFrom, mailToLst, "Forgot password",
+				String.format(messageUserRegistration, tempPassword, mailTo));
+	}
+
 	private void sendForgotMail(String mailFrom, String mailTo, String tempPassword) {
 		List<String> mailToLst = new ArrayList<String>();
 		mailToLst.add(mailTo);
-		mailService.sendMail(mailFrom, mailToLst, "Forgot password", String.format("Your temporary password %s is sent on your Email %s",tempPassword,mailTo));
-		/*
-		 * final String username = "shiv.orian@gmail.com"; final String password =
-		 * "d1ngd0ng";
-		 * 
-		 * Properties prop = new Properties(); prop.put("mail.smtp.host",
-		 * "smtp.gmail.com"); prop.put("mail.smtp.port", "465");
-		 * prop.put("mail.smtp.auth", "true"); prop.put("mail.smtp.socketFactory.port",
-		 * "465"); prop.put("mail.smtp.socketFactory.class",
-		 * "javax.net.ssl.SSLSocketFactory");
-		 * 
-		 * Session session = Session.getInstance(prop, new javax.mail.Authenticator() {
-		 * protected PasswordAuthentication getPasswordAuthentication() { return new
-		 * PasswordAuthentication(username, password); } });
-		 * 
-		 * try {
-		 * 
-		 * Message message = new MimeMessage(session); message.setFrom(new
-		 * InternetAddress("shiv.orian@gmail.com"));
-		 * message.setRecipients(Message.RecipientType.TO, InternetAddress.
-		 * parse("shiv.orian@gmail.com, shivanshu.yadav@amdocs.com, deviator206@gmail.com"
-		 * )); message.setSubject("Testing Gmail SSL from Java");
-		 * message.setText("Dear Mail Crawler," + "\n\n Please do not spam my email!");
-		 * 
-		 * Transport.send(message);
-		 * 
-		 * System.out.println("Done");
-		 * 
-		 * } catch (MessagingException e) { e.printStackTrace(); }
-		 */
+		mailService.sendMail(mailFrom, mailToLst, "Forgot password",
+				String.format(messageForgotPassword, tempPassword, mailTo));
 	}
 
 	@Override
@@ -316,7 +321,7 @@ public class UserServiceImpl implements IUserService {
 		// Enabled false while adding user
 		user.setEnabled(true);
 		user.setPassword(passwordEncoder.encode(userRegistrationDetails.getPassword()));
-		userDAO.updateUser(user);
+		userDAO.changePassword(user);
 	}
 
 	@Override

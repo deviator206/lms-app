@@ -9,6 +9,15 @@ public class UserInfo {
 	private String userName;
 
 	private Boolean enabled;
+	private Boolean tmpUser;
+
+	public Boolean isTmpUser() {
+		return tmpUser;
+	}
+
+	public void setTmpUser(Boolean tmpUser) {
+		this.tmpUser = tmpUser;
+	}
 
 	public Boolean isEnabled() {
 		return enabled;

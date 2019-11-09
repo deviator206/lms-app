@@ -9,7 +9,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import consts.LeadManagementConstants;
+import model.LeadRes;
 import model.NotificationHistory;
+import model.Pagination;
 import model.User;
 import model.UserRes;
 import repository.INotificationDAO;
@@ -26,6 +28,12 @@ public class NotificationService implements INotificationService {
 
 	@Autowired
 	private IPushNotificationService pushNotificationService;
+
+	@Autowired
+	private ILeadDetailService leadDetailService;
+	
+	@Autowired
+	private IMarketIntelligenceService marketIntelligenceService;
 
 	// @Autowired
 	// private ILeadDetailService leadDetailService;
@@ -92,6 +100,72 @@ public class NotificationService implements INotificationService {
 		}
 	}
 
+	@Override
+	public void sendNotificationAfterLeadUpdate(Long updatorId, Long leadId) {
+		User leadCreatorUser = userService.getUserByUserId(updatorId);
+
+		String leadCreatorBU = leadCreatorUser.getBusinessUnit();
+		// Lead Creator BU Head
+		List<UserRes> buHeadLst = userService.getUserDetailsByBuAndRole(leadCreatorBU,
+				LeadManagementConstants.ROLE_BU_HEAD);
+
+		// Lead BU Head
+		List<UserRes> leadBuHeadLst = new ArrayList<UserRes>();
+		List<UserRes> leadBuHeadLstTmp = null;
+		LeadRes leadRes = leadDetailService.getLead(leadId);
+
+		if (leadRes.getLeadsSummaryRes().getBusinessUnits() != null) {
+			List<String> leadCreatorBULst = leadRes.getLeadsSummaryRes().getBusinessUnits();
+			if (leadCreatorBULst != null) {
+				for (String buTmp : leadCreatorBULst) {
+					leadBuHeadLstTmp = userService.getUserDetailsByBuAndRole(buTmp,
+							LeadManagementConstants.ROLE_BU_HEAD);
+					if (leadBuHeadLstTmp != null) {
+						leadBuHeadLst.addAll(leadBuHeadLstTmp);
+					}
+				}
+			}
+		}
+
+		List<String> roleList = new ArrayList<String>();
+		roleList.add(LeadManagementConstants.ROLE_ADMIN);
+		List<UserRes> adminLst = userService.getUsersByRoles(roleList);
+
+		List<Long> userIds = new ArrayList<Long>();
+
+		// Assigned Sales Rep of Lead
+		if (leadRes.getLeadsSummaryRes() != null) {
+			if (leadRes.getLeadsSummaryRes().getSalesRepId() != null) {
+				userIds.add(leadRes.getLeadsSummaryRes().getSalesRepId());
+			} else if (leadRes.getLeadsSummaryRes().getSalesRep() != null
+					&& leadRes.getLeadsSummaryRes().getSalesRep().getUserId() != null) {
+				userIds.add(leadRes.getLeadsSummaryRes().getSalesRep().getUserId());
+			}
+		}
+
+		for (UserRes user : adminLst) {
+			userIds.add(user.getUserId());
+		}
+		for (UserRes user : buHeadLst) {
+			userIds.add(user.getUserId());
+		}
+
+		if (userIds != null && !userIds.isEmpty()) {
+			addNotificationAfterLeadCreation(updatorId, userIds,
+					LeadManagementConstants.NOTIFICATION_TYPE_LEAD_CREATION);
+
+			List<NotificationDetailsEntity> notificationDetailsList = notificationDAO
+					.getNotificationDetailsByIds(userIds);
+
+			List<String> notifikationKeys = new ArrayList<String>();
+			for (NotificationDetailsEntity notificationEntity : notificationDetailsList) {
+				notifikationKeys.add(notificationEntity.getNotificationKey());
+			}
+
+			sendPushNotifications(keys);
+		}
+	}
+
 	public void addNotificationAfterLeadCreation(Long originatorId, List<Long> recipientIds, String type) {
 		NotificationHistory notificationHistory = null;
 		List<NotificationHistory> NotificationLst = new ArrayList<NotificationHistory>();
@@ -140,13 +214,46 @@ public class NotificationService implements INotificationService {
 	}
 
 	@Override
-	public List<NotificationHistory> getNotifications(Long recipientId) {
+	public void sendNotificationAfterMiCreation(Long miCreatorId, Long miId) {
+		// List<LeadRes> createdLeadIds = leadDetailService.getLeadsByRoot(rootLeadId);
+		User leadCreatorUser = userService.getUserByUserId(miCreatorId);
+		String leadCreatorBU = leadCreatorUser.getBusinessUnit();
+		List<String> roleList = new ArrayList<String>();
+		roleList.add(LeadManagementConstants.ROLE_ADMIN);
+		List<UserRes> adminLst = userService.getUsersByRoles(roleList);
+		List<UserRes> buHeadLst = userService.getUserDetailsByBuAndRole(leadCreatorBU,
+				LeadManagementConstants.ROLE_BU_HEAD);
+
+		List<Long> userIds = new ArrayList<Long>();
+		//userIds.add(leadCreatorId);
+		for (UserRes user : adminLst) {
+			userIds.add(user.getUserId());
+		}
+		for (UserRes user : buHeadLst) {
+			userIds.add(user.getUserId());
+		}
+
+		if (userIds != null && !userIds.isEmpty()) {
+			addNotificationAfterLeadCreation(miCreatorId, userIds,
+					LeadManagementConstants.NOTIFICATION_TYPE_MI_TO_LEAD_CREATION);
+			List<NotificationDetailsEntity> notificationDetailsList = notificationDAO
+					.getNotificationDetailsByIds(userIds);
+			List<String> notifikationKeys = new ArrayList<String>();
+			for (NotificationDetailsEntity notificationEntity : notificationDetailsList) {
+				notifikationKeys.add(notificationEntity.getNotificationKey());
+			}
+			sendPushNotifications(keys);
+		}
+	}
+
+	@Override
+	public List<NotificationHistory> getNotifications(Long recipientId,Pagination pagination) {
 		List<NotificationHistoryEntity> notificationHistoryEntityLst = null;
 		List<NotificationHistory> notificationHistoryLst = new ArrayList<NotificationHistory>();
 		if (recipientId == null) {
-			notificationHistoryEntityLst = notificationDAO.getAllNotifications();
+			notificationHistoryEntityLst = notificationDAO.getAllNotifications(pagination);
 		} else {
-			notificationHistoryEntityLst = notificationDAO.getAllNotificationsbyRecipientId(recipientId);
+			notificationHistoryEntityLst = notificationDAO.getAllNotificationsbyRecipientId(recipientId,pagination);
 		}
 		if (notificationHistoryEntityLst != null) {
 			NotificationHistory notificationHistory = null;

@@ -29,7 +29,7 @@ public class UserDAOImpl implements IUserDAO {
 
 	@Override
 	public List<UserEntity> getUsers() {
-		String sql = "SELECT ID, USERNAME, PASSWORD, EMAIL, ENABLED, USER_DISPLAY_NAME, BU FROM USERS";
+		String sql = "SELECT ID, USERNAME, PASSWORD, EMAIL, ENABLED, DELETED, USER_DISPLAY_NAME, BU FROM USERS";
 		RowMapper<UserEntity> rowMapper = new UserRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper);
 	}
@@ -60,7 +60,7 @@ public class UserDAOImpl implements IUserDAO {
 			throw new RuntimeException("SQL Injection Error");
 		}
 
-		String sql = "SELECT ID, USERNAME,PASSWORD, EMAIL, ENABLED, USER_DISPLAY_NAME, BU FROM USERS WHERE USERNAME = ?";
+		String sql = "SELECT ID, USERNAME,PASSWORD, EMAIL, ENABLED, DELETED, USER_DISPLAY_NAME, BU FROM USERS WHERE USERNAME = ?";
 		RowMapper<UserEntity> rowMapper = new UserRowMapper();
 		UserEntity user = jdbcTemplate.queryForObject(sql, rowMapper, userName);
 		return user;
@@ -68,10 +68,16 @@ public class UserDAOImpl implements IUserDAO {
 
 	@Override
 	public UserEntity getUserByUserId(Long userId) {
-		String sql = "SELECT ID, USERNAME,PASSWORD, EMAIL, ENABLED, USER_DISPLAY_NAME, BU FROM USERS WHERE ID = ?";
+		String sql = "SELECT ID, USERNAME,PASSWORD, EMAIL, ENABLED, DELETED, USER_DISPLAY_NAME, BU FROM USERS WHERE ID = ?";
 		RowMapper<UserEntity> rowMapper = new UserRowMapper();
 		UserEntity user = jdbcTemplate.queryForObject(sql, rowMapper, userId);
 		return user;
+	}
+
+	@Override
+	public void deleteUserByUserId(Long id) {
+		String sql = "UPDATE USERS SET DELETED = ? WHERE ID = ?;";
+		jdbcTemplate.update(sql, true, id);
 	}
 
 	@Override
@@ -79,6 +85,14 @@ public class UserDAOImpl implements IUserDAO {
 		String sql = "UPDATE USERS SET USERNAME = ?, ENABLED = ?, PASSWORD = ?, EMAIL = ?, USER_DISPLAY_NAME = ?, BU = ? WHERE ID = ?;";
 		int affectedRows = jdbcTemplate.update(sql, user.getUserName(), user.isEnabled(), user.getPassword(),
 				user.getEmail(), user.getUserDisplayName(), user.getBusinessUnit(), user.getId());
+		// return affectedRows == 0 ? false : true;
+
+	}
+
+	@Override
+	public void changePassword(UserEntity user) {
+		String sql = "UPDATE USERS SET ENABLED = ?, PASSWORD = ? WHERE ID = ?;";
+		int affectedRows = jdbcTemplate.update(sql, user.isEnabled(), user.getPassword(), user.getId());
 		// return affectedRows == 0 ? false : true;
 
 	}
@@ -102,7 +116,7 @@ public class UserDAOImpl implements IUserDAO {
 			throw new RuntimeException("SQL Injection Error");
 		}
 
-		String sql = "SELECT USERS.ID, USERS.USERNAME, USERS.EMAIL, USERS.ENABLED, USERS.USER_DISPLAY_NAME, USERS.BU FROM USERS, USER_ROLE WHERE USERS.BU = ? AND USER_ROLE.USER_ROLE = ? AND USERS.ID = USER_ROLE.USER_ID";
+		String sql = "SELECT USERS.ID, USERS.USERNAME, USERS.EMAIL, USERS.ENABLED, USERS.DELETED, USERS.USER_DISPLAY_NAME, USERS.BU FROM USERS, USER_ROLE WHERE USERS.BU = ? AND USER_ROLE.USER_ROLE = ? AND USERS.ID = USER_ROLE.USER_ID";
 		RowMapper<UserEntity> rowMapper = new UserSummaryRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper, businessUnit, role);
 	}
@@ -114,7 +128,7 @@ public class UserDAOImpl implements IUserDAO {
 			throw new RuntimeException("SQL Injection Error");
 		}
 
-		String sql = "SELECT USERS.ID, USERS.USERNAME, USERS.EMAIL, USERS.ENABLED, USERS.USER_DISPLAY_NAME, USERS.BU FROM USERS, USER_ROLE WHERE USERS.BU = ? AND USERS.ID = USER_ROLE.USER_ID";
+		String sql = "SELECT USERS.ID, USERS.USERNAME, USERS.EMAIL, USERS.ENABLED, USERS.DELETED, USERS.USER_DISPLAY_NAME, USERS.BU FROM USERS, USER_ROLE WHERE USERS.BU = ? AND USERS.ID = USER_ROLE.USER_ID";
 		RowMapper<UserEntity> rowMapper = new UserSummaryRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper, businessUnit);
 	}
@@ -126,7 +140,7 @@ public class UserDAOImpl implements IUserDAO {
 			throw new RuntimeException("SQL Injection Error");
 		}
 
-		String query = "SELECT ID, USERNAME, EMAIL, ENABLED, USER_DISPLAY_NAME, BU FROM USERS WHERE 1 = 1";
+		String query = "SELECT ID, USERNAME, EMAIL, ENABLED, DELETED, USER_DISPLAY_NAME, BU FROM USERS WHERE 1 = 1";
 		RowMapper<UserEntity> rowMapper = new UserSummaryRowMapper();
 		query = getFilterLeadsQuery(filterUserRes, query);
 		return this.jdbcTemplate.query(query, rowMapper);
