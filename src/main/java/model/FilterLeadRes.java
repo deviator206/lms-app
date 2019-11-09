@@ -16,6 +16,16 @@ public class FilterLeadRes {
 	private String country;
 	private String state;
 	private String description;
+	
+	private String searchText;
+
+	public String getSearchText() {
+		return searchText;
+	}
+
+	public void setSearchText(String searchText) {
+		this.searchText = searchText;
+	}
 
 	public String getDescription() {
 		return description;

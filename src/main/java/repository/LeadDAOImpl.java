@@ -186,6 +186,13 @@ public class LeadDAOImpl implements ILeadDAO {
 	}
 
 	private String getFilterLeadsQuery(FilterLeadRes filterLeadRes, String query) {
+
+		if (filterLeadRes.getSearchText() != null && !filterLeadRes.getSearchText().isEmpty()) {
+			query = query
+					+ " AND CONCAT(ROOT_LEAD.CUST_NAME,' ',ROOT_LEAD.DESCRIPTION,' ',LEAD_CONTACT.NAME, ' ',LEAD_CONTACT.EMAIL, ' ',LEAD_CONTACT.PHONE) LIKE '%"
+					+ filterLeadRes.getSearchText() + "%' ";
+		}
+
 		if (filterLeadRes.getCustName() != null && !filterLeadRes.getCustName().isEmpty()) {
 			query = query + " AND ROOT_LEAD.CUST_NAME LIKE '%" + filterLeadRes.getCustName() + "%'";
 		}
@@ -202,9 +209,11 @@ public class LeadDAOImpl implements ILeadDAO {
 			query = query + " AND SALES_REP_ID = " + filterLeadRes.getSalesRepId();
 		}
 
-		//if (filterLeadRes.getSalesRep() != null && !filterLeadRes.getSalesRep().isEmpty()) {
-			//query = query + " AND LEADS.SALES_REP LIKE '%" + filterLeadRes.getSalesRep() + "%'";
-		//}
+		// if (filterLeadRes.getSalesRep() != null &&
+		// !filterLeadRes.getSalesRep().isEmpty()) {
+		// query = query + " AND LEADS.SALES_REP LIKE '%" + filterLeadRes.getSalesRep()
+		// + "%'";
+		// }
 
 		if (filterLeadRes.getStartDate() != null && filterLeadRes.getEndDate() != null) {
 			query = query + " AND LEADS.CREATION_DATE BETWEEN '" + filterLeadRes.getStartDate() + "' AND '"
@@ -320,116 +329,6 @@ public class LeadDAOImpl implements ILeadDAO {
 		leadStatistictsRes.setLeadStatusCountMap(leadStatusCountMap);
 		return leadStatistictsRes;
 	}
-
-	/*
-	 * @Override public LeadStatistictsRes getLeadStatistics(FilterLeadRes
-	 * filterLeadRes, Boolean busummary, Long userId) { String query =
-	 * "SELECT LEADS.STATUS, LEADS.STATUS FROM LEADS WHERE 1 = 1 ";
-	 * 
-	 * 
-	 * String query =
-	 * "SELECT STATUS, COUNT(*) STATUS_COUNT FROM LEADS WHERE 1 = 1 "; String
-	 * queryTotal = "SELECT COUNT(*) STATUS_COUNT FROM LEADS WHERE 1 = 1 "; query =
-	 * getLeadStatisticsQuery(filterLeadRes, query); queryTotal =
-	 * getLeadStatisticsQuery(filterLeadRes, queryTotal);
-	 * 
-	 * query = query + " GROUP BY STATUS";
-	 * 
-	 * //System.out.println(query);
-	 * 
-	 * Map<String, Long> leadStatusCountMap = new HashMap<String, Long>();
-	 * LeadStatistictsRes leadStatistictsRes = new LeadStatistictsRes();
-	 * List<Map<String, Object>> statusCountRows = jdbcTemplate.queryForList(query);
-	 * Long totalLeads = jdbcTemplate.queryForObject(queryTotal, Long.class);
-	 * 
-	 * for (Map statusCountRow : statusCountRows) { leadStatusCountMap.put(((String)
-	 * statusCountRow.get("STATUS")), ((Long) statusCountRow.get("STATUS_COUNT")));
-	 * }
-	 * 
-	 * if (totalLeads != null) { leadStatusCountMap.put("TOTAL", totalLeads); }
-	 * 
-	 * leadStatistictsRes.setLeadStatusCountMap(leadStatusCountMap);
-	 * 
-	 * if (busummary && (userId != null)) { UserEntity userEntity =
-	 * userDAO.getUserByUserId(userId); String salesRepBu =
-	 * userEntity.getBusinessUnit(); FilterLeadRes tempFilterLeadRes;
-	 * List<Map<String, Object>> buLeadsRs; List<Map<String, Object>>
-	 * leadStatusCountRows; Map<String, Long> tmpLeadStatusCountMap = new
-	 * HashMap<String, Long>(); String mainQuery =
-	 * "SELECT COUNT(*) COUNT FROM LEADS WHERE 1 = 1 "; String statusMainQuery =
-	 * "SELECT STATUS, COUNT(*) STATUS_COUNT FROM LEADS WHERE 1 = 1 ";
-	 * 
-	 * // Internal BU Leads String tempQuery = mainQuery; String statusTempQuery =
-	 * statusMainQuery; tempFilterLeadRes = new FilterLeadRes();
-	 * tempFilterLeadRes.setFromBu(salesRepBu);
-	 * tempFilterLeadRes.setToBu(salesRepBu); tempQuery =
-	 * getLeadStatisticsQuery(tempFilterLeadRes, tempQuery); buLeadsRs =
-	 * jdbcTemplate.queryForList(tempQuery); for (Map statusCountRow : buLeadsRs) {
-	 * leadStatistictsRes.setInternalBuLeadsCount((Long)
-	 * statusCountRow.get("COUNT")); } tmpLeadStatusCountMap = new HashMap<String,
-	 * Long>(); tempQuery = getLeadStatisticsQuery(tempFilterLeadRes,
-	 * statusTempQuery); leadStatusCountRows = jdbcTemplate.queryForList(query); for
-	 * (Map statusCountRow : leadStatusCountRows) {
-	 * tmpLeadStatusCountMap.put(((String) statusCountRow.get("STATUS")), ((Long)
-	 * statusCountRow.get("STATUS_COUNT"))); }
-	 * 
-	 * leadStatistictsRes.setInternalBuLeadsCountStatusCountMap(
-	 * tmpLeadStatusCountMap);
-	 * 
-	 * 
-	 * // External BU Leads tempQuery = mainQuery;
-	 * 
-	 * tempFilterLeadRes = new FilterLeadRes();
-	 * tempFilterLeadRes.setFromBu(salesRepBu); tempQuery =
-	 * getLeadStatisticsQuery(tempFilterLeadRes, tempQuery); buLeadsRs =
-	 * jdbcTemplate.queryForList(tempQuery); for (Map statusCountRow : buLeadsRs) {
-	 * leadStatistictsRes.setExternalBuLeadsCount((Long)
-	 * statusCountRow.get("COUNT")); } tmpLeadStatusCountMap = new HashMap<String,
-	 * Long>(); statusTempQuery = statusMainQuery; tempQuery =
-	 * getLeadStatisticsQuery(tempFilterLeadRes, statusTempQuery);
-	 * leadStatusCountRows = jdbcTemplate.queryForList(query); for (Map
-	 * statusCountRow : leadStatusCountRows) { tmpLeadStatusCountMap.put(((String)
-	 * statusCountRow.get("STATUS")), ((Long) statusCountRow.get("STATUS_COUNT")));
-	 * }
-	 * 
-	 * leadStatistictsRes.setExternalBuLeadsCountStatusCountMap(
-	 * tmpLeadStatusCountMap);
-	 * 
-	 * // Cross BU Leads tempQuery = mainQuery; tempFilterLeadRes = new
-	 * FilterLeadRes(); tempFilterLeadRes.setToBu(salesRepBu); tempQuery =
-	 * getLeadStatisticsQuery(tempFilterLeadRes, tempQuery); buLeadsRs =
-	 * jdbcTemplate.queryForList(tempQuery); for (Map statusCountRow : buLeadsRs) {
-	 * leadStatistictsRes.setCrossBuLeadsCount((Long) statusCountRow.get("COUNT"));
-	 * } tmpLeadStatusCountMap = new HashMap<String, Long>(); statusTempQuery =
-	 * statusMainQuery; tempQuery = getLeadStatisticsQuery(tempFilterLeadRes,
-	 * statusTempQuery); leadStatusCountRows = jdbcTemplate.queryForList(query); for
-	 * (Map statusCountRow : leadStatusCountRows) {
-	 * tmpLeadStatusCountMap.put(((String) statusCountRow.get("STATUS")), ((Long)
-	 * statusCountRow.get("STATUS_COUNT"))); }
-	 * 
-	 * leadStatistictsRes.setCrossBuLeadsCountStatusCountMap(tmpLeadStatusCountMap);
-	 * 
-	 * // Leads generated by user tempQuery = mainQuery; tempFilterLeadRes = new
-	 * FilterLeadRes(); tempFilterLeadRes.setCreatorId(userId); tempQuery =
-	 * getLeadStatisticsQuery(tempFilterLeadRes, tempQuery); buLeadsRs =
-	 * jdbcTemplate.queryForList(tempQuery); for (Map statusCountRow : buLeadsRs) {
-	 * leadStatistictsRes.setTotalLeadsGeneratedByUser((Long)
-	 * statusCountRow.get("COUNT")); }
-	 * 
-	 * tmpLeadStatusCountMap = new HashMap<String, Long>(); statusTempQuery =
-	 * statusMainQuery; tempQuery = getLeadStatisticsQuery(tempFilterLeadRes,
-	 * statusTempQuery); leadStatusCountRows = jdbcTemplate.queryForList(query); for
-	 * (Map statusCountRow : leadStatusCountRows) {
-	 * tmpLeadStatusCountMap.put(((String) statusCountRow.get("STATUS")), ((Long)
-	 * statusCountRow.get("STATUS_COUNT"))); }
-	 * 
-	 * leadStatistictsRes.setGeneratedByLeadsCountStatusCountMap(
-	 * tmpLeadStatusCountMap);
-	 * 
-	 * }
-	 * 
-	 * return leadStatistictsRes; }
-	 */
 
 	@Override
 	public boolean updateLeadAttachment(LeadEntity leadEntity) {
