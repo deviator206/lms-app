@@ -446,13 +446,9 @@ Response -
 Send Authorization Token in REST -
 Authorization - Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMTEzIiwiaWF0IjoxNTcwMzk1MzI3LCJleHAiOjE1NzEwMDAxMjd9.FhSZRVRiS22FPJMBHXG_ZlW2fR4oZtPVBOyf3kpqjfnmbUZKluLuenkAYlXv_VNKZExvlmIqciZmnLjxz-zGCg
 
------------------------------------------------------
-
----------------------------------------------
-Download Excel Report -
-POST http://localhost:8080/report/lead?busummary=true&userid=1111
-
----------------------------------------------
+---------------------- To send Lead Status Report on Mail ----------
+http://localhost:8080/statistics/lead?sendmail=true
+---------------------------------------------------------------------
 
 
 
