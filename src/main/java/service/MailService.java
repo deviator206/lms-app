@@ -38,7 +38,7 @@ public class MailService implements IMailService {
 	private IUtilityService utilityService;
 
 	@Override
-	public void sendMail(String mailFrom, List<String> mailTo, String subject, String body) {
+	public void sendMail(String mailFrom, List<String> mailTo, String subject, boolean htmlContent, String body) {
 		final String username = this.mailUserName;
 		final String password = utilityService.decrypt(this.password);
 
@@ -56,7 +56,6 @@ public class MailService implements IMailService {
 		});
 
 		try {
-
 			Message message = new MimeMessage(session);
 			if (mailFrom != null) {
 				message.setFrom(new InternetAddress(mailFrom));
@@ -66,7 +65,12 @@ public class MailService implements IMailService {
 
 			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(String.join(",", mailTo)));
 			message.setSubject(subject);
-			message.setText(body);
+
+			if (htmlContent) {
+				message.setContent(body, "text/html");
+			} else {
+				message.setText(body);
+			}
 
 			Transport.send(message);
 

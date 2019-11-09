@@ -124,13 +124,19 @@ public class LeadDetailController {
 	}
 
 	@PostMapping("/statistics/lead")
-	public LeadStatistictsRes getLeadStatistics(
-			@RequestParam(value = "busummary", required = false, defaultValue = "false") Boolean busummary,
+	public LeadStatistictsRes getLeadStatistics(@RequestHeader("Authorization") String autorizationHeader,
+			@RequestParam(value = "sendmail", required = false, defaultValue = "false") Boolean sendmail,
 			@RequestParam(value = "userid", required = false) Long userId, @RequestBody FilterLeadRes filterLeadRes) {
-		return leadDetailService.getLeadStatistics(filterLeadRes, busummary, userId);
+		Long usrId;
+		if(userId != null) {
+			usrId = userId;
+		}else {
+			usrId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
+		}
+		return leadDetailService.getLeadStatistics(filterLeadRes, sendmail, usrId);
 	}
 
-	@PostMapping(value = "/report/lead", produces = "application/vnd.ms-excel")
+	// @PostMapping(value = "/report/lead", produces = "application/vnd.ms-excel")
 	public ResponseEntity<InputStreamResource> getLeadStatisticsReport(
 			@RequestParam(value = "busummary", required = false, defaultValue = "false") Boolean busummary,
 			@RequestParam(value = "userid", required = false) Long userId, @RequestBody FilterLeadRes filterLeadRes)

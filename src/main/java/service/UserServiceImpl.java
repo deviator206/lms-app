@@ -37,10 +37,10 @@ public class UserServiceImpl implements IUserService {
 
 	@Value("${app.mail.userName}")
 	private String mailUserName;
-	
+
 	@Value("${app.mail.message.userRegistration}")
 	private String messageUserRegistration;
-	
+
 	@Value("${app.mail.message.forgotPassword}")
 	private String messageForgotPassword;
 
@@ -292,14 +292,14 @@ public class UserServiceImpl implements IUserService {
 	private void sendUserRegistrationMail(String mailFrom, String mailTo, String tempPassword) {
 		List<String> mailToLst = new ArrayList<String>();
 		mailToLst.add(mailTo);
-		mailService.sendMail(mailFrom, mailToLst, "Forgot password",
+		mailService.sendMail(mailFrom, mailToLst, "Forgot password",false,
 				String.format(messageUserRegistration, tempPassword, mailTo));
 	}
 
 	private void sendForgotMail(String mailFrom, String mailTo, String tempPassword) {
 		List<String> mailToLst = new ArrayList<String>();
 		mailToLst.add(mailTo);
-		mailService.sendMail(mailFrom, mailToLst, "Forgot password",
+		mailService.sendMail(mailFrom, mailToLst, "Forgot password",false,
 				String.format(messageForgotPassword, tempPassword, mailTo));
 	}
 

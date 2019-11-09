@@ -306,7 +306,7 @@ public class LeadDAOImpl implements ILeadDAO {
 		return query;
 	}
 
-	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId) {
+	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Long userId) {
 
 		this.checkSqlInjectionSafety(filterLeadRes);
 

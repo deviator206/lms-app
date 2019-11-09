@@ -25,6 +25,6 @@ public interface ILeadDAO {
 
 	List<LeadEntity> filterLeads(FilterLeadRes filterLeadRes, Pagination pagination);
 
-	LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId);
+	LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Long userId);
 
 }

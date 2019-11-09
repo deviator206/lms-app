@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -37,6 +38,7 @@ import model.LeadsSummaryRes;
 import model.Pagination;
 import model.RootLeadRes;
 import model.UploadFileRes;
+import model.User;
 import model.UserRes;
 import repository.ILeadContactDAO;
 import repository.ILeadDAO;
@@ -71,6 +73,15 @@ public class LeadDetailService implements ILeadDetailService {
 
 	@Autowired
 	IFileStorageService fileStorageService;
+
+	@Autowired
+	private IMailService mailService;
+
+	@Value("${app.mail.userName}")
+	private String mailUserName;
+
+	@Value("${app.mail.message.leadStatusReport}")
+	private String leadStatusReportSub;
 
 	@Override
 	public CreateRootLeadRes createRootLead(RootLeadRes rootLeadRes) {
@@ -384,8 +395,57 @@ public class LeadDetailService implements ILeadDetailService {
 	}
 
 	@Override
-	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean busummary, Long userId) {
-		return leadDAO.getLeadStatistics(filterLeadRes, busummary, userId);
+	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean sendmail, Long userId) {
+		LeadStatistictsRes leadStatistictsRes = leadDAO.getLeadStatistics(filterLeadRes, userId);
+		if (sendmail) {
+			this.sendReportInMail(userId, leadStatistictsRes);
+		}
+		return leadStatistictsRes;
+	}
+
+	private void sendReportInMail(Long userId, LeadStatistictsRes leadStatistictsRes) {
+
+		User user = userService.getUserByUserId(userId);
+		if (user != null && user.getEmail() != null) {
+			List<String> mailToLst = new ArrayList<String>();
+			mailToLst.add(user.getEmail());
+			mailService.sendMail(mailUserName, mailToLst, leadStatusReportSub, true,
+					this.createHtmlReportContent(leadStatistictsRes));
+		}
+
+	}
+
+	private String createHtmlReportContent(LeadStatistictsRes leadStatistictsRes) {
+		StringBuilder tempStr = new StringBuilder();
+		tempStr.append("<html>\n");
+		//tempStr.append("<head><style>table, th, td {border: 1px solid black;}</style></head>");
+		Map<String, Long> leadStatusCountMap = leadStatistictsRes.getLeadStatusCountMap();
+
+		tempStr.append("<tr>\n");
+		tempStr.append("<th>");
+		tempStr.append("LeadCount");
+		tempStr.append("</th>\n");
+		tempStr.append("<th>");
+		tempStr.append("Status");
+		tempStr.append("</th>\n");
+		tempStr.append("</tr>\n");
+
+		if (leadStatusCountMap != null) {
+			tempStr.append("<table>\n");
+			for (Map.Entry<String, Long> entry : leadStatusCountMap.entrySet()) {
+				tempStr.append("<tr>\n");
+				tempStr.append("<td>");
+				tempStr.append(entry.getKey());
+				tempStr.append("</td>\n");
+				tempStr.append("<td>");
+				tempStr.append(entry.getValue());
+				tempStr.append("</td>\n");
+				tempStr.append("</tr>\n");
+			}
+			tempStr.append("</table>\n");
+		}
+		tempStr.append("</html>");
+		return tempStr.toString();
 	}
 
 	@Override
@@ -393,7 +453,7 @@ public class LeadDetailService implements ILeadDetailService {
 			throws IOException {
 		String[] COLUMNs = { "Status", "Count" };
 
-		LeadStatistictsRes leadStatistictsRes = leadDAO.getLeadStatistics(filterLeadRes, busummary, userId);
+		LeadStatistictsRes leadStatistictsRes = leadDAO.getLeadStatistics(filterLeadRes, userId);
 		try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream();) {
 
 			Sheet leadsSheet = workbook.createSheet("Leads");
@@ -527,7 +587,7 @@ public class LeadDetailService implements ILeadDetailService {
 	public DownloadFileRes downloadLeadAttachment(Long leadId, String name) throws IOException {
 		return fileStorageService.downloadLeadAttachment(leadId, name);
 	}
-	
+
 	@Override
 	public DownloadFileRes downloadContactAttachment(Long leadId, String name) throws IOException {
 		return fileStorageService.downloadContactAttachment(leadId, name);
