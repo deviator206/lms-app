@@ -12,6 +12,15 @@ import org.springframework.stereotype.Component;
 public class ApplicationJsonProperties {
 
 	private Map<String, Map<String, String>> policies;
+	private Map<String, Map<String, String>> policyActions;
+
+	public Map<String, Map<String, String>> getPolicyActions() {
+		return policyActions;
+	}
+
+	public void setPolicyActions(Map<String, Map<String, String>> policyActions) {
+		this.policyActions = policyActions;
+	}
 
 	public Map<String, Map<String, String>> getPolicies() {
 		return this.policies;

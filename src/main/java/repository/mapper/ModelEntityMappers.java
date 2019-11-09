@@ -229,21 +229,26 @@ public class ModelEntityMappers {
 		return user;
 	}
 
-	public static NotificationDetailsEntity mapNotificationToNotificationEntity(NotificationDetails notification,
+	public static NotificationDetailsEntity mapNotificationDetailsToNotificationDetailsEntity(NotificationDetails notification,
 			NotificationDetailsEntity notificationEntity) {
 		// notificationEntity.setId(notification.getId());
 		notificationEntity.setNotificationKey(notification.getNotificationKey());
 		notificationEntity.setUserId(notification.getUserId());
-		notificationEntity.setEnabled(notification.isEnabled());
+		if(notification.isEnabled() != null) {
+			notificationEntity.setEnabled(notificationEntity.isEnabled());
+		}else {
+			notificationEntity.setEnabled(true);
+		}
 		return notificationEntity;
 	}
 
-	public static NotificationDetails mapNotificationEntityToNotification(NotificationDetailsEntity notificationEntity,
+	public static NotificationDetails mapNotificationDetailsEntityToNotificationDetails(NotificationDetailsEntity notificationEntity,
 			NotificationDetails notification) {
 		notification.setId(notificationEntity.getId());
 		notification.setNotificationKey(notificationEntity.getNotificationKey());
 		notification.setUserId(notificationEntity.getUserId());
 		notification.setEnabled(notificationEntity.isEnabled());
+		
 		return notification;
 	}
 

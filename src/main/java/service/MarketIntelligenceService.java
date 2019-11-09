@@ -63,7 +63,7 @@ public class MarketIntelligenceService implements IMarketIntelligenceService {
 	}
 
 	@Override
-	public MarketIntelligenceRes getMarkByIdetIntelligenceById(Long id, Pagination pagination) {
+	public MarketIntelligenceRes getMarketIntelligenceById(Long id, Pagination pagination) {
 		Map<Long, UserRes> userIdUserMap;
 		MarketIntelligenceEntity miEntity = mrketIntelligenceDAO.getMarkByIdetIntelligenceById(id);
 		MarketIntelligenceRes miRes = new MarketIntelligenceRes();

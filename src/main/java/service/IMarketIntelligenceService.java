@@ -17,7 +17,7 @@ import repository.entity.MarketIntelligenceInfoEntity;
 public interface IMarketIntelligenceService {
 	List<MarketIntelligenceRes> getMarketIntelligence(Pagination pagination);
 
-	MarketIntelligenceRes getMarkByIdetIntelligenceById(Long id, Pagination pagination);
+	MarketIntelligenceRes getMarketIntelligenceById(Long id, Pagination pagination);
 
 	Long updateMarketIntelligence(MarketIntelligenceReq marketIntelligenceRes);
 

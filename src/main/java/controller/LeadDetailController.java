@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -54,6 +55,12 @@ public class LeadDetailController {
 	@Autowired
 	INotificationService notificationService;
 
+	@Value("${app.pushNotification.lead.create}")
+	private Boolean leadCreateNotification;
+
+	@Value("${app.pushNotification.lead.update}")
+	private Boolean leadUpdateNotification;
+
 	@GetMapping("/rootlead/{id}")
 	public RootLeadRes getRootLead(@PathVariable("id") Long id) {
 		return leadDetailService.getRootLead(id);
@@ -63,8 +70,10 @@ public class LeadDetailController {
 	public ResponseEntity<CreateRootLeadRes> addRootLead(@RequestHeader("Authorization") String autorizationHeader,
 			@RequestBody RootLeadRes rootLeadRes) {
 		CreateRootLeadRes createRootLeadRes = leadDetailService.createRootLead(rootLeadRes);
-		Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
-		notificationService.sendNotificationAfterLeadCreation(userId, createRootLeadRes.getLeads());
+		if (leadCreateNotification) {
+			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
+			notificationService.sendNotificationAfterLeadCreation(userId, createRootLeadRes.getLeads());
+		}
 		return new ResponseEntity<CreateRootLeadRes>(createRootLeadRes, HttpStatus.CREATED);
 	}
 
@@ -96,9 +105,10 @@ public class LeadDetailController {
 		if (id != leadRes.getId()) {
 			throw new RuntimeException("Bad Request. Ids in path and Resourse are not matching");
 		}
-
-		Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
-		//notificationService.sendNotificationAfterLeadCreation(userId,id);
+		if (leadUpdateNotification) {
+			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
+			notificationService.sendNotificationAfterLeadUpdate(userId, id);
+		}
 		return leadDetailService.updateLead(leadRes);
 	}
 

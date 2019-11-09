@@ -14,6 +14,9 @@ public class LeadManagementConstants {
 	public static final String ALL_BU = "ALL";
 	public static final String ROLE_ADMIN = "ADMIN";
 	public static final String ROLE_BU_HEAD = "BU_HEAD";
-	public static final String NOTIFICATION_TYPE_LEAD_CREATION = "LEAD_CREATION";
-	public static final String NOTIFICATION_TYPE_MI_TO_LEAD_CREATION = "MI_TO_LEAD_CREATION";
+	public static final String NOTIFICATION_TYPE_LEAD_CREATED = "LEAD_CREATED";
+	public static final String NOTIFICATION_TYPE_LEAD_UPDATED = "LEAD_UPDATED";
+	public static final String NOTIFICATION_TYPE_MI_CREATED = "MI_CREATED";
+	public static final String NOTIFICATION_TYPE_MI_TO_LEAD_CREATED = "MI_TO_LEAD_CREATED";
+	public static final String NOTIFICATION_TYPE_MI_UPDATED = "MI_UPDATED";
 }

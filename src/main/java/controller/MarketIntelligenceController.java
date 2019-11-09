@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -50,6 +51,15 @@ public class MarketIntelligenceController {
 
 	@Autowired
 	IFileStorageService fileStorageService;
+	
+	@Value("${app.pushNotification.mi.create}")
+	private Boolean miCreateNotification;
+	
+	@Value("${app.pushNotification.mi.update}")
+	private Boolean miUpdateNotification;
+	
+	@Value("${app.pushNotification.mi-lead.create}")
+	private Boolean miToLeadCreateNotification;
 
 	@GetMapping("/marketIntelligence")
 	public List<MarketIntelligenceRes> getMarketIntelligence(
@@ -64,7 +74,7 @@ public class MarketIntelligenceController {
 	@GetMapping("/marketIntelligence/{id}")
 	public MarketIntelligenceRes getMarketIntelligenceById(@PathVariable("id") Long id,
 			@RequestParam(value = "infosize", required = false) Integer infoSize) {
-		return marketIntelligenceService.getMarkByIdetIntelligenceById(id, new Pagination(1, infoSize));
+		return marketIntelligenceService.getMarketIntelligenceById(id, new Pagination(1, infoSize));
 	}
 
 	@GetMapping("/marketIntelligence/{id}/marketIntelligenceInfo")
@@ -84,9 +94,12 @@ public class MarketIntelligenceController {
 			@PathVariable("id") Long id, @RequestBody MarketIntelligenceReq marketIntelligenceRes) {
 		Long miId = marketIntelligenceService.updateMarketIntelligence(marketIntelligenceRes);
 
-		if (marketIntelligenceRes.getRootLeadId() != null) {
+		if (marketIntelligenceRes.getRootLeadId() != null && miToLeadCreateNotification) {
 			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
-			notificationService.sendNotificationAfterMiToLeadCreation(userId, marketIntelligenceRes.getRootLeadId());
+			notificationService.sendNotificationAfterMiToLeadCreation(id,userId, marketIntelligenceRes.getRootLeadId());
+		}else if(miUpdateNotification){
+			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
+			notificationService.sendNotificationAfterMiUpdate(id,userId);
 		}
 
 		return miId;
@@ -97,9 +110,9 @@ public class MarketIntelligenceController {
 			@RequestBody MarketIntelligenceReq marketIntelligenceReq) {
 		
 		Long createdMiId = marketIntelligenceService.addMarketIntelligence(marketIntelligenceReq);
-		if (createdMiId != null) {
+		if (createdMiId != null && miCreateNotification) {
 			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
-			//notificationService.sendNotificationAfterMiToLeadCreation(userId, marketIntelligenceRes.getRootLeadId());
+			notificationService.sendNotificationAfterMiCreation(createdMiId, userId);
 		}
 		
 		return createdMiId;

@@ -2,25 +2,27 @@ package service;
 
 import java.util.List;
 
+import model.NotificationDetails;
 import model.NotificationHistory;
 import model.Pagination;
 import repository.entity.NotificationDetailsEntity;
 
 public interface INotificationService {
-	NotificationDetailsEntity getNotificationDetailsById(Long userId);
+	NotificationDetails getNotificationDetailsById(Long userId);
 
-	List<NotificationDetailsEntity> getAllNotificationDetails();
+	public List<NotificationDetails> getAllNotificationDetails();
 
-	void addNotificationDetails(NotificationDetailsEntity notification);
+	void addNotificationDetails(NotificationDetails notification);
 
-	void updateNotificationDetailStatus(Long userId, Boolean enabled);
+	void updateNotificationDetails(NotificationDetails notification);
 
 	void sendNotificationAfterLeadCreation(Long leadCreatorId, List<Long> createdLeadIds);
 
-	public void sendNotificationAfterMiToLeadCreation(Long leadCreatorId, Long rootLeadId);
-	public void sendNotificationAfterMiCreation(Long miCreatorId, Long miId);
+	public void sendNotificationAfterMiToLeadCreation(Long miId, Long leadCreatorId, Long rootLeadId);
 
-	public List<NotificationHistory> getNotifications(Long recipientId,Pagination pagination);
+	public void sendNotificationAfterMiCreation(Long miId, Long miCreatorId);
+
+	public List<NotificationHistory> getNotifications(Long recipientId, Pagination pagination);
 
 	public void updateNotificationStatus(Long notificationId, Boolean read);
 
@@ -31,4 +33,7 @@ public interface INotificationService {
 	public void updateNotifications(List<NotificationHistory> notificationHistories);
 
 	public void sendNotificationAfterLeadUpdate(Long updatorId, Long leadId);
+
+	public void sendNotificationAfterMiUpdate(Long miId, Long miUpdatorId);
+
 }

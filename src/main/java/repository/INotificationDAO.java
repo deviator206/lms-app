@@ -7,13 +7,13 @@ import repository.entity.NotificationDetailsEntity;
 import repository.entity.NotificationHistoryEntity;
 
 public interface INotificationDAO {
-	NotificationDetailsEntity getNotificationDetailsById(Long userId);
+	NotificationDetailsEntity getNotificationDetailsByUserId(Long userId);
 
 	List<NotificationDetailsEntity> getAllNotificationDetails();
 
 	void insertNotificationDetails(NotificationDetailsEntity notification);
 
-	void updateNotificationDetailStatus(Long userId, Boolean enabled);
+	void updateNotificationDetailsByUserId(NotificationDetailsEntity notification);
 
 	public List<NotificationDetailsEntity> getNotificationDetailsByIds(List<Long> userIds);
 

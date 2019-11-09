@@ -24,13 +24,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	private static final String CREATE_USER = "/user";
+	// private static final String CREATE_USER = "/user";
 
 	@Autowired
 	CustomUserDetailsService customUserDetailsService;
 
-	@Autowired
-	ApplicationPropertiesProvider applicationPropertiesProvider;
+	// @Autowired
+	// ApplicationPropertiesProvider applicationPropertiesProvider;
 
 	@Autowired
 	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
@@ -61,18 +61,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		httpSecurity.cors().and().csrf().disable().exceptionHandling()
 				.authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().authorizeRequests()
-				.antMatchers(HttpMethod.POST, "/login").permitAll()
-				.antMatchers(HttpMethod.POST, "/forgotpassword").permitAll()
-				.antMatchers(HttpMethod.POST, "/user").permitAll()
+				.antMatchers(HttpMethod.POST, "/login").permitAll().antMatchers(HttpMethod.POST, "/forgotpassword")
+				.permitAll().antMatchers(HttpMethod.POST, "/user").permitAll()
 				.antMatchers(HttpMethod.GET, "/swagger-ui.html").permitAll()
 				.antMatchers(HttpMethod.GET, "/swagger-ui.html/**").permitAll()
-				.antMatchers(HttpMethod.GET, "/webjars/**").permitAll()
-				.antMatchers(HttpMethod.GET, "/v2/api-docs/").permitAll()
-				.antMatchers(HttpMethod.GET, "/v2/api-docs").permitAll()
+				.antMatchers(HttpMethod.GET, "/webjars/**").permitAll().antMatchers(HttpMethod.GET, "/v2/api-docs/")
+				.permitAll().antMatchers(HttpMethod.GET, "/v2/api-docs").permitAll()
 				.antMatchers(HttpMethod.GET, "/configuration/ui").permitAll()
 				.antMatchers(HttpMethod.GET, "/swagger-resources/**").permitAll()
-				.antMatchers(HttpMethod.GET, "/configuration/security").permitAll()
-				.anyRequest().authenticated();
+				.antMatchers(HttpMethod.GET, "/configuration/security").permitAll().anyRequest().authenticated();
 		httpSecurity.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 	}
 

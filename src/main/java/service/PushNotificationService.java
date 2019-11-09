@@ -28,6 +28,8 @@ public class PushNotificationService implements IPushNotificationService {
 	
 	@Value("${app.pushNotificationServerKey}")
 	private String pushNotificationServerKey;
+	
+	
 	/**
 	 * 
 	 * Method to send push notification to Android FireBased Cloud messaging Server.

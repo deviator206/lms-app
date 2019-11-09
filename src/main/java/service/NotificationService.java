@@ -1,15 +1,20 @@
 package service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import consts.LeadManagementConstants;
 import model.LeadRes;
+import model.MarketIntelligenceInfoRes;
+import model.NotificationDetails;
 import model.NotificationHistory;
 import model.Pagination;
 import model.User;
@@ -31,9 +36,27 @@ public class NotificationService implements INotificationService {
 
 	@Autowired
 	private ILeadDetailService leadDetailService;
-	
+
 	@Autowired
 	private IMarketIntelligenceService marketIntelligenceService;
+
+	@Value("${app.pushNotification.lead.create.message}")
+	private String leadCreationNotificationMessage;
+
+	@Value("${app.pushNotification.lead.update.message}")
+	private String leadUpdateNotificationMessage;
+
+	@Value("${app.pushNotification.mi.create.message}")
+	private String miCreateNotificationMessage;
+
+	@Value("${app.pushNotification.mi.update.message}")
+	private String miUpdateNotificationMessage;
+
+	@Value("${app.pushNotification.mi-lead.create.message}")
+	private String miToLeadCreateNotificationMessage;
+
+	// @Autowired
+	// private IMarketIntelligenceService marketIntelligenceService;
 
 	// @Autowired
 	// private ILeadDetailService leadDetailService;
@@ -41,97 +64,281 @@ public class NotificationService implements INotificationService {
 	@Autowired
 	private IUserService userService;
 
-	private ArrayList<String> keys = new ArrayList<>(Arrays.asList(
-			"c2lnJjywOqM:APA91bHVZMnktCuvYDA2a6VLwReA3eO6aYIvC0S7QUJFA3UewUI2wxEknAGhJjp38nCN1UQ9nJEN8tXHKv4klnm1JYA4KTDCjWNkLVm_B-4mXseObzPawI8zs2aCiCFJGEmnfJQC91eB"));
+	// private ArrayList<String> keys = new ArrayList<>(Arrays.asList(
+	// "c2lnJjywOqM:APA91bHVZMnktCuvYDA2a6VLwReA3eO6aYIvC0S7QUJFA3UewUI2wxEknAGhJjp38nCN1UQ9nJEN8tXHKv4klnm1JYA4KTDCjWNkLVm_B-4mXseObzPawI8zs2aCiCFJGEmnfJQC91eB"));
 
 	@Override
-	public NotificationDetailsEntity getNotificationDetailsById(Long userId) {
-		return notificationDAO.getNotificationDetailsById(userId);
+	public NotificationDetails getNotificationDetailsById(Long userId) {
+		NotificationDetails notificationDetails = new NotificationDetails();
+		NotificationDetailsEntity notificationDetailsEntity = notificationDAO.getNotificationDetailsByUserId(userId);
+		if (notificationDetailsEntity != null) {
+			ModelEntityMappers.mapNotificationDetailsEntityToNotificationDetails(notificationDetailsEntity,
+					notificationDetails);
+		}
+		return notificationDetails;
 	}
 
 	@Override
-	public List<NotificationDetailsEntity> getAllNotificationDetails() {
-		return notificationDAO.getAllNotificationDetails();
+	public List<NotificationDetails> getAllNotificationDetails() {
+		List<NotificationDetails> notificationDetailsLst = new ArrayList<NotificationDetails>();
+		NotificationDetails notificationDetails = null;
+		List<NotificationDetailsEntity> notificationDetailsEntityLst = notificationDAO.getAllNotificationDetails();
+		if (notificationDetailsEntityLst != null && !notificationDetailsEntityLst.isEmpty()) {
+			for (NotificationDetailsEntity notificationDetailsEntity : notificationDetailsEntityLst) {
+				notificationDetails = new NotificationDetails();
+				ModelEntityMappers.mapNotificationDetailsEntityToNotificationDetails(notificationDetailsEntity,
+						notificationDetails);
+				notificationDetailsLst.add(notificationDetails);
+			}
+		}
+		return notificationDetailsLst;
 	}
 
 	@Override
-	public void addNotificationDetails(NotificationDetailsEntity notification) {
-		notificationDAO.insertNotificationDetails(notification);
+	public void addNotificationDetails(NotificationDetails notification) {
+		NotificationDetailsEntity notificationDetailsEntity = new NotificationDetailsEntity();
+		ModelEntityMappers.mapNotificationDetailsToNotificationDetailsEntity(notification, notificationDetailsEntity);
+		notificationDAO.insertNotificationDetails(notificationDetailsEntity);
 	}
 
 	@Override
-	public void updateNotificationDetailStatus(Long userId, Boolean enabled) {
-		// TODO Auto-generated method stub
-
+	public void updateNotificationDetails(NotificationDetails notification) {
+		NotificationDetailsEntity notificationDetailsEntity = new NotificationDetailsEntity();
+		ModelEntityMappers.mapNotificationDetailsToNotificationDetailsEntity(notification, notificationDetailsEntity);
+		if (notification.getUserId() != null) {
+			notificationDAO.updateNotificationDetailsByUserId(notificationDetailsEntity);
+		}
 	}
 
 	@Override
 	public void sendNotificationAfterLeadCreation(Long leadCreatorId, List<Long> createdLeadIds) {
-		User leadCreatorUser = userService.getUserByUserId(leadCreatorId);
-		String leadCreatorBU = leadCreatorUser.getBusinessUnit();
-		List<String> roleList = new ArrayList<String>();
-		roleList.add(LeadManagementConstants.ROLE_ADMIN);
-		List<UserRes> adminLst = userService.getUsersByRoles(roleList);
-		List<UserRes> buHeadLst = userService.getUserDetailsByBuAndRole(leadCreatorBU,
-				LeadManagementConstants.ROLE_BU_HEAD);
-
 		List<Long> userIds = new ArrayList<Long>();
-		userIds.add(leadCreatorId);
-		for (UserRes user : adminLst) {
-			userIds.add(user.getUserId());
+
+		// userIds.add(leadCreatorId);
+
+		List<Long> adminAndUsrBuHeadIdList = this.getAdminAndUserBuHeadIds(leadCreatorId);
+		if (adminAndUsrBuHeadIdList != null && !adminAndUsrBuHeadIdList.isEmpty()) {
+			userIds.addAll(adminAndUsrBuHeadIdList);
 		}
-		for (UserRes user : buHeadLst) {
-			userIds.add(user.getUserId());
+
+		List<Long> leadBuHeadLst = getLeadsBuHeadAndSalesRepUserIds(createdLeadIds);
+		if (leadBuHeadLst != null && !leadBuHeadLst.isEmpty()) {
+			userIds.addAll(leadBuHeadLst);
 		}
 
-		if (userIds != null && !userIds.isEmpty()) {
-			addNotificationAfterLeadCreation(leadCreatorId, userIds,
-					LeadManagementConstants.NOTIFICATION_TYPE_LEAD_CREATION);
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
 
-			List<NotificationDetailsEntity> notificationDetailsList = notificationDAO
-					.getNotificationDetailsByIds(userIds);
+		List<String> stringsList = createdLeadIds.stream().map(Object::toString).collect(Collectors.toList());
 
-			List<String> notifikationKeys = new ArrayList<String>();
-			for (NotificationDetailsEntity notificationEntity : notificationDetailsList) {
-				notifikationKeys.add(notificationEntity.getNotificationKey());
-			}
+		addAndSendNotificationForRecipients(leadCreatorId, userIds,
+				LeadManagementConstants.NOTIFICATION_TYPE_LEAD_CREATED,
+				String.format(leadCreationNotificationMessage, String.join(", ", stringsList)));
+	}
 
-			sendPushNotifications(keys);
+	private List<Long> getAdminAndUserBuHeadIds(Long userId) {
+		List<Long> userIds = new ArrayList<Long>();
+		List<Long> adminUsrList = this.getAdminUserIds();
+		if (adminUsrList != null && !adminUsrList.isEmpty()) {
+			userIds.addAll(adminUsrList);
 		}
+
+		List<Long> buHeadLst = this.getUserBuHeadUserIds(userId);
+		if (buHeadLst != null && !buHeadLst.isEmpty()) {
+			userIds.addAll(buHeadLst);
+		}
+
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+
+		return userIds;
+	}
+
+	private void addAndSendNotificationForRecipients(Long originatorId, List<Long> recipientIds,
+			String notificationType, String notificationMessage) {
+		if (recipientIds != null && !recipientIds.isEmpty()) {
+			addNotificationForRecipients(originatorId, recipientIds, notificationType, notificationMessage);
+			List<String> notifikationKeys = getUserNotificationKeys(recipientIds);
+			sendPushNotifications(notifikationKeys, notificationMessage);
+		}
+	}
+
+	private List<String> getUserNotificationKeys(List<Long> userIds) {
+		List<NotificationDetailsEntity> notificationDetailsList = notificationDAO.getNotificationDetailsByIds(userIds);
+
+		List<String> notifikationKeys = new ArrayList<String>();
+		for (NotificationDetailsEntity notificationEntity : notificationDetailsList) {
+			notifikationKeys.add(notificationEntity.getNotificationKey());
+		}
+		return notifikationKeys;
 	}
 
 	@Override
 	public void sendNotificationAfterLeadUpdate(Long updatorId, Long leadId) {
-		User leadCreatorUser = userService.getUserByUserId(updatorId);
+		List<Long> userIds = new ArrayList<Long>();
 
-		String leadCreatorBU = leadCreatorUser.getBusinessUnit();
-		// Lead Creator BU Head
-		List<UserRes> buHeadLst = userService.getUserDetailsByBuAndRole(leadCreatorBU,
-				LeadManagementConstants.ROLE_BU_HEAD);
+		// userIds.add(leadCreatorId);
+
+		List<Long> adminAndUsrBuHeadIdList = this.getAdminAndUserBuHeadIds(updatorId);
+		if (adminAndUsrBuHeadIdList != null && !adminAndUsrBuHeadIdList.isEmpty()) {
+			userIds.addAll(adminAndUsrBuHeadIdList);
+		}
 
 		// Lead BU Head
-		List<UserRes> leadBuHeadLst = new ArrayList<UserRes>();
-		List<UserRes> leadBuHeadLstTmp = null;
-		LeadRes leadRes = leadDetailService.getLead(leadId);
+		List<Long> leadBuHeadLst = this.getLeadBuHeadAndSalesRepUserIds(leadId);
+		if (leadBuHeadLst != null && !leadBuHeadLst.isEmpty()) {
+			userIds.addAll(leadBuHeadLst);
+		}
 
-		if (leadRes.getLeadsSummaryRes().getBusinessUnits() != null) {
-			List<String> leadCreatorBULst = leadRes.getLeadsSummaryRes().getBusinessUnits();
-			if (leadCreatorBULst != null) {
-				for (String buTmp : leadCreatorBULst) {
-					leadBuHeadLstTmp = userService.getUserDetailsByBuAndRole(buTmp,
-							LeadManagementConstants.ROLE_BU_HEAD);
-					if (leadBuHeadLstTmp != null) {
-						leadBuHeadLst.addAll(leadBuHeadLstTmp);
-					}
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+
+		addAndSendNotificationForRecipients(updatorId, userIds, LeadManagementConstants.NOTIFICATION_TYPE_LEAD_UPDATED,
+				String.format(leadUpdateNotificationMessage, leadId));
+	}
+
+	@Override
+	public void sendNotificationAfterMiCreation(Long miId, Long miCreatorId) {
+		List<Long> userIds = new ArrayList<Long>();
+
+		List<Long> adminAndUsrBuHeadIdList = this.getAdminAndUserBuHeadIds(miCreatorId);
+		if (adminAndUsrBuHeadIdList != null && !adminAndUsrBuHeadIdList.isEmpty()) {
+			userIds.addAll(adminAndUsrBuHeadIdList);
+		}
+
+		List<Long> minInfoCreatorsLst = getMiInfoCreatorIds(miId);
+		if (minInfoCreatorsLst != null && !minInfoCreatorsLst.isEmpty()) {
+			userIds.addAll(minInfoCreatorsLst);
+		}
+
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+
+		addAndSendNotificationForRecipients(miCreatorId, userIds, LeadManagementConstants.NOTIFICATION_TYPE_MI_CREATED,
+				String.format(miCreateNotificationMessage, miId));
+
+	}
+
+	@Override
+	public void sendNotificationAfterMiUpdate(Long miId, Long miUpdatorId) {
+		List<Long> userIds = new ArrayList<Long>();
+
+		List<Long> adminAndUsrBuHeadIdList = this.getAdminAndUserBuHeadIds(miUpdatorId);
+		if (adminAndUsrBuHeadIdList != null && !adminAndUsrBuHeadIdList.isEmpty()) {
+			userIds.addAll(adminAndUsrBuHeadIdList);
+		}
+
+		List<Long> minInfoCreatorsLst = getMiInfoCreatorIds(miId);
+		if (minInfoCreatorsLst != null && !minInfoCreatorsLst.isEmpty()) {
+			userIds.addAll(minInfoCreatorsLst);
+		}
+
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+
+		addAndSendNotificationForRecipients(miUpdatorId, userIds, LeadManagementConstants.NOTIFICATION_TYPE_MI_UPDATED,
+				String.format(miUpdateNotificationMessage, miId));
+
+	}
+
+	@Override
+	public void sendNotificationAfterMiToLeadCreation(Long miId, Long leadCreatorId, Long rootLeadId) {
+		List<Long> userIds = new ArrayList<Long>();
+
+		List<Long> adminAndUsrBuHeadIdList = this.getAdminAndUserBuHeadIds(leadCreatorId);
+		if (adminAndUsrBuHeadIdList != null && !adminAndUsrBuHeadIdList.isEmpty()) {
+			userIds.addAll(adminAndUsrBuHeadIdList);
+		}
+
+		// Lead BU Head
+		List<Long> leadBuHeadLst = this.getLeadsBuHeadAndSalesRepUserIdsByRootLeadId(rootLeadId);
+		if (leadBuHeadLst != null && !leadBuHeadLst.isEmpty()) {
+			userIds.addAll(leadBuHeadLst);
+		}
+
+		List<Long> minInfoCreatorsLst = getMiInfoCreatorIds(miId);
+		if (minInfoCreatorsLst != null && !minInfoCreatorsLst.isEmpty()) {
+			userIds.addAll(minInfoCreatorsLst);
+		}
+
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+
+		List<Long> leadIds = new ArrayList<Long>();
+		List<LeadRes> leads = leadDetailService.getLeadsByRoot(rootLeadId);
+		if (leads != null) {
+			for (LeadRes leadRes : leads) {
+				leadIds.add(leadRes.getId());
+			}
+		}
+		List<String> stringsList = leadIds.stream().map(Object::toString).collect(Collectors.toList());
+
+		addAndSendNotificationForRecipients(leadCreatorId, userIds,
+				LeadManagementConstants.NOTIFICATION_TYPE_MI_TO_LEAD_CREATED,
+				String.format(miToLeadCreateNotificationMessage, stringsList, miId));
+
+	}
+
+	private List<Long> getMiInfoCreatorIds(Long miId) {
+		List<Long> userIds = new ArrayList<Long>();
+		List<MarketIntelligenceInfoRes> miInfiLst = marketIntelligenceService.getMarketIntelligenceInfo(miId, null);
+		if (miInfiLst != null) {
+			for (MarketIntelligenceInfoRes miInfoRes : miInfiLst) {
+				Long miInfoCreatorId = miInfoRes.getCreatorId();
+				if (miInfoCreatorId != null) {
+					userIds.add(miInfoCreatorId);
 				}
 			}
 		}
 
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+		return userIds;
+	}
+
+	private List<Long> getAdminUserIds() {
+		List<Long> userIds = new ArrayList<Long>();
+
 		List<String> roleList = new ArrayList<String>();
 		roleList.add(LeadManagementConstants.ROLE_ADMIN);
+
 		List<UserRes> adminLst = userService.getUsersByRoles(roleList);
 
+		for (UserRes user : adminLst) {
+			userIds.add(user.getUserId());
+		}
+
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+
+		return userIds;
+	}
+
+	private List<Long> getBuHeadUserIds(String businessUnit) {
 		List<Long> userIds = new ArrayList<Long>();
+		List<UserRes> buHeadLst = userService.getUserDetailsByBuAndRole(businessUnit,
+				LeadManagementConstants.ROLE_BU_HEAD);
+		if (buHeadLst != null) {
+			for (UserRes user : buHeadLst) {
+				userIds.add(user.getUserId());
+			}
+		}
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+		return userIds;
+	}
+
+	private List<Long> getUserBuHeadUserIds(Long userId) {
+		User leadCreatorUser = userService.getUserByUserId(userId);
+		String leadCreatorBU = leadCreatorUser.getBusinessUnit();
+		return this.getBuHeadUserIds(leadCreatorBU);
+	}
+
+	private List<Long> getLeadBuHeadAndSalesRepUserIds(Long leadId) {
+		List<Long> userIds = new ArrayList<Long>();
+		List<Long> leadBuHeadLst = new ArrayList<Long>();
+		List<Long> leadBuHeadLstTmp = null;
+		LeadRes leadRes = leadDetailService.getLead(leadId);
 
 		// Assigned Sales Rep of Lead
 		if (leadRes.getLeadsSummaryRes() != null) {
@@ -143,30 +350,55 @@ public class NotificationService implements INotificationService {
 			}
 		}
 
-		for (UserRes user : adminLst) {
-			userIds.add(user.getUserId());
-		}
-		for (UserRes user : buHeadLst) {
-			userIds.add(user.getUserId());
-		}
-
-		if (userIds != null && !userIds.isEmpty()) {
-			addNotificationAfterLeadCreation(updatorId, userIds,
-					LeadManagementConstants.NOTIFICATION_TYPE_LEAD_CREATION);
-
-			List<NotificationDetailsEntity> notificationDetailsList = notificationDAO
-					.getNotificationDetailsByIds(userIds);
-
-			List<String> notifikationKeys = new ArrayList<String>();
-			for (NotificationDetailsEntity notificationEntity : notificationDetailsList) {
-				notifikationKeys.add(notificationEntity.getNotificationKey());
+		List<String> leadBULst = leadRes.getLeadsSummaryRes().getBusinessUnits();
+		if (leadBULst != null) {
+			for (String buTmp : leadBULst) {
+				leadBuHeadLstTmp = this.getBuHeadUserIds(buTmp);
+				if (leadBuHeadLstTmp != null && !leadBuHeadLstTmp.isEmpty()) {
+					leadBuHeadLst.addAll(leadBuHeadLstTmp);
+				}
 			}
-
-			sendPushNotifications(keys);
 		}
+
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+
+		return userIds;
 	}
 
-	public void addNotificationAfterLeadCreation(Long originatorId, List<Long> recipientIds, String type) {
+	private List<Long> getLeadsBuHeadAndSalesRepUserIds(List<Long> leadIds) {
+		List<Long> userIds = new ArrayList<Long>();
+		List<Long> leadBuHeadLstTmp = null;
+		if (leadIds != null && !leadIds.isEmpty()) {
+			for (Long leadId : leadIds) {
+				leadBuHeadLstTmp = this.getLeadBuHeadAndSalesRepUserIds(leadId);
+				if (leadBuHeadLstTmp != null && !leadBuHeadLstTmp.isEmpty()) {
+					userIds.addAll(leadBuHeadLstTmp);
+				}
+			}
+		}
+
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+		return userIds;
+	}
+
+	private List<Long> getLeadsBuHeadAndSalesRepUserIdsByRootLeadId(Long rootLeadId) {
+		List<Long> userIds = new ArrayList<Long>();
+		List<Long> leadIds = new ArrayList<Long>();
+		List<LeadRes> leads = leadDetailService.getLeadsByRoot(rootLeadId);
+		if (leads != null) {
+			for (LeadRes leadRes : leads) {
+				leadIds.add(leadRes.getId());
+			}
+			if (!leadIds.isEmpty()) {
+				userIds = getLeadsBuHeadAndSalesRepUserIds(leadIds);
+			}
+		}
+		return userIds;
+	}
+
+	public void addNotificationForRecipients(Long originatorId, List<Long> recipientIds, String type, String message) {
 		NotificationHistory notificationHistory = null;
 		List<NotificationHistory> NotificationLst = new ArrayList<NotificationHistory>();
 		for (Long usrId : recipientIds) {
@@ -175,85 +407,20 @@ public class NotificationService implements INotificationService {
 			notificationHistory.setRecipientId(usrId);
 			notificationHistory.setDeleted(false);
 			notificationHistory.setNotificationType(type);
+			notificationHistory.setNotificationText(message);
 			NotificationLst.add(notificationHistory);
 		}
 		addNotifications(NotificationLst);
 	}
 
 	@Override
-	public void sendNotificationAfterMiToLeadCreation(Long leadCreatorId, Long rootLeadId) {
-		// List<LeadRes> createdLeadIds = leadDetailService.getLeadsByRoot(rootLeadId);
-		User leadCreatorUser = userService.getUserByUserId(leadCreatorId);
-		String leadCreatorBU = leadCreatorUser.getBusinessUnit();
-		List<String> roleList = new ArrayList<String>();
-		roleList.add(LeadManagementConstants.ROLE_ADMIN);
-		List<UserRes> adminLst = userService.getUsersByRoles(roleList);
-		List<UserRes> buHeadLst = userService.getUserDetailsByBuAndRole(leadCreatorBU,
-				LeadManagementConstants.ROLE_BU_HEAD);
-
-		List<Long> userIds = new ArrayList<Long>();
-		userIds.add(leadCreatorId);
-		for (UserRes user : adminLst) {
-			userIds.add(user.getUserId());
-		}
-		for (UserRes user : buHeadLst) {
-			userIds.add(user.getUserId());
-		}
-
-		if (userIds != null && !userIds.isEmpty()) {
-			addNotificationAfterLeadCreation(leadCreatorId, userIds,
-					LeadManagementConstants.NOTIFICATION_TYPE_MI_TO_LEAD_CREATION);
-			List<NotificationDetailsEntity> notificationDetailsList = notificationDAO
-					.getNotificationDetailsByIds(userIds);
-			List<String> notifikationKeys = new ArrayList<String>();
-			for (NotificationDetailsEntity notificationEntity : notificationDetailsList) {
-				notifikationKeys.add(notificationEntity.getNotificationKey());
-			}
-			sendPushNotifications(keys);
-		}
-	}
-
-	@Override
-	public void sendNotificationAfterMiCreation(Long miCreatorId, Long miId) {
-		// List<LeadRes> createdLeadIds = leadDetailService.getLeadsByRoot(rootLeadId);
-		User leadCreatorUser = userService.getUserByUserId(miCreatorId);
-		String leadCreatorBU = leadCreatorUser.getBusinessUnit();
-		List<String> roleList = new ArrayList<String>();
-		roleList.add(LeadManagementConstants.ROLE_ADMIN);
-		List<UserRes> adminLst = userService.getUsersByRoles(roleList);
-		List<UserRes> buHeadLst = userService.getUserDetailsByBuAndRole(leadCreatorBU,
-				LeadManagementConstants.ROLE_BU_HEAD);
-
-		List<Long> userIds = new ArrayList<Long>();
-		//userIds.add(leadCreatorId);
-		for (UserRes user : adminLst) {
-			userIds.add(user.getUserId());
-		}
-		for (UserRes user : buHeadLst) {
-			userIds.add(user.getUserId());
-		}
-
-		if (userIds != null && !userIds.isEmpty()) {
-			addNotificationAfterLeadCreation(miCreatorId, userIds,
-					LeadManagementConstants.NOTIFICATION_TYPE_MI_TO_LEAD_CREATION);
-			List<NotificationDetailsEntity> notificationDetailsList = notificationDAO
-					.getNotificationDetailsByIds(userIds);
-			List<String> notifikationKeys = new ArrayList<String>();
-			for (NotificationDetailsEntity notificationEntity : notificationDetailsList) {
-				notifikationKeys.add(notificationEntity.getNotificationKey());
-			}
-			sendPushNotifications(keys);
-		}
-	}
-
-	@Override
-	public List<NotificationHistory> getNotifications(Long recipientId,Pagination pagination) {
+	public List<NotificationHistory> getNotifications(Long recipientId, Pagination pagination) {
 		List<NotificationHistoryEntity> notificationHistoryEntityLst = null;
 		List<NotificationHistory> notificationHistoryLst = new ArrayList<NotificationHistory>();
 		if (recipientId == null) {
 			notificationHistoryEntityLst = notificationDAO.getAllNotifications(pagination);
 		} else {
-			notificationHistoryEntityLst = notificationDAO.getAllNotificationsbyRecipientId(recipientId,pagination);
+			notificationHistoryEntityLst = notificationDAO.getAllNotificationsbyRecipientId(recipientId, pagination);
 		}
 		if (notificationHistoryEntityLst != null) {
 			NotificationHistory notificationHistory = null;
@@ -301,8 +468,8 @@ public class NotificationService implements INotificationService {
 	}
 
 	// @Override
-	public void sendPushNotifications(List<String> notifikationKeys) {
-		pushNotificationService.sendNotificationMulti(notifikationKeys, "Lead Created");
+	public void sendPushNotifications(List<String> notifikationKeys, String message) {
+		pushNotificationService.sendNotificationMulti(notifikationKeys, message);
 	}
 
 }

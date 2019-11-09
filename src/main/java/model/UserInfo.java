@@ -5,6 +5,15 @@ import java.util.Map;
 
 public class UserInfo {
 	private Map<String, String> policies;
+	private Map<String, String> policyActions;
+	public Map<String, String> getPolicyActions() {
+		return policyActions;
+	}
+
+	public void setPolicyActions(Map<String, String> policyActions) {
+		this.policyActions = policyActions;
+	}
+
 	private Long userId;
 	private String userName;
 

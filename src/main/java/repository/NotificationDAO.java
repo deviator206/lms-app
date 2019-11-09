@@ -32,7 +32,7 @@ public class NotificationDAO implements INotificationDAO {
 	private JdbcTemplate jdbcTemplate;
 
 	@Override
-	public NotificationDetailsEntity getNotificationDetailsById(Long userId) {
+	public NotificationDetailsEntity getNotificationDetailsByUserId(Long userId) {
 		String sql = "SELECT ID, USERID, NOTIFICATION_KEY, ENABLED FROM NOTIFICATION WHERE USERID = ?";
 		RowMapper<NotificationDetailsEntity> rowMapper = new NotificationRowMapper();
 		return this.jdbcTemplate.queryForObject(sql, rowMapper, new Object[] { userId });
@@ -63,31 +63,31 @@ public class NotificationDAO implements INotificationDAO {
 	}
 
 	@Override
-	public void updateNotificationDetailStatus(Long userId, Boolean enabled) {
-		// TODO Auto-generated method stub
-
+	public void updateNotificationDetailsByUserId(NotificationDetailsEntity notification) {
+		String sql = "UPDATE NOTIFICATION SET NOTIFICATION_KEY = ? WHERE USERID = ?;";
+		jdbcTemplate.update(sql, notification.getNotificationKey(), notification.getUserId());
 	}
 
 	@Override
 	public List<NotificationHistoryEntity> getAllNotifications(Pagination pagination) {
 		String sql = "SELECT ID, NOTIFICATION_TEXT,TYPE, DELETED, RECIPIENT_ID, ORIGINATOR_ID, ORIGINATION_DATE FROM NOTIFICATION_HISTORY";
-		
+
 		if ((pagination != null) && pagination.isPaginatedQuery()) {
 			sql = RepositoryHelper.getPaginatedQuery(sql, pagination.getStart(), pagination.getPageSize());
 		}
-		
+
 		RowMapper<NotificationHistoryEntity> rowMapper = new NotificationHistoryRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper);
 	}
 
 	@Override
-	public List<NotificationHistoryEntity> getAllNotificationsbyRecipientId(Long recipientId,Pagination pagination) {
+	public List<NotificationHistoryEntity> getAllNotificationsbyRecipientId(Long recipientId, Pagination pagination) {
 		String sql = "SELECT ID,NOTIFICATION_TEXT,TYPE, DELETED, RECIPIENT_ID, ORIGINATOR_ID, ORIGINATION_DATE FROM NOTIFICATION_HISTORY WHERE RECIPIENT_ID = ?";
-		
+
 		if ((pagination != null) && pagination.isPaginatedQuery()) {
 			sql = RepositoryHelper.getPaginatedQuery(sql, pagination.getStart(), pagination.getPageSize());
 		}
-		
+
 		RowMapper<NotificationHistoryEntity> rowMapper = new NotificationHistoryRowMapper();
 		return this.jdbcTemplate.query(sql, rowMapper, new Object[] { recipientId });
 	}

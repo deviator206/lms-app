@@ -36,5 +36,22 @@ public class ApplicationPropertiesProviderService implements IApplicationPropert
 	public Map<String, String> getControllersAccessPolicies() {
 		return applicationProperties.getControllersAccessPolicies();
 	}
+	
+	@Override
+	public Map<String, String> getPolicyActions(List<String> roles) {
+		Map<String, Map<String, String>> policies = applicationProperties.getPolicyActions();
+		Map<String, String> policyMap = new HashMap<String, String>();
+		Map<String, String> policyAttributes = new HashMap<String, String>();
+		for (String role : roles) {
+			policyMap = policies.get(role);
+			if (policyMap != null) {
+				for (Map.Entry<String, String> entry : policyMap.entrySet()) {
+					policyAttributes.put(entry.getKey(), entry.getValue());
+				}
+			}
+
+		}
+		return policyAttributes;
+	}
 
 }
