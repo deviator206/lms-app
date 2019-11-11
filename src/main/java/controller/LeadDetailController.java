@@ -102,7 +102,8 @@ public class LeadDetailController {
 	@PutMapping("/lead/{id}")
 	public Long updateLead(@RequestHeader("Authorization") String autorizationHeader, @PathVariable("id") Long id,
 			@RequestBody LeadRes leadRes) {
-		if (id != leadRes.getId()) {
+				System.out.println(id+" vs "+leadRes.getId());
+		if (!id.equals(leadRes.getId())) {
 			throw new RuntimeException("Bad Request. Ids in path and Resourse are not matching");
 		}
 		if (leadUpdateNotification) {
