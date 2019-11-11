@@ -395,12 +395,34 @@ public class LeadDetailService implements ILeadDetailService {
 	}
 
 	@Override
+	public LeadStatistictsRes getLeadStatisticsButSendMail(FilterLeadRes filterLeadRes, Boolean sendmail, Long userId) {
+		LeadStatistictsRes leadStatistictsRes = leadDAO.getLeadStatistics(filterLeadRes, userId);
+		if (sendmail) {
+			List<LeadEntity> leadEntityList = leadDAO.filterLeads(filterLeadRes, null);
+			this.sendReportInMailOptional(userId, leadEntityList);
+		}
+		return leadStatistictsRes;
+	}
+
+	@Override
 	public LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean sendmail, Long userId) {
 		LeadStatistictsRes leadStatistictsRes = leadDAO.getLeadStatistics(filterLeadRes, userId);
 		if (sendmail) {
 			this.sendReportInMail(userId, leadStatistictsRes);
 		}
 		return leadStatistictsRes;
+	}
+
+	private void sendReportInMailOptional(Long userId, List<LeadEntity> leadEntityList) {
+
+		User user = userService.getUserByUserId(userId);
+		if (user != null && user.getEmail() != null) {
+			List<String> mailToLst = new ArrayList<String>();
+			mailToLst.add(user.getEmail());
+			mailService.sendMailAsyn(mailUserName, mailToLst, leadStatusReportSub, true,
+					this.createHtmlReportContentOptional(leadEntityList));
+		}
+
 	}
 
 	private void sendReportInMail(Long userId, LeadStatistictsRes leadStatistictsRes) {
@@ -414,11 +436,71 @@ public class LeadDetailService implements ILeadDetailService {
 		}
 
 	}
+	
+	private String createHtmlReportContentOptional(List<LeadEntity> leadEntityList) {
+		StringBuilder tempStr = new StringBuilder();
+		tempStr.append("<html>\n");
+		// tempStr.append("<head><style>table, th, td {border: 1px solid
+		// black;}</style></head>");
+		tempStr.append("<table>\n");
+		tempStr.append("<tr>\n");
+		tempStr.append("<th>");
+		tempStr.append("Lead Id");
+		tempStr.append("</th>\n");
+		tempStr.append("<th>");
+		tempStr.append("Customer Name");
+		tempStr.append("</th>\n");
+		tempStr.append("<th>");
+		tempStr.append("Requirement");
+		tempStr.append("</th>\n");
+		tempStr.append("<th>");
+		tempStr.append("Contact Name");
+		tempStr.append("</th>\n");
+		tempStr.append("<th>");
+		tempStr.append("Contact Email");
+		tempStr.append("</th>\n");
+		tempStr.append("<th>");
+		tempStr.append("Contact Phone");
+		tempStr.append("</th>\n");
+		tempStr.append("</tr>\n");
+		
+
+		for (LeadEntity leadEntity : leadEntityList) {
+			LeadRes leadRes = prepareLeadRes(leadEntity);
+			tempStr.append("<tr>\n");
+				tempStr.append("<td>");
+				tempStr.append(leadRes.getId());
+				tempStr.append("</td>\n");
+				tempStr.append("<td>");
+				tempStr.append(leadRes.getCustName());
+				tempStr.append("</td>\n");
+				tempStr.append("<td>");
+				tempStr.append(leadRes.getDescription());
+				tempStr.append("</td>\n");
+				tempStr.append("<td>");
+				tempStr.append(leadRes.getLeadContact().getName());
+				tempStr.append("</td>\n");
+				tempStr.append("<td>");
+				tempStr.append(leadRes.getLeadContact().getEmail());
+				tempStr.append("</td>\n");
+				tempStr.append("<td>");
+				tempStr.append(leadRes.getLeadContact().getPhoneNumber());
+				tempStr.append("</td>\n");
+				tempStr.append("</tr>\n");
+			
+		}
+		tempStr.append("</table>\n");
+		
+		tempStr.append("</html>");
+		return tempStr.toString();
+	}
+
 
 	private String createHtmlReportContent(LeadStatistictsRes leadStatistictsRes) {
 		StringBuilder tempStr = new StringBuilder();
 		tempStr.append("<html>\n");
-		//tempStr.append("<head><style>table, th, td {border: 1px solid black;}</style></head>");
+		// tempStr.append("<head><style>table, th, td {border: 1px solid
+		// black;}</style></head>");
 		Map<String, Long> leadStatusCountMap = leadStatistictsRes.getLeadStatusCountMap();
 
 		tempStr.append("<tr>\n");

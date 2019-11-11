@@ -35,6 +35,8 @@ public interface ILeadDetailService {
 	List<LeadRes> filterLeads(FilterLeadRes filterLeadRes, Pagination pagination);
 
 	LeadStatistictsRes getLeadStatistics(FilterLeadRes filterLeadRes, Boolean sendmail, Long userId);
+	LeadStatistictsRes getLeadStatisticsButSendMail(FilterLeadRes filterLeadRes, Boolean sendmail, Long userId);
+	
 
 	ByteArrayInputStream getLeadStatisticsReport(FilterLeadRes filterLeadRes, Boolean busummary, Long userId)
 			throws IOException;

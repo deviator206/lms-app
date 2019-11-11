@@ -137,12 +137,18 @@ public class LeadDetailController {
 			@RequestParam(value = "sendmail", required = false, defaultValue = "false") Boolean sendmail,
 			@RequestParam(value = "userid", required = false) Long userId, @RequestBody FilterLeadRes filterLeadRes) {
 		Long usrId;
+		LeadStatistictsRes leadStatistictsRes = new LeadStatistictsRes();
 		if (userId != null) {
 			usrId = userId;
 		} else {
 			usrId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
 		}
-		return leadDetailService.getLeadStatistics(filterLeadRes, sendmail, usrId);
+		if(!sendmail) {
+			leadStatistictsRes =  leadDetailService.getLeadStatistics(filterLeadRes, false, usrId);
+		} else {
+			leadStatistictsRes =  leadDetailService.getLeadStatisticsButSendMail(filterLeadRes, sendmail, usrId);
+		}
+		return leadStatistictsRes;
 	}
 
 	// @PostMapping(value = "/report/lead", produces = "application/vnd.ms-excel")
