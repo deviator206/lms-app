@@ -101,11 +101,20 @@ public class LeadDAOImpl implements ILeadDAO {
 		return affectedRows == 0 ? false : true;
 	}
 
-	@Override
-	public boolean updateLead(LeadEntity leadEntity) {
+	// original method
+	public boolean updateLead1(LeadEntity leadEntity) {
 		String sql = "UPDATE LEADS SET BUDGET = ?, CURRENCY = ?, SALES_REP = ?, STATUS = ?, MESSAGE = ?, UPDATE_DATE = ?,UPDATOR_ID = ? WHERE ID = ?;";
 		int affectedRows = jdbcTemplate.update(sql, leadEntity.getBudget(), leadEntity.getCurrency(),
 				leadEntity.getSalesRep(), leadEntity.getStatus(), leadEntity.getMessage(), leadEntity.getUpdateDate(),
+				leadEntity.getUpdatorId(), leadEntity.getId());
+		return affectedRows == 0 ? false : true;
+	}
+
+	@Override
+	public boolean updateLead(LeadEntity leadEntity) {
+		String sql = "UPDATE LEADS SET BUDGET = ?, CURRENCY = ?, SALES_REP_ID = ?, STATUS = ?, MESSAGE = ?, UPDATE_DATE = ?,UPDATOR_ID = ? WHERE ID = ?;";
+		int affectedRows = jdbcTemplate.update(sql, leadEntity.getBudget(), leadEntity.getCurrency(),
+				leadEntity.getSalesRepId(), leadEntity.getStatus(), leadEntity.getMessage(), leadEntity.getUpdateDate(),
 				leadEntity.getUpdatorId(), leadEntity.getId());
 		return affectedRows == 0 ? false : true;
 	}
