@@ -5,7 +5,6 @@ import java.util.List;
 import model.NotificationDetails;
 import model.NotificationHistory;
 import model.Pagination;
-import repository.entity.NotificationDetailsEntity;
 
 public interface INotificationService {
 	NotificationDetails getNotificationDetailsById(Long userId);
@@ -33,6 +32,8 @@ public interface INotificationService {
 	public void updateNotifications(List<NotificationHistory> notificationHistories);
 
 	public void sendNotificationAfterLeadUpdate(Long updatorId, Long leadId);
+
+	public void sendCustomNotificationAfterLeadUpdate(Long updatorId, Long leadId, String customMessage);
 
 	public void sendNotificationAfterMiUpdate(Long miId, Long miUpdatorId);
 

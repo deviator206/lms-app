@@ -102,15 +102,23 @@ public class LeadDetailController {
 	@PutMapping("/lead/{id}")
 	public Long updateLead(@RequestHeader("Authorization") String autorizationHeader, @PathVariable("id") Long id,
 			@RequestBody LeadRes leadRes) {
-				System.out.println(id+" vs "+leadRes.getId());
+		System.out.println(id + " vs " + leadRes.getId());
 		if (!id.equals(leadRes.getId())) {
 			throw new RuntimeException("Bad Request. Ids in path and Resourse are not matching");
 		}
-		if (leadUpdateNotification) {
+		Long leadId = leadDetailService.updateLead(leadRes);
+		// check for message
+		System.out.println(" $$$$$$$$$$$$$$$$$ ");
+		System.out.println(leadRes.getMessage());
+		if (leadRes.getMessage() != null) {
+			System.out.println(" Sending Message "+ leadRes.getMessage());
+			Long customUserId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
+			notificationService.sendCustomNotificationAfterLeadUpdate(customUserId, id, leadRes.getMessage());
+		} else if (leadUpdateNotification) {
 			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
 			notificationService.sendNotificationAfterLeadUpdate(userId, id);
 		}
-		return leadDetailService.updateLead(leadRes);
+		return leadId;
 	}
 
 	@PostMapping("/search/leads")
@@ -129,9 +137,9 @@ public class LeadDetailController {
 			@RequestParam(value = "sendmail", required = false, defaultValue = "false") Boolean sendmail,
 			@RequestParam(value = "userid", required = false) Long userId, @RequestBody FilterLeadRes filterLeadRes) {
 		Long usrId;
-		if(userId != null) {
+		if (userId != null) {
 			usrId = userId;
-		}else {
+		} else {
 			usrId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
 		}
 		return leadDetailService.getLeadStatistics(filterLeadRes, sendmail, usrId);

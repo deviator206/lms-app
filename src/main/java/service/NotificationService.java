@@ -198,6 +198,30 @@ public class NotificationService implements INotificationService {
 	}
 
 	@Override
+	public void sendCustomNotificationAfterLeadUpdate(Long updatorId, Long leadId,  String customMessage) {
+		List<Long> userIds = new ArrayList<Long>();
+
+		// userIds.add(leadCreatorId);
+
+		List<Long> adminAndUsrBuHeadIdList = this.getAdminAndUserBuHeadIds(updatorId);
+		if (adminAndUsrBuHeadIdList != null && !adminAndUsrBuHeadIdList.isEmpty()) {
+			userIds.addAll(adminAndUsrBuHeadIdList);
+		}
+
+		// Lead BU Head
+		List<Long> leadBuHeadLst = this.getLeadBuHeadAndSalesRepUserIds(leadId);
+		if (leadBuHeadLst != null && !leadBuHeadLst.isEmpty()) {
+			userIds.addAll(leadBuHeadLst);
+		}
+
+		Set<Long> uniqueUserSet = new HashSet<Long>(userIds);
+		userIds = new ArrayList<Long>(uniqueUserSet);
+
+		addAndSendNotificationForRecipients(updatorId, userIds, LeadManagementConstants.NOTIFICATION_TYPE_LEAD_UPDATED,
+				String.format(customMessage, leadId));
+	}
+
+	@Override
 	public void sendNotificationAfterMiCreation(Long miId, Long miCreatorId) {
 		List<Long> userIds = new ArrayList<Long>();
 
