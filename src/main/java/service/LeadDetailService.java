@@ -409,7 +409,7 @@ public class LeadDetailService implements ILeadDetailService {
 		if (user != null && user.getEmail() != null) {
 			List<String> mailToLst = new ArrayList<String>();
 			mailToLst.add(user.getEmail());
-			mailService.sendMail(mailUserName, mailToLst, leadStatusReportSub, true,
+			mailService.sendMailAsyn(mailUserName, mailToLst, leadStatusReportSub, true,
 					this.createHtmlReportContent(leadStatistictsRes));
 		}
 

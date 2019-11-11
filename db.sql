@@ -32,7 +32,7 @@ CREATE TABLE `lead_contact` (
   `DESIGNATION` varchar(60) DEFAULT NULL,
   `ATTACHMENT` varchar(4000) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=160 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=160 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,7 +61,7 @@ CREATE TABLE `leads` (
   `ATTACHMENT` varchar(4000) DEFAULT NULL,
   `INDUSTRY` varchar(528) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=157 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=157 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -85,7 +85,7 @@ CREATE TABLE `mi` (
   `UPDATE_DATE` date DEFAULT NULL,
   `ATTACHMENT` varchar(4000) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -102,7 +102,7 @@ CREATE TABLE `mi_info` (
   `CREATION_DATE` date DEFAULT NULL,
   `CREATOR_ID` int(11) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -118,7 +118,7 @@ CREATE TABLE `notification` (
   `NOTIFICATION_KEY` text,
   `ENABLED` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -137,7 +137,7 @@ CREATE TABLE `notification_history` (
   `ORIGINATION_DATE` date DEFAULT NULL,
   `TYPE` varchar(512) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,7 +153,7 @@ CREATE TABLE `ref_data` (
   `TYPE` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`CODE`),
   UNIQUE KEY `CODE` (`CODE`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -180,7 +180,7 @@ CREATE TABLE `root_lead` (
   `SOURCE_INFO` text,
   `ATTACHMENT` varchar(4000) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=156 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -195,7 +195,7 @@ CREATE TABLE `user_role` (
   `USER_ID` varchar(60) NOT NULL,
   `USER_ROLE` varchar(60) NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -217,7 +217,7 @@ CREATE TABLE `users` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `USERNAME` (`USERNAME`),
   UNIQUE KEY `EMAIL` (`EMAIL`)
-) ENGINE=InnoDB AUTO_INCREMENT=1274 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1274 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -234,3 +234,29 @@ CREATE TABLE `users` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2019-11-09 22:24:07
+
+
+insert into ref_data (code, name, type) select * from REF_DATA;
+
+ drop table LEADS;
+ drop table LEAD_CONTACT;
+ drop table MI;
+ drop table MI_INFO;
+ drop table REF_DATA;
+ drop table ROOT_LEAD;
+ drop table USERS;
+ drop table USER_ROLE;
+ drop table NOTIFICATION;
+ drop table NOTIFICATION_HISTORY;
+
+ALTER TABLE leads RENAME TO LEADS;
+ALTER TABLE lead_contact RENAME TO LEAD_CONTACT;
+ALTER TABLE mi RENAME TO MI;
+ALTER TABLE mi_info RENAME TO MI_INFO;
+ALTER TABLE ref_data RENAME TO REF_DATA;
+ALTER TABLE root_lead RENAME TO ROOT_LEAD;
+ALTER TABLE users RENAME TO USERS;
+ALTER TABLE user_role RENAME TO USER_ROLE;
+ALTER TABLE notification RENAME TO NOTIFICATION;
+ALTER TABLE notification_history RENAME TO NOTIFICATION_HISTORY;
+

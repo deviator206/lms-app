@@ -43,6 +43,7 @@ public class ApplicationPropertiesProviderService implements IApplicationPropert
 		Map<String, String> policyMap = new HashMap<String, String>();
 		Map<String, String> policyAttributes = new HashMap<String, String>();
 		for (String role : roles) {
+			// System.out.println("role :: "+role);
 			policyMap = policies.get(role);
 			if (policyMap != null) {
 				for (Map.Entry<String, String> entry : policyMap.entrySet()) {

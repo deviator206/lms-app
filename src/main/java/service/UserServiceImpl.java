@@ -292,14 +292,14 @@ public class UserServiceImpl implements IUserService {
 	private void sendUserRegistrationMail(String mailFrom, String mailTo, String tempPassword) {
 		List<String> mailToLst = new ArrayList<String>();
 		mailToLst.add(mailTo);
-		mailService.sendMail(mailFrom, mailToLst, "Forgot password",false,
+		mailService.sendMailAsyn(mailFrom, mailToLst, "Forgot password",false,
 				String.format(messageUserRegistration, tempPassword, mailTo));
 	}
 
 	private void sendForgotMail(String mailFrom, String mailTo, String tempPassword) {
 		List<String> mailToLst = new ArrayList<String>();
 		mailToLst.add(mailTo);
-		mailService.sendMail(mailFrom, mailToLst, "Forgot password",false,
+		mailService.sendMailAsyn(mailFrom, mailToLst, "Forgot password",false,
 				String.format(messageForgotPassword, tempPassword, mailTo));
 	}
 
