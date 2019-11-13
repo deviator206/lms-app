@@ -112,10 +112,64 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	@Override
 	public boolean updateLead(LeadEntity leadEntity) {
-		String sql = "UPDATE LEADS SET BUDGET = ?, CURRENCY = ?, SALES_REP_ID = ?, STATUS = ?, MESSAGE = ?, UPDATE_DATE = ?,UPDATOR_ID = ? WHERE ID = ?;";
+		// String sql = "UPDATE LEADS SET BUDGET = ?, CURRENCY = ?, SALES_REP_ID = ?, STATUS = ?, MESSAGE = ?, UPDATE_DATE = ?,UPDATOR_ID = ? WHERE ID = ?;";
+		String sqlStart = "UPDATE LEADS SET ";
+		String setStatement = "";
+		if( leadEntity.getBudget()  != null) {
+			setStatement += " BUDGET = "+leadEntity.getBudget();
+		}
+
+		if( leadEntity.getCurrency()  != null) {
+			if(!setStatement.isEmpty() ) {
+				setStatement += ",";
+			}
+			setStatement += " CURRENCY = '"+ leadEntity.getCurrency() +"'" ;
+		}
+
+		if( leadEntity.getSalesRepId()  != null) {
+			if(!setStatement.isEmpty() ) {
+				setStatement += ",";
+			}
+			setStatement += " SALES_REP_ID = "+leadEntity.getSalesRepId() ;
+		}
+
+		if( leadEntity.getStatus()  != null) {
+			if(!setStatement.isEmpty() ) {
+				setStatement += ",";
+			}
+			setStatement += " STATUS = '"+leadEntity.getStatus()+"'";
+		}
+
+		if( leadEntity.getMessage()  != null) {
+			if(!setStatement.isEmpty() ) {
+				setStatement += ",";
+			}
+			setStatement += " MESSAGE = '"+leadEntity.getMessage()+"'";
+		}
+		//
+		if( leadEntity.getUpdateDate()  != null) {
+			if(!setStatement.isEmpty() ) {
+				setStatement += ",";
+			}
+			setStatement += " UPDATE_DATE = "+leadEntity.getUpdateDate();
+		}
+
+		if( leadEntity.getUpdatorId()  != null) {
+			if(!setStatement.isEmpty() ) {
+				setStatement += ",";
+			}
+			setStatement += " UPDATOR_ID = "+leadEntity.getUpdatorId();
+		}
+		if( leadEntity.getId()  != null) {
+			sqlStart += setStatement + " WHERE ID = "+leadEntity.getId()+";";
+		}
+		
+		/*
 		int affectedRows = jdbcTemplate.update(sql, leadEntity.getBudget(), leadEntity.getCurrency(),
 				leadEntity.getSalesRepId(), leadEntity.getStatus(), leadEntity.getMessage(), leadEntity.getUpdateDate(),
 				leadEntity.getUpdatorId(), leadEntity.getId());
+				*/
+		int affectedRows =  jdbcTemplate.update(sqlStart);
 		return affectedRows == 0 ? false : true;
 	}
 
