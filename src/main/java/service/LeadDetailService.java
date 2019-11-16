@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -419,7 +420,7 @@ public class LeadDetailService implements ILeadDetailService {
 		if (user != null && user.getEmail() != null) {
 			List<String> mailToLst = new ArrayList<String>();
 			mailToLst.add(user.getEmail());
-			mailService.sendMailAsyn(mailUserName, mailToLst, leadStatusReportSub, true,
+			mailService.sendMailWithAttachmentAsyn(mailUserName, mailToLst, leadStatusReportSub,"ATTACHMENT",
 					this.createHtmlReportContentOptional(leadEntityList));
 		}
 
@@ -437,62 +438,16 @@ public class LeadDetailService implements ILeadDetailService {
 
 	}
 	
-	private String createHtmlReportContentOptional(List<LeadEntity> leadEntityList) {
-		StringBuilder tempStr = new StringBuilder();
-		tempStr.append("<html>\n");
-		// tempStr.append("<head><style>table, th, td {border: 1px solid
-		// black;}</style></head>");
-		tempStr.append("<table>\n");
-		tempStr.append("<tr>\n");
-		tempStr.append("<th>");
-		tempStr.append("Lead Id");
-		tempStr.append("</th>\n");
-		tempStr.append("<th>");
-		tempStr.append("Customer Name");
-		tempStr.append("</th>\n");
-		tempStr.append("<th>");
-		tempStr.append("Requirement");
-		tempStr.append("</th>\n");
-		tempStr.append("<th>");
-		tempStr.append("Contact Name");
-		tempStr.append("</th>\n");
-		tempStr.append("<th>");
-		tempStr.append("Contact Email");
-		tempStr.append("</th>\n");
-		tempStr.append("<th>");
-		tempStr.append("Contact Phone");
-		tempStr.append("</th>\n");
-		tempStr.append("</tr>\n");
-		
-
+	private HashMap<String, String> createHtmlReportContentOptional(List<LeadEntity> leadEntityList) {
+		HashMap<String, String> map  = new HashMap<>(); 
+		map.put("col", "Lead Id, Customer Name,Requirement,Contact Name, Contact Email,Contact Phone, BU");
+		int rowCount = 1;
 		for (LeadEntity leadEntity : leadEntityList) {
 			LeadRes leadRes = prepareLeadRes(leadEntity);
-			tempStr.append("<tr>\n");
-				tempStr.append("<td>");
-				tempStr.append(leadRes.getId());
-				tempStr.append("</td>\n");
-				tempStr.append("<td>");
-				tempStr.append(leadRes.getCustName());
-				tempStr.append("</td>\n");
-				tempStr.append("<td>");
-				tempStr.append(leadRes.getDescription());
-				tempStr.append("</td>\n");
-				tempStr.append("<td>");
-				tempStr.append(leadRes.getLeadContact().getName());
-				tempStr.append("</td>\n");
-				tempStr.append("<td>");
-				tempStr.append(leadRes.getLeadContact().getEmail());
-				tempStr.append("</td>\n");
-				tempStr.append("<td>");
-				tempStr.append(leadRes.getLeadContact().getPhoneNumber());
-				tempStr.append("</td>\n");
-				tempStr.append("</tr>\n");
-			
+			map.put("val_"+rowCount, ""+leadRes.getId()+", "+leadRes.getCustName()+","+leadRes.getDescription()+","+leadRes.getLeadContact().getName()+", "+leadRes.getLeadContact().getEmail()+","+leadRes.getLeadContact().getPhoneNumber()+","+leadRes.getLeadsSummaryRes().getBusinessUnits().get(0));
+			rowCount++;
 		}
-		tempStr.append("</table>\n");
-		
-		tempStr.append("</html>");
-		return tempStr.toString();
+		return map;
 	}
 
 
