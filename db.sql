@@ -235,28 +235,3 @@ CREATE TABLE `users` (
 
 -- Dump completed on 2019-11-09 22:24:07
 
-
-insert into ref_data (code, name, type) select * from REF_DATA;
-
- drop table LEADS;
- drop table LEAD_CONTACT;
- drop table MI;
- drop table MI_INFO;
- drop table REF_DATA;
- drop table ROOT_LEAD;
- drop table USERS;
- drop table USER_ROLE;
- drop table NOTIFICATION;
- drop table NOTIFICATION_HISTORY;
-
-ALTER TABLE leads RENAME TO LEADS;
-ALTER TABLE lead_contact RENAME TO LEAD_CONTACT;
-ALTER TABLE mi RENAME TO MI;
-ALTER TABLE mi_info RENAME TO MI_INFO;
-ALTER TABLE ref_data RENAME TO REF_DATA;
-ALTER TABLE root_lead RENAME TO ROOT_LEAD;
-ALTER TABLE users RENAME TO USERS;
-ALTER TABLE user_role RENAME TO USER_ROLE;
-ALTER TABLE notification RENAME TO NOTIFICATION;
-ALTER TABLE notification_history RENAME TO NOTIFICATION_HISTORY;
-
