@@ -1,0 +1,26 @@
+{
+	"policies": {
+		"ADMIN": {
+			"userList": "SHOW",
+			"salesRepList": "DISABLE"
+		},
+		"SALES_REP": {
+			"userList": "HIDE"
+		},
+		"BU_HEAD":{
+			"userList":"HIDE"
+		  }
+	},
+	"policyActions": {
+	  "ADMIN":{
+         "userList":"SHOW",
+         "salesRepList" : "DISABLE"
+      },
+      "SALES_REP":{
+         "userList":"HIDE"
+      },
+	  "BU_HEAD":{
+	    "userList":"HIDE"
+	  }
+	}
+}
