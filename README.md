@@ -28,7 +28,7 @@ ALTER TABLE notification RENAME TO NOTIFICATION;
 ALTER TABLE notification_history RENAME TO NOTIFICATION_HISTORY;
 
 
-
+test
 
 Create database in MySQL -
 CREATE DATABASE leadManagement;
