@@ -33,7 +33,7 @@ public class FileController {
 
 	// Single file upload
 	@PostMapping("/file/upload")
-	public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile uploadfile) {
+	public ResponseEntity uploadFile(@RequestParam("file") MultipartFile uploadfile) {
 
 		if (uploadfile.isEmpty()) {
 			return new ResponseEntity("You must select a file!", HttpStatus.OK);

@@ -32,6 +32,7 @@ public class SQLInjectionSafeConstraintValidator implements ConstraintValidator<
 
 	@Override
 	public void initialize(SQLInjectionSafe sqlInjectionSafe) {
+		// Left for Future Implementation
 	}
 
 	@Override

@@ -20,6 +20,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -30,14 +32,35 @@ import util.ExcelCreator;
 @Service
 @Scope("prototype")
 public class MailService implements IMailService {
+	private static final String MESSAGE_EMAIL_SENDING_ERROR = "EMAIL SENDING ERROR";
 
-	public static int noOfQuickServiceThreads = 20;
+	private static final String MAIL_SMTP_SSL_CHECKSERVERIDENTITY = "mail.smtp.ssl.checkserveridentity";
+
+	private static final String REPORTS_XLS = "reports.xls";
+
+	private static final String TEXT_HTML = "text/html";
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	private static final String JAVAX_NET_SSL_SSL_SOCKET_FACTORY = "javax.net.ssl.SSLSocketFactory";
+
+	private static final String MAIL_SMTP_SOCKET_FACTORY_CLASS = "mail.smtp.socketFactory.class";
+
+	private static final String MAIL_SMTP_SOCKET_FACTORY_PORT = "mail.smtp.socketFactory.port";
+
+	private static final String MAIL_SMTP_AUTH = "mail.smtp.auth";
+
+	private static final String MAIL_SMTP_PORT = "mail.smtp.port";
+
+	private static final String MAIL_SMTP_HOST = "mail.smtp.host";
+
+	private static final int NO_OF_QUICK_SERVICE_THREADS = 20;
 
 	/**
 	 * this statement create a thread pool of twenty threads here we are assigning
 	 * send mail task using ScheduledExecutorService.submit();
 	 */
-	private ScheduledExecutorService quickService = Executors.newScheduledThreadPool(noOfQuickServiceThreads);
+	private ScheduledExecutorService quickService = Executors.newScheduledThreadPool(NO_OF_QUICK_SERVICE_THREADS);
 
 	@Value("${app.mail.userName}")
 	private String mailUserName;
@@ -60,18 +83,19 @@ public class MailService implements IMailService {
 	@Override
 	public void sendMail(String mailFrom, List<String> mailTo, String subject, boolean htmlContent, String body) {
 		final String username = this.mailUserName;
-		final String password = utilityService.decrypt(this.password);
+		final String passwd = utilityService.decrypt(this.password);
 
 		Properties prop = new Properties();
-		prop.put("mail.smtp.host", smtpHost);
-		prop.put("mail.smtp.port", smtpPort);
-		prop.put("mail.smtp.auth", smtpAuth);
-		prop.put("mail.smtp.socketFactory.port", smtpPort);
-		prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+		prop.put(MAIL_SMTP_HOST, smtpHost);
+		prop.put(MAIL_SMTP_PORT, smtpPort);
+		prop.put(MAIL_SMTP_AUTH, smtpAuth);
+		prop.put(MAIL_SMTP_SOCKET_FACTORY_PORT, smtpPort);
+		prop.put(MAIL_SMTP_SOCKET_FACTORY_CLASS, JAVAX_NET_SSL_SSL_SOCKET_FACTORY);
+		prop.put(MAIL_SMTP_SSL_CHECKSERVERIDENTITY, true); // Compliant
 
 		Session session = Session.getInstance(prop, new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
-				return new PasswordAuthentication(username, password);
+				return new PasswordAuthentication(username, passwd);
 			}
 		});
 
@@ -87,7 +111,7 @@ public class MailService implements IMailService {
 			message.setSubject(subject);
 
 			if (htmlContent) {
-				message.setContent(body, "text/html");
+				message.setContent(body, TEXT_HTML);
 			} else {
 				message.setText(body);
 			}
@@ -105,11 +129,12 @@ public class MailService implements IMailService {
 		final String password = utilityService.decrypt(this.password);
 
 		Properties prop = new Properties();
-		prop.put("mail.smtp.host", smtpHost);
-		prop.put("mail.smtp.port", smtpPort);
-		prop.put("mail.smtp.auth", smtpAuth);
-		prop.put("mail.smtp.socketFactory.port", smtpPort);
-		prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+		prop.put(MAIL_SMTP_HOST, smtpHost);
+		prop.put(MAIL_SMTP_PORT, smtpPort);
+		prop.put(MAIL_SMTP_AUTH, smtpAuth);
+		prop.put(MAIL_SMTP_SOCKET_FACTORY_PORT, smtpPort);
+		prop.put(MAIL_SMTP_SOCKET_FACTORY_CLASS, JAVAX_NET_SSL_SSL_SOCKET_FACTORY);
+		prop.put(MAIL_SMTP_SSL_CHECKSERVERIDENTITY, true); // Compliant
 
 		Session session = Session.getInstance(prop, new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
@@ -129,7 +154,7 @@ public class MailService implements IMailService {
 			message.setSubject(subject);
 
 			if (htmlContent) {
-				message.setContent(body, "text/html");
+				message.setContent(body, TEXT_HTML);
 			} else {
 				message.setText(body);
 			}
@@ -140,7 +165,7 @@ public class MailService implements IMailService {
 					try {
 						Transport.send(message);
 					} catch (Exception e) {
-						System.out.println("EMAIL SENDING ERROR:: " + e.getMessage());
+						logger.error(MESSAGE_EMAIL_SENDING_ERROR, e.getMessage());
 						// ("Exception occur while send a mail : ",e);
 					}
 				}
@@ -153,16 +178,18 @@ public class MailService implements IMailService {
 	}
 
 	@Override
-	public void sendMailWithAttachmentAsyn(String mailFrom, List<String> mailTo, String subject, String contentType,  HashMap<String, String>  body) {
+	public void sendMailWithAttachmentAsyn(String mailFrom, List<String> mailTo, String subject, String contentType,
+			HashMap<String, String> body) {
 		final String username = this.mailUserName;
 		final String password = utilityService.decrypt(this.password);
 
 		Properties prop = new Properties();
-		prop.put("mail.smtp.host", smtpHost);
-		prop.put("mail.smtp.port", smtpPort);
-		prop.put("mail.smtp.auth", smtpAuth);
-		prop.put("mail.smtp.socketFactory.port", smtpPort);
-		prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+		prop.put(MAIL_SMTP_HOST, smtpHost);
+		prop.put(MAIL_SMTP_PORT, smtpPort);
+		prop.put(MAIL_SMTP_AUTH, smtpAuth);
+		prop.put(MAIL_SMTP_SOCKET_FACTORY_PORT, smtpPort);
+		prop.put(MAIL_SMTP_SOCKET_FACTORY_CLASS, JAVAX_NET_SSL_SSL_SOCKET_FACTORY);
+		prop.put(MAIL_SMTP_SSL_CHECKSERVERIDENTITY, true); // Compliant
 
 		Session session = Session.getInstance(prop, new javax.mail.Authenticator() {
 			protected PasswordAuthentication getPasswordAuthentication() {
@@ -180,48 +207,46 @@ public class MailService implements IMailService {
 
 			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(String.join(",", mailTo)));
 			message.setSubject(subject);
-			System.out.println("contentType :::::::::::::::::::::: "+contentType);
-			switch(contentType) {
-				
-				case "ATTACHMENT":
+			System.out.println("contentType :::::::::::::::::::::: " + contentType);
+			switch (contentType) {
+
+			case "ATTACHMENT":
 				// Create the message part
 				BodyPart messageBodyPart = new MimeBodyPart();
 
 				// Now set the actual message
 				messageBodyPart.setText(subject);
-				 // Create a multipar message
-				 Multipart multipart = new MimeMultipart();
-				 // Set text message part
-				 multipart.addBodyPart(messageBodyPart);
+				// Create a multipar message
+				Multipart multipart = new MimeMultipart();
+				// Set text message part
+				multipart.addBodyPart(messageBodyPart);
 
-				 // Part two is attachment
-				 messageBodyPart = new MimeBodyPart();
-				 DataSource source = ExcelCreator.getExcel(body);
-				 messageBodyPart.setDataHandler(new DataHandler(source));
-				 messageBodyPart.setFileName("reports.xls");
-				 multipart.addBodyPart(messageBodyPart);
+				// Part two is attachment
+				messageBodyPart = new MimeBodyPart();
+				DataSource source = ExcelCreator.getExcel(body);
+				messageBodyPart.setDataHandler(new DataHandler(source));
+				messageBodyPart.setFileName(REPORTS_XLS);
+				multipart.addBodyPart(messageBodyPart);
 
-				 // Send the complete message parts
-				 message.setContent(multipart, "text/html");
-				 break;
+				// Send the complete message parts
+				message.setContent(multipart, TEXT_HTML);
+				break;
 
-				default:
+			default:
 				break;
 			}
-			
 
 			quickService.submit(new Runnable() {
 				@Override
 				public void run() {
-					try{
+					try {
 						Transport.send(message);
-					}catch(Exception e){
-						System.out.println("EMAIL SENDING ERROR:: "+e.getMessage());
-						//("Exception occur while send a mail : ",e);
+					} catch (Exception e) {
+						logger.error(MESSAGE_EMAIL_SENDING_ERROR, e.getMessage());
+						// ("Exception occur while send a mail : ",e);
 					}
 				}
 			});
-		
 
 		} catch (MessagingException e) {
 			e.printStackTrace();

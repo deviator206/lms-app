@@ -6,4 +6,6 @@ public interface IUtilityService {
 
 	String decrypt(String encryptedStr);
 
+	void generateAndStoreFile();
+
 }

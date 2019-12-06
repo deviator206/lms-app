@@ -181,7 +181,7 @@ public class LeadDetailController {
 	 */
 
 	@PostMapping("/lead/attachment/upload")
-	public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile uploadfile,
+	public ResponseEntity uploadFile(@RequestParam("file") MultipartFile uploadfile,
 			@RequestParam(value = "userid", required = true) Long userId,
 			@RequestParam(value = "leadid", required = true) List<Long> leadid) throws IOException {
 		if (uploadfile.isEmpty()) {
@@ -196,7 +196,7 @@ public class LeadDetailController {
 	}
 
 	@PostMapping("/lead/contact/upload")
-	public ResponseEntity<?> uploadContactAttachment(@RequestParam("file") MultipartFile uploadfile,
+	public ResponseEntity uploadContactAttachment(@RequestParam("file") MultipartFile uploadfile,
 			@RequestParam(value = "rootleadid", required = true) Long rootLeadId) throws IOException {
 		if (uploadfile.isEmpty()) {
 			return new ResponseEntity("You must select a file!", HttpStatus.OK);

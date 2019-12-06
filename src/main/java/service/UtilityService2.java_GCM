@@ -1,0 +1,90 @@
+package service;
+
+import java.security.SecureRandom;
+import java.util.Base64;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+
+@Service
+@Scope("prototype")
+public class UtilityService implements IUtilityService {
+	static String plainText = "This is a plain text which need to be encrypted by Java AES 256 GCM Encryption Algorithm";
+	public static final int AES_KEY_SIZE = 256;
+	public static final int GCM_IV_LENGTH = 12;
+	public static final int GCM_TAG_LENGTH = 16;
+
+	public String encrypt(String plaintext) {
+		String cipherText = null;
+		try {
+			KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+			keyGenerator.init(AES_KEY_SIZE);
+
+			// Generate Key
+			SecretKey key = keyGenerator.generateKey();
+			byte[] IV = new byte[GCM_IV_LENGTH];
+			SecureRandom random = new SecureRandom();
+			random.nextBytes(IV);
+
+			byte[] plaintextBytes = plainText.getBytes();
+
+			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+
+			// Create SecretKeySpec
+			SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+
+			// Create GCMParameterSpec
+			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, IV);
+
+			// Initialize Cipher for ENCRYPT_MODE
+			cipher.init(Cipher.ENCRYPT_MODE, keySpec, gcmParameterSpec);
+
+			// Perform Encryption
+			byte[] tempByteArr = cipher.doFinal(plaintextBytes);
+			cipherText = Base64.getEncoder().encodeToString(tempByteArr);
+		} catch (Exception ex) {
+			System.out.println(ex);
+		}
+
+		return cipherText;
+	}
+
+	public String decrypt(String cipherText) {
+		String decryptedText = null;
+		try {
+			byte[] cipherTextBytes = Base64.getDecoder().decode(cipherText);
+			KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+			keyGenerator.init(AES_KEY_SIZE);
+
+			// Generate Key
+			SecretKey key = keyGenerator.generateKey();
+			byte[] IV = new byte[GCM_IV_LENGTH];
+			SecureRandom random = new SecureRandom();
+			random.nextBytes(IV);
+
+			Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
+
+			// Create SecretKeySpec
+			SecretKeySpec keySpec = new SecretKeySpec(key.getEncoded(), "AES");
+
+			// Create GCMParameterSpec
+			GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, IV);
+
+			// Initialize Cipher for DECRYPT_MODE
+			cipher.init(Cipher.DECRYPT_MODE, keySpec, gcmParameterSpec);
+
+			// Perform Decryption
+			decryptedText = new String(cipher.doFinal(cipherTextBytes));
+		} catch (Exception ex) {
+			System.out.println(ex);
+		}
+
+		return decryptedText;
+	}
+}

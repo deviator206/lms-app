@@ -51,13 +51,13 @@ public class MarketIntelligenceController {
 
 	@Autowired
 	IFileStorageService fileStorageService;
-	
+
 	@Value("${app.pushNotification.mi.create}")
 	private Boolean miCreateNotification;
-	
+
 	@Value("${app.pushNotification.mi.update}")
 	private Boolean miUpdateNotification;
-	
+
 	@Value("${app.pushNotification.mi-lead.create}")
 	private Boolean miToLeadCreateNotification;
 
@@ -96,10 +96,11 @@ public class MarketIntelligenceController {
 
 		if (marketIntelligenceRes.getRootLeadId() != null && miToLeadCreateNotification) {
 			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
-			notificationService.sendNotificationAfterMiToLeadCreation(id,userId, marketIntelligenceRes.getRootLeadId());
-		}else if(miUpdateNotification){
+			notificationService.sendNotificationAfterMiToLeadCreation(id, userId,
+					marketIntelligenceRes.getRootLeadId());
+		} else if (miUpdateNotification) {
 			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
-			notificationService.sendNotificationAfterMiUpdate(id,userId);
+			notificationService.sendNotificationAfterMiUpdate(id, userId);
 		}
 
 		return miId;
@@ -108,13 +109,13 @@ public class MarketIntelligenceController {
 	@PostMapping("/marketIntelligence")
 	public Long addMarketIntelligence(@RequestHeader("Authorization") String autorizationHeader,
 			@RequestBody MarketIntelligenceReq marketIntelligenceReq) {
-		
+
 		Long createdMiId = marketIntelligenceService.addMarketIntelligence(marketIntelligenceReq);
 		if (createdMiId != null && miCreateNotification) {
 			Long userId = jwtTokenReader.getUserIdFromAuthHeader(autorizationHeader);
 			notificationService.sendNotificationAfterMiCreation(createdMiId, userId);
 		}
-		
+
 		return createdMiId;
 	}
 
@@ -131,7 +132,7 @@ public class MarketIntelligenceController {
 	}
 
 	@PostMapping("/marketIntelligence/attachment/upload")
-	public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile uploadfile,
+	public ResponseEntity uploadFile(@RequestParam("file") MultipartFile uploadfile,
 			@RequestParam(value = "userid", required = true) Long userId,
 			@RequestParam(value = "id", required = true) Long id) {// TODO change id to miid
 		if (uploadfile.isEmpty()) {

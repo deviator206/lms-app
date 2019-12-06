@@ -24,6 +24,7 @@ import security.SqlSafeUtil;
 @Repository
 @Scope("prototype")
 public class UserDAOImpl implements IUserDAO {
+	private static final String SQL_INJECTION_ERROR = "SQL Injection Error";
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
@@ -57,7 +58,7 @@ public class UserDAOImpl implements IUserDAO {
 	public UserEntity getUserByUserName(String userName) {
 
 		if (!SqlSafeUtil.isSqlInjectionSafe(userName)) {
-			throw new RuntimeException("SQL Injection Error");
+			throw new RuntimeException(SQL_INJECTION_ERROR);
 		}
 
 		String sql = "SELECT ID, USERNAME,PASSWORD, EMAIL, ENABLED, DELETED, USER_DISPLAY_NAME, BU FROM USERS WHERE USERNAME = ?";
@@ -109,11 +110,11 @@ public class UserDAOImpl implements IUserDAO {
 	public List<UserEntity> getUserDetailsByBuAndRole(String businessUnit, String role) {
 
 		if (!SqlSafeUtil.isSqlInjectionSafe(businessUnit)) {
-			throw new RuntimeException("SQL Injection Error");
+			throw new RuntimeException(SQL_INJECTION_ERROR);
 		}
 
 		if (!SqlSafeUtil.isSqlInjectionSafe(role)) {
-			throw new RuntimeException("SQL Injection Error");
+			throw new RuntimeException(SQL_INJECTION_ERROR);
 		}
 
 		String sql = "SELECT USERS.ID, USERS.USERNAME, USERS.EMAIL, USERS.ENABLED, USERS.DELETED, USERS.USER_DISPLAY_NAME, USERS.BU FROM USERS, USER_ROLE WHERE USERS.BU = ? AND USER_ROLE.USER_ROLE = ? AND USERS.ID = USER_ROLE.USER_ID";
@@ -125,7 +126,7 @@ public class UserDAOImpl implements IUserDAO {
 	public List<UserEntity> getUserDetailsByBu(String businessUnit) {
 
 		if (!SqlSafeUtil.isSqlInjectionSafe(businessUnit)) {
-			throw new RuntimeException("SQL Injection Error");
+			throw new RuntimeException(SQL_INJECTION_ERROR);
 		}
 
 		String sql = "SELECT USERS.ID, USERS.USERNAME, USERS.EMAIL, USERS.ENABLED, USERS.DELETED, USERS.USER_DISPLAY_NAME, USERS.BU FROM USERS, USER_ROLE WHERE USERS.BU = ? AND USERS.ID = USER_ROLE.USER_ID";
@@ -137,7 +138,7 @@ public class UserDAOImpl implements IUserDAO {
 	public List<UserEntity> filterUsers(FilterUserRes filterUserRes) {
 
 		if (!filterUserRes.isSqlInjectionSafe()) {
-			throw new RuntimeException("SQL Injection Error");
+			throw new RuntimeException(SQL_INJECTION_ERROR);
 		}
 
 		String query = "SELECT ID, USERNAME, EMAIL, ENABLED, DELETED, USER_DISPLAY_NAME, BU FROM USERS WHERE 1 = 1";

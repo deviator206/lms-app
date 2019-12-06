@@ -1,5 +1,7 @@
 package util;
 
+import java.security.SecureRandom;
+
 // Java code to explain how to generate random 
 // password 
 
@@ -26,15 +28,15 @@ public class PasswordGenerationUtil {
 		// A strong password has Cap_chars, Lower_chars,
 		// numeric value and symbols. So we are using all of
 		// them to generate our password
-		String Capital_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		String Small_chars = "abcdefghijklmnopqrstuvwxyz";
+		String capitalChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+		String smallChars = "abcdefghijklmnopqrstuvwxyz";
 		String numbers = "0123456789";
 		String symbols = "!@#$%^&*_=+-/.?<>)";
 
-		String values = Capital_chars + Small_chars + numbers + symbols;
+		String values = capitalChars + smallChars + numbers + symbols;
 
 		// Using random method
-		Random rndm_method = new Random();
+		Random rndm_method = new SecureRandom();
 
 		char[] password = new char[PASSWORD_LENGTH];
 

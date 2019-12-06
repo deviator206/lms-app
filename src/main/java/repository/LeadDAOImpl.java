@@ -29,6 +29,9 @@ import security.SqlSafeUtil;
 @Repository
 @Scope("prototype")
 public class LeadDAOImpl implements ILeadDAO {
+	private static final String QUERY_FRAGMENT_AND_SALES_REP_ID = " AND SALES_REP_ID = ";
+	private static final String SQL_INJECTION_ERROR = "SQL Injection Error";
+	private static final String ROW_STATUS = "STATUS";
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 
@@ -178,16 +181,16 @@ public class LeadDAOImpl implements ILeadDAO {
 		String sql = "SELECT ID, BU,INDUSTRY, SALES_REP_ID,STATUS,ROOT_ID,DELETED,CREATION_DATE,CREATOR_ID,UPDATE_DATE,UPDATOR_ID,BUDGET,CURRENCY,MESSAGE,ATTACHMENT FROM LEADS WHERE 1 = 1";
 
 		if (!SqlSafeUtil.isSqlInjectionSafe(leadtype)) {
-			throw new RuntimeException("SQL Injection Error");
+			throw new RuntimeException(SQL_INJECTION_ERROR);
 		}
 
 		if (userId != null) {
 			if (LeadManagementConstants.LEAD_TYPE_ASSIGNED.equalsIgnoreCase(leadtype)) {
-				sql = sql + " AND SALES_REP_ID = " + userId;
+				sql = sql + QUERY_FRAGMENT_AND_SALES_REP_ID + userId;
 			} else if (LeadManagementConstants.LEAD_TYPE_GENERATED.equalsIgnoreCase(leadtype)) {
 				sql = sql + " AND CREATOR_ID = " + userId;
 			} else if (LeadManagementConstants.LEAD_TYPE_BOTH.equalsIgnoreCase(leadtype)) {
-				sql = sql + " AND CREATOR_ID = " + userId + " AND SALES_REP_ID = " + userId;
+				sql = sql + " AND CREATOR_ID = " + userId + QUERY_FRAGMENT_AND_SALES_REP_ID + userId;
 			}
 		}
 
@@ -204,7 +207,7 @@ public class LeadDAOImpl implements ILeadDAO {
 	@Override
 	public List<LeadEntity> searchLeads(String name, String description) {
 		if (!SqlSafeUtil.isSqlInjectionSafe(description)) {
-			throw new RuntimeException("SQL Injection Error");
+			throw new RuntimeException(SQL_INJECTION_ERROR);
 		}
 
 		RowMapper<LeadEntity> rowMapper = new LeadRowMapper();
@@ -222,7 +225,7 @@ public class LeadDAOImpl implements ILeadDAO {
 
 	private void checkSqlInjectionSafety(FilterLeadRes filterLeadRes) {
 		if (!filterLeadRes.isSqlInjectionSafe()) {
-			throw new RuntimeException("SQL Injection Error");
+			throw new RuntimeException(SQL_INJECTION_ERROR);
 		}
 	}
 
@@ -269,7 +272,7 @@ public class LeadDAOImpl implements ILeadDAO {
 		}
 
 		if (filterLeadRes.getSalesRepId() != null) {
-			query = query + " AND SALES_REP_ID = " + filterLeadRes.getSalesRepId();
+			query = query + QUERY_FRAGMENT_AND_SALES_REP_ID + filterLeadRes.getSalesRepId();
 		}
 
 		// if (filterLeadRes.getSalesRep() != null &&
@@ -336,7 +339,7 @@ public class LeadDAOImpl implements ILeadDAO {
 		}
 
 		if (filterLeadRes.getSalesRepId() != null) {
-			query = query + " AND SALES_REP_ID = " + filterLeadRes.getSalesRepId();
+			query = query + QUERY_FRAGMENT_AND_SALES_REP_ID + filterLeadRes.getSalesRepId();
 		}
 
 		if (filterLeadRes.getSalesRep() != null && !filterLeadRes.getSalesRep().isEmpty()) {
@@ -380,12 +383,12 @@ public class LeadDAOImpl implements ILeadDAO {
 		LeadStatistictsRes leadStatistictsRes = new LeadStatistictsRes();
 		for (Map statusCountRow : statusCountRows) {
 			Long temlCount = new Long(0);
-			if (statusCountRow.get("STATUS") != null) {
-				if (leadStatusCountMap.get((String) statusCountRow.get("STATUS")) != null) {
-					temlCount = leadStatusCountMap.get((String) statusCountRow.get("STATUS")) + 1;
-					leadStatusCountMap.put((String) statusCountRow.get("STATUS"), temlCount);
+			if (statusCountRow.get(ROW_STATUS) != null) {
+				if (leadStatusCountMap.get((String) statusCountRow.get(ROW_STATUS)) != null) {
+					temlCount = leadStatusCountMap.get((String) statusCountRow.get(ROW_STATUS)) + 1;
+					leadStatusCountMap.put((String) statusCountRow.get(ROW_STATUS), temlCount);
 				} else {
-					leadStatusCountMap.put((String) statusCountRow.get("STATUS"), new Long(1));
+					leadStatusCountMap.put((String) statusCountRow.get(ROW_STATUS), new Long(1));
 				}
 			}
 		}
