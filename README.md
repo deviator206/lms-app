@@ -477,7 +477,14 @@ Authorization - Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIxMTEzIiwiaWF0IjoxNTcwMzk1
 ---------------------- To send Lead Status Report on Mail ----------
 http://localhost:8080/statistics/lead?sendmail=true
 ---------------------------------------------------------------------
+-----------------------------------------------------------------
+********************************* Security Encryption Fix *********************************************
+Create a folder on server too keep key file.
 
+Update Location of security.encrypt-decrypt.kestore-dir=C:/lmsKeyStore/ to that folder.
+
+Copy key.sec to that folder
+.......................................................................
 
 
 
